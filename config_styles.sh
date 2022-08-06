@@ -403,11 +403,11 @@ echo "Fuente: https://github.com/sharkdp/bat/releases"
 
 if ! command -v bat &> /dev/null; then
 
-  curl -L --output "bat_0.20.0_amd64.deb" https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_amd64.deb
+  curl -L --output "bat_0.21.0_amd64.deb" https://github.com/sharkdp/bat/releases/download/v0.21.0/bat_0.21.0_amd64.deb
   # Esperando hasta que se descarguen todos los archivos
   wait -n 
 
-  sudo dpkg -i bat_0.20.0_amd64.deb
+  sudo dpkg -i bat_0.21.0_amd64.deb
 
 fi
 
