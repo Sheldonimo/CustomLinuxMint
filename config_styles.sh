@@ -199,9 +199,9 @@ gsettings set org.cinnamon.desktop.interface font-name 'Roboto 10'
 gsettings set org.nemo.desktop font 'Roboto 10'
 gsettings set org.gnome.desktop.interface document-font-name 'Roboto 10'
 gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Roboto Bold 11'
-gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font 12'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font Mono Regular 12'
 gsettings set org.x.viewer.plugins.pythonconsole use-system-font false
-gsettings set org.x.viewer.plugins.pythonconsole font 'Hack Nerd Font 9'
+gsettings set org.x.viewer.plugins.pythonconsole font 'Hack Nerd Font Mono Regular 9'
 
 # Cambiando el Icono del Menu
 
