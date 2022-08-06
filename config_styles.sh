@@ -34,7 +34,7 @@ echo "Source: https://www.gnome-look.org/p/1294920"
 
 if [ ! -d "$src_config/mint-galaxy" ]; then
     echo "Mint Galaxy : Se descarga el archivo de mint-galaxy" | tee -a $src_config/${0##*/}.log
-    curl -L --output "$src_config/mint-galaxy.zip" https://firebasestorage.googleapis.com/v0/b/personalizalinux.appspot.com/o/mint-galaxy.zip?alt=media&token=d71f9696-1469-4db0-a980-f10d34f7087e 
+    curl -L --output "$src_config/mint-galaxy.zip" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/mint-galaxy.zip
 
     # Esperando hasta que se descarguen todos los archivos
     wait -n
@@ -48,7 +48,7 @@ echo "Source: https://www.pling.com/p/1279924/"
 
 if [ ! -d "$src_config/Tela-green" ]; then
     echo "Tela-green : Se descarga el paquete iconos" | tee -a $src_config/${0##*/}.log
-    curl -L --output "$src_config/Tela-green.tar.xz" https://firebasestorage.googleapis.com/v0/b/personalizalinux.appspot.com/o/Tela-green.tar.xz?alt=media&token=94cd52a0-316f-45c9-94bf-39ca53832e08
+    curl -L --output "$src_config/Tela-green.tar.xz" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/Tela-green.tar.xz
 
     # Esperando hasta que se descarguen todos los archivos
     wait -n
@@ -62,7 +62,7 @@ echo "Source: https://www.cinnamon-look.org/p/1538515/"
 
 if [ ! -d "$src_config/BreezeX-Dark" ]; then
     echo "Tela-green : Se descarga el paquete iconos" | tee -a $src_config/${0##*/}.log
-    curl -L --output "$src_config/BreezeX-Dark.tar.gz" https://firebasestorage.googleapis.com/v0/b/personalizalinux.appspot.com/o/BreezeX-Dark.tar.gz?alt=media&token=4a07c0f7-c14f-46e2-9af4-5cc0c9c2f298
+    curl -L --output "$src_config/BreezeX-Dark.tar.gz" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/BreezeX-Dark.tar.gz
 
     # Esperando hasta que se descarguen todos los archivos
     wait -n
@@ -291,7 +291,7 @@ if [ ! -f "$src_config/gterminal.sh" ]; then
 
   # source: https://github.com/danieldkato/gnome-terminal_themes
 
-  curl -L --output "$src_config/gterminal.sh" https://firebasestorage.googleapis.com/v0/b/personalizalinux.appspot.com/o/gterminal.sh?alt=media&token=16080b29-8da2-4a66-b034-174161e2488a
+  curl -L --output "$src_config/gterminal.sh" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/gterminal.sh
 
   # Esperando hasta que se descarguen todos los archivos
   wait -n 
