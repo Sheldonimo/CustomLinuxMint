@@ -15,8 +15,12 @@ if [ ! -d "$src" ]; then
     src=$root/Descargas
 fi
 
-cd $src
+if [ -d "$src/CustomLinuxMint-master/config_styles" ]; then
+    mv $src/CustomLinuxMint-master/config_styles $src/config_styles
+fi
+
 src_config=$src/config_styles
+cd $src
 echo $src
 if [ ! -d "$src_config" ]; then
     mkdir config_styles
@@ -73,6 +77,16 @@ fi
 if [ ! -d "$src_config/Hack" ]; then
 
   curl -L --output "$src_config/Hack.zip" https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip
+  # Esperando hasta que se descarguen todos los archivos
+  wait -n
+
+fi
+
+# Descargando thema nord para rofi
+
+if [ ! -d "$src_config/rofi" ]; then
+
+  curl -L --output "$src_config/nord.rasi" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/nord.rasi
   # Esperando hasta que se descarguen todos los archivos
   wait -n
 
@@ -149,6 +163,16 @@ echo "Moviendo el Hack Nerd Font a /usr/share/fonts"
 [ ! -d "/usr/share/fonts/truetype/Hack" ] && sudo mkdir -p /usr/share/fonts/truetype/Hack
 [ ! -f "/usr/share/fonts/truetype/Hack/Hack Regular Nerd Font Complete Mono.ttf" ] && sudo mv "./Hack/Hack Regular Nerd Font Complete Mono.ttf" /usr/share/fonts/truetype/Hack/
 
+## Moviendo el nuevo rofi theme
+
+echo "Moviendo el rofi theme a $root/.config/rofi/themes"
+
+[ ! -d "$root/.config/rofi/themes" ] && sudo mkdir -p "$root/.config/rofi/themes"
+if [ ! -f "$root/.config/rofi/themes/nord.rasi" ]; then
+  sudo mv "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
+  echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > "$root/.config/rofi/config"
+fi
+
 ## Seleccionando el tipo de iconos 
 
 echo "Seteando los nuevos iconos en el sistema actual"
@@ -159,7 +183,6 @@ gsettings set org.cinnamon.desktop.interface icon-theme 'Tela-green-dark'
 gsettings set org.cinnamon.theme name 'Mint-Y-Dark'
 gsettings set org.cinnamon.desktop.interface gtk-theme 'Mint-Y-Dark'
 gsettings set org.cinnamon.desktop.wm.preferences theme 'Mint-Y'
-
 # configurando el cursor
 
 gsettings set org.cinnamon.desktop.interface cursor-theme 'BreezeX-Dark'

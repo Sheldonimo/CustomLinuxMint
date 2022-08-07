@@ -1,0 +1,67 @@
+configuration {
+  show-icons: true;
+  font: "Roboto Regular 12";
+  drun-display-format: "{icon} {name}";
+  display-run: " ";
+  display-drun: " ";
+  display-window: " ";
+  modi: "window,run,drun";
+  icon-theme: "Tela-green-dark";
+}
+
+* {
+  background-color: rgba(46, 52, 64, 0.45);
+  bg-alt: hsla(222,0.163, 0.4, 0.6);
+  fg: #ECEFF4;
+
+  nord-blue-light: #88C0D0;
+  nord-yellow: #A8D7FE;
+
+  border: 0;
+  lines: 10;
+  padding: 0;
+  margin: 0;
+  spacing: 0;
+}
+
+window {
+  width: 30%;
+  transparency: "real";
+  border-radius: 13px;
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+}
+
+listview {
+  columns: 1;
+}
+
+element {
+  padding: 12;
+  orientation: vertical;
+  text-color: @fg;
+}
+
+element selected {
+  background-color: @bg-alt;
+  text-color: @nord-blue-light;
+}
+
+inputbar {
+  background-color: @background;
+  children: [prompt, entry];
+}
+
+prompt {
+  enabled: true;
+  font: "Hack Nerd Font Mono Regular 12";
+  padding: 12 0 0 12;
+  text-color: @nord-yellow;
+}
+
+entry {
+  padding: 12;
+  text-color: @nord-yellow;
+}
