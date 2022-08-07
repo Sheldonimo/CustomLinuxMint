@@ -167,9 +167,9 @@ echo "Moviendo el Hack Nerd Font a /usr/share/fonts"
 
 echo "Moviendo el rofi theme a $root/.config/rofi/themes"
 
-[ ! -d "$root/.config/rofi/themes" ] && sudo mkdir -p "$root/.config/rofi/themes"
+[ ! -d "$root/.config/rofi/themes" ] && mkdir -p "$root/.config/rofi/themes"
 if [ ! -f "$root/.config/rofi/themes/nord.rasi" ]; then
-  sudo mv "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
+  mv "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
   echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > "$root/.config/rofi/config"
 fi
 
