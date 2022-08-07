@@ -79,16 +79,6 @@ if [ ! -d "$src_config/Hack" ]; then
 fi
 
 ## backlog: Revisar la descarga se
-## cuelga el proceso
-
-# curl renombra de manera automatica
-# Rename all archive downloaded
-# echo "Renombrando todos los nombres de los iconos"
-
-# [ -f "$src_config/BreezeX-Dark.tar.gz?alt=media" ] && mv ./BreezeX-Dark.tar.gz?alt=media ./BreezeX-Dark.tar.gz
-# [ -f "$src_config/Tela-green.tar.xz?alt=media" ] && mv ./Tela-green.tar.xz?alt=media ./Tela-green.tar.xz
-# [ -f "$src_config/mint-galaxy.zip?alt=media" ] && mv ./mint-galaxy.zip?alt=media ./mint-galaxy.zip
-
 # Descomprimir
 
 echo "Descomprimiendo archivos"
@@ -176,8 +166,20 @@ gsettings set org.cinnamon.desktop.interface cursor-theme 'BreezeX-Dark'
 
 # setting desktop background
 
-gsettings get org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/linuxmint-una/aburden_frozen_winter_ball.jpg'
-gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/linuxmint-una/aburden_frozen_winter_ball.jpg'
+release=$(lsb_release -r | awk '{print $2}')
+
+if [ $release = "20.3" ]; then
+
+  gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/linuxmint-una/aburden_frozen_winter_ball.jpg'
+
+elif [ $release = "21" ]; then
+
+  gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/linuxmint-vanessa/aburden_frozen.jpg'
+else
+
+  echo "No se pudo definir un fondo de pantalla para el sistema"
+
+fi
 
 # Habilitar applets
 echo "Se se habilitar los applets y se posicionan en el panel"
@@ -210,37 +212,7 @@ if [ -f "/home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json" ] ; then
     sed -i 's/"value": "linuxmint-logo-ring-symbolic"/"value": "\/home\/'$USER'\/.config-desktop\/linux-mint-galaxy-logo.png"/g' /home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json
 fi
 
-
 # fuente: https://github.com/hamonikr/hamonikr-system-settings/blob/2aeb797152c9a2ad9120955a1a6ff894dac4f6c7/etc/skel/.hamonikr/default_dconf
-
-# gsettings set org.cinnamon.desktop.interface font-name 'Noto Sans CJK KR 10'
-# gsettings set org.nemo.desktop font 'Noto Sans CJK KR 10'        
-# gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans CJK KR 10'    
-# gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Noto Sans CJK KR 11'
-# gsettings set org.gnome.desktop.interface monospace-font-name 'Droid Sans Mono 12'
-# gsettings set org.gnome.meld custom-font 'Droid Sans Mono, 12'
-# gsettings set org.x.viewer.plugins.pythonconsole use-system-font false
-# gsettings set org.x.viewer.plugins.pythonconsole font 'Droid Sans Mono 9'
-
-
-## definir shortcut
-## para asignar los shortcuts es requerido usar la función dconf y para modificarlos se usa el gsettings
-
-## Para obtener los valores que tienen asignados los shortcuts se usan los siguientes comandos
-
-# gsettings get $ruta_gset/custom5/ name 
-# gsettings get $ruta_gset/custom5/ command 
-# gsettings get $ruta_gset/custom5/ binding 
-
-# ruta_gset=org.cinnamon.desktop.keybindings.custom-keybinding:/org/cinnamon/desktop/keybindings/custom-keybindings
-
-## Para setear los parametros a modificar se usan los siguientes comandos.
-
-# gsettings set $ruta_gset/custom5/ name "'rofis-prueba'"
-# gsettings set $ruta_gset/custom5/ command "'rofi -show-icons -show drun'"
-# gsettings set $ruta_gset/custom5/ binding "['<Alt>f']"
-
-# funciona pero me borra todas las demás configuraciones
 
 echo "Se comienza a configurar los shortcuts"
 
@@ -329,13 +301,12 @@ echo "Source: https://the.exa.website/#installation"
 echo "Download: exa A modern replacement for ls"
 
 cd $src_config
-# verify is exist a file exa before downloads
+
+# verify is exist a file exa before installing
+
 if [ ! -f "/usr/bin/exa" ]; then
 
-  curl -L --output "exa-linux-x86_64-v0.10.0.zip" https://github.com/ogham/exa/releases/download/v0.10.0/exa-linux-x86_64-v0.10.0.zip
-
-  # Esperando hasta que se descarguen todos los archivos
-  wait -n 
+  sudo apt install -y exa
 
 fi
 
@@ -357,43 +328,6 @@ if ! grep -q "# añade poetry al bash" "$root/.bashrc"; then
 fi
 
 cd $src_config
-
-# wait until download
-
-echo "descargando exa"
-
-if [ ! -f "/usr/bin/exa" ]; then
-
-  unzip exa-linux-x86_64-v0.10.0.zip -d exa/
-  rm exa-linux-x86_64-v0.10.0.zip
-
-fi
-
-# Moviendo el man a la ruta
-
-echo "Comprimiendo el manual de exa"
-
-if [ ! -f "/usr/share/man/man1/exa.1.gz" ]; then
-
-  cd $src_config/exa/man
-  gzip -c exa.1 > exa.1.gz
-
-  # muevo el manual
-
-  echo "Moviendo el manual de exa a la ruta del sistema"
-
-  sudo mv ./exa.1.gz /usr/share/man/man1/exa.1.gz
-fi
-# muevo el binario
-
-echo "Transladando el binario de exa a /usr/bin/exa"
-
-if [ ! -f "/usr/bin/exa" ]; then
-
-  cd $src_config/exa/bin
-  sudo mv ./exa /usr/bin/exa
-
-fi
 
 ## Instalación de bat
 cd $src_config
@@ -432,10 +366,6 @@ if [ ! -d "$root/.pyenv" ]; then
 
 fi
 # Esperando hasta que se descarguen todos los archivos
-# export PID=${!}
-# while [[ -d /proc/$PID ]] && [[ -z `grep zombie /proc/$PID/status` ]]; do
-#     sleep 0.05; echo -n '.'
-# done
 
 if [ ! -d "$root/.pyenv/plugins/pyenv-virtualenv" ]; then
 
@@ -444,13 +374,6 @@ if [ ! -d "$root/.pyenv/plugins/pyenv-virtualenv" ]; then
   wait -n
 
 fi
-
-# Esperando hasta que se descarguen todos los archivos
-# export PID=${!}
-# while [[ -d /proc/$PID ]] && [[ -z `grep zombie /proc/$PID/status` ]]; do
-#     sleep 0.05; echo -n '.'
-# done
-
 # Se añade el inicializados para usar pyenv en terminal
 
 echo "Añadiendo configuraciones a .bashrc para arrancar con Pyenv"
@@ -555,14 +478,14 @@ echo "Descargando: Logseq"
 
 if [ ! -f "$srcd/Logseq/Logseq-linux-x64.AppImage" ]; then
 
-  curl -L --output "Logseq-linux-x64-0.6.5.AppImage" https://github.com/logseq/logseq/releases/download/0.6.5/Logseq-linux-x64-0.6.5.AppImage
+  curl -L --output "Logseq-linux-x64-0.7.9.AppImage" https://github.com/logseq/logseq/releases/download/0.7.9/Logseq-linux-x64-0.7.9.AppImage
 
   # Esperando hasta que se descarguen todos los archivos
   wait -n
 
   echo "Modificando los permisos de ejecución de Logseq"
 
-  sudo chmod a+x Logseq-linux-x64-0.6.5.AppImage
+  sudo chmod a+x Logseq-linux-x64-0.7.9.AppImage
 
   echo "Creando la carpeta de notas para Logseq"
 
@@ -570,7 +493,7 @@ if [ ! -f "$srcd/Logseq/Logseq-linux-x64.AppImage" ]; then
 
   echo "Moviendo el archivo de ejecución de logseq a la ruta definida"
 
-  mv Logseq-linux-x64-0.6.5.AppImage $srcd/Logseq/Logseq-linux-x64.AppImage
+  mv Logseq-linux-x64-0.7.9.AppImage $srcd/Logseq/Logseq-linux-x64.AppImage
 
 fi
 
@@ -600,7 +523,6 @@ if ! command -v ytfzf &> /dev/null; then
   
 fi
 
-
 echo "Descargando los parquetes copyq y flameshot"
 
 if ! command -v copyq &> /dev/null; then
@@ -610,7 +532,9 @@ if ! command -v copyq &> /dev/null; then
 
 fi
 
-  sudo apt-get install -y copyq flameshot imagemagick
+# sudo apt install imagemagick (deprecado?)
+
+  sudo apt-get install -y copyq flameshot rofi
 
 # Actualizando la versión de libreoffice a la ultima
 
