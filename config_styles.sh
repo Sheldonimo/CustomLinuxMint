@@ -169,8 +169,9 @@ echo "Moviendo el rofi theme a $root/.config/rofi/themes"
 
 [ ! -d "$root/.config/rofi/themes" ] && mkdir -p "$root/.config/rofi/themes"
 if [ ! -f "$root/.config/rofi/themes/nord.rasi" ]; then
-  mv "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
-  echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > "$root/.config/rofi/config"
+  cp "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
+  sudo mv ./nord.rasi /usr/share/rofi/themes/nord.rasi
+  echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > $root/.config/rofi/config
 fi
 
 ## Seleccionando el tipo de iconos 
@@ -244,7 +245,7 @@ if [ ! -d "$srcd" ]; then
     srcd=$root/Documentos
 fi
 
-comando=("'$srcd/Logseq/Logseq-linux-x64.AppImage'" "'gnome-screenshot -ac'" "'gnome-screenshot -c -d 1'" "'rofi -show-icons -show drun'" "'copyq show'")
+comando=("'$srcd/Logseq/Logseq-linux-x64.AppImage'" "'gnome-screenshot -ac'" "'gnome-screenshot -c -d 1'" "'rofi -show-icons -modi drun -show drun'" "'copyq show'")
 nombre=("'Logseq'" "'screenshot area'" "'screenshot'" "'rofi'" "'copyq'")
 shortcut=("['<Alt>Return']" "['<Alt><Shift>a']" "['<Alt><Shift>s']" "['<Alt>d']" "['<Super>v']")
 
@@ -339,7 +340,7 @@ echo "Añadiendo poetry a la ruta"
 
 # verifica si ya se ha escrito en bashrc, las variables de entorno y si no se ha escrito se escribe
 
-if ! grep -q "# añade poetry al bash" "$root/.bashrc"; then
+if [ ! grep -q "# añade poetry al bash" $root/.bashrc ]; then
 
   cd $root
   echo '' >> .bashrc
@@ -381,7 +382,7 @@ sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev li
 # copiar el repositorio del proyecto
 echo "Clonando el proyecto de Pyenv"
 
-if [ ! -d "$root/.pyenv" ]; then
+if [ ! -d $root/.pyenv ]; then
 
   git clone https://github.com/pyenv/pyenv.git $root/.pyenv
 
@@ -390,7 +391,7 @@ if [ ! -d "$root/.pyenv" ]; then
 fi
 # Esperando hasta que se descarguen todos los archivos
 
-if [ ! -d "$root/.pyenv/plugins/pyenv-virtualenv" ]; then
+if [ ! -d $root/.pyenv/plugins/pyenv-virtualenv ]; then
 
   git clone https://github.com/pyenv/pyenv-virtualenv.git $root/.pyenv/plugins/pyenv-virtualenv
 
@@ -403,7 +404,7 @@ echo "Añadiendo configuraciones a .bashrc para arrancar con Pyenv"
 
 # verifica si ya se ha escrito en bashrc, las variables de entorno y si no se ha escrito se escribe
 
-if ! grep -q "# Se añade el inicializados para usar pyenv en terminal" "$root/.bashrc"; then
+if [ ! grep -q "# Se añade el inicializados para usar pyenv en terminal" $root/.bashrc ]; then
 
   cd $root
   echo '' >> .bashrc
@@ -479,14 +480,14 @@ cd $src_config
 
 if ! command -v anydesk &> /dev/null; then
 
-  curl -L --output "anydesk_6.1.1-1_amd64.deb" https://download.anydesk.com/linux/anydesk_6.1.1-1_amd64.deb
+  curl -L --output "anydesk_6.2.0-1_amd64.deb" https://download.anydesk.com/linux/anydesk_6.2.0-1_amd64.deb
 
   # Esperando hasta que se descarguen todos los archivos
   wait -n 
 
   echo "Instalando anydesk"
 
-  sudo dpkg -i anydesk_6.1.1-1_amd64.deb
+  sudo dpkg -i anydesk_6.2.0-1_amd64.deb
 
 fi
 
@@ -499,7 +500,7 @@ echo "Descargando: Logseq"
 
 
 
-if [ ! -f "$srcd/Logseq/Logseq-linux-x64.AppImage" ]; then
+if [ ! -f $srcd/Logseq/Logseq-linux-x64.AppImage ]; then
 
   curl -L --output "Logseq-linux-x64-0.7.9.AppImage" https://github.com/logseq/logseq/releases/download/0.7.9/Logseq-linux-x64-0.7.9.AppImage
 
