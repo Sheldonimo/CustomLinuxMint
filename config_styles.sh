@@ -163,13 +163,20 @@ echo "Moviendo el Hack Nerd Font a /usr/share/fonts"
 [ ! -d "/usr/share/fonts/truetype/Hack" ] && sudo mkdir -p /usr/share/fonts/truetype/Hack
 [ ! -f "/usr/share/fonts/truetype/Hack/Hack Regular Nerd Font Complete Mono.ttf" ] && sudo mv "./Hack/Hack Regular Nerd Font Complete Mono.ttf" /usr/share/fonts/truetype/Hack/
 
+
+# Instalando rofi
+
+echo "Instalando rofi"
+
+sudo apt -y install rofi
+
 ## Moviendo el nuevo rofi theme
 
 echo "Moviendo el rofi theme a $root/.config/rofi/themes"
 
 [ ! -d "$root/.config/rofi/themes" ] && mkdir -p "$root/.config/rofi/themes"
-if [ ! -f "$root/.config/rofi/themes/nord.rasi" ]; then
-  cp "./nord.rasi" "$root/.config/rofi/themes/nord.rasi"
+if [ ! -f $root/.config/rofi/themes/nord.rasi ]; then
+  cp ./nord.rasi $root/.config/rofi/themes/nord.rasi
   sudo mv ./nord.rasi /usr/share/rofi/themes/nord.rasi
   echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > $root/.config/rofi/config
 fi
@@ -558,7 +565,7 @@ fi
 
 # sudo apt install imagemagick (deprecado?)
 
-  sudo apt-get install -y copyq flameshot rofi
+  sudo apt-get install -y copyq flameshot
 
 # Actualizando la versión de libreoffice a la ultima
 
