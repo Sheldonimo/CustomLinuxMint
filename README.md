@@ -18,7 +18,7 @@ also download some apps like:
 
 ## Update theme linux
 
-To launch config_styles.sh one need to run:
+To launch the customization it is only necessary to download the config_styles.sh file and execute the following command:
 
     bash config_styles.sh
 
