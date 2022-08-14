@@ -87,6 +87,7 @@ fi
 if [ ! -d "$src_config/rofi" ]; then
 
   curl -L --output "$src_config/nord.rasi" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/nord.rasi
+  curl -L --output "$src_config/config.rasi" https://github.com/Sheldonimo/CustomLinuxMint/raw/master/config_styles/config.rasi
   # Esperando hasta que se descarguen todos los archivos
   wait -n
 
@@ -178,7 +179,7 @@ echo "Moviendo el rofi theme a $root/.config/rofi/themes"
 if [ ! -f $root/.config/rofi/themes/nord.rasi ]; then
   cp ./nord.rasi $root/.config/rofi/themes/nord.rasi
   sudo mv ./nord.rasi /usr/share/rofi/themes/nord.rasi
-  echo "rofi.theme: $root/.config/rofi/themes/nord.rasi" > $root/.config/rofi/config
+  cp ./config.rasi $root/.config/rofi/config.rasi
 fi
 
 ## Seleccionando el tipo de iconos 
@@ -474,37 +475,29 @@ fi
 echo "Descargando: Anydesk"
 echo "Source: https://computingforgeeks.com/how-to-install-anydesk-on-ubuntu/"
 
-# wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo apt-key add -
-
-# echo "deb http://deb.anydesk.com/ all main" | sudo tee /etc/apt/sources.list.d/anydesk-stable.list
-
-# sudo apt update
-# sudo apt install -y anydesk
-
-sudo apt install -y libgtkglext1 libminizip1 libpangox-1.0-0
-
-cd $src_config
 
 if ! command -v anydesk &> /dev/null; then
 
-  curl -L --output "anydesk_6.2.0-1_amd64.deb" https://download.anydesk.com/linux/anydesk_6.2.0-1_amd64.deb
+  sudo apt install -y libgtkglext1
 
+  wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo gpg --dearmor -o /usr/share/keyrings/anydesk.gpg
   # Esperando hasta que se descarguen todos los archivos
-  wait -n 
+  wait -n
+
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/anydesk.gpg] http://deb.anydesk.com/ all main"|sudo tee /etc/apt/sources.list.d/anydesk-stable.list
+
+  sudo apt update
 
   echo "Instalando anydesk"
 
-  sudo dpkg -i anydesk_6.2.0-1_amd64.deb
+  sudo apt install -y anydesk
 
 fi
-
-echo "Instalando Anydesk"
 
 ## instalación de programas complementarios
 
 # instalacion de logseq
 echo "Descargando: Logseq"
-
 
 
 if [ ! -f $srcd/Logseq/Logseq-linux-x64.AppImage ]; then
@@ -559,23 +552,69 @@ echo "Descargando los parquetes copyq y flameshot"
 if ! command -v copyq &> /dev/null; then
 
   sudo add-apt-repository ppa:hluk/copyq
-  sudo apt-get update
+
+  echo "Actualizando las llaves debido a que se ha deprecado el apt-key"
+
+  echo "Obteniendo el key"
+
+  key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "Lukas Holecek" | awk 'NR==1{print $9$10}')
+
+  echo "Moviendo el key a la nueva ruta"
+
+  sudo apt-key export $key | sudo gpg --dearmour -o /usr/share/keyrings/copyq.gpg
+
+  echo "Actualizando la llave en los respositorios"
+
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/copyq.gpg] http://ppa.launchpad.net/hluk/copyq/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/hluk-copyq-jammy.list >/dev/null
+
+  sudo apt update
 
 fi
 
 # sudo apt install imagemagick (deprecado?)
 
-  sudo apt-get install -y copyq flameshot
+  sudo apt install -y copyq flameshot
 
 # Actualizando la versión de libreoffice a la ultima
 
 echo "Actualizando el libreoffice"
 
-sudo add-apt-repository ppa:libreoffice/ppa
+if [ ! -f /usr/share/keyrings/libreoffice.gpg ]; then
 
-sudo apt-get update
+  sudo add-apt-repository ppa:libreoffice/ppa
+  echo "Obteniendo el key"
+  key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "LibreOffice Packaging" | awk 'NR==1{print $9$10}')
+  echo "Moviendo el key a la nueva ruta"
+  sudo apt-key export $key | sudo gpg --dearmour -o /usr/share/keyrings/libreoffice.gpg
+  echo "Actualizando la llave en los respositorios"
 
-sudo apt-get -y upgrade
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libreoffice.gpg] http://ppa.launchpad.net/libreoffice/ppa/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/libreoffice-ppa-jammy.list >/dev/null
+
+  sudo apt update
+
+  sudo apt -y upgrade
+
+fi 
+
+# Instalando OBS Studio
+
+if [ ! -f /usr/share/keyrings/obs-studio.gpg ]; then
+
+  echo "Instalando OBS studio"
+
+  sudo add-apt-repository ppa:obsproject/obs-studio
+  echo "Obteniendo el key"
+  key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "obsproject" | awk 'NR==1{print $9$10}')
+  echo "Moviendo el key a la nueva ruta"
+  sudo apt-key export $key | sudo gpg --dearmour -o /usr/share/keyrings/obs-studio.gpg
+  echo "Actualizando la llave en los respositorios"
+
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/obsproject-obs-studio-jammy.list >/dev/null
+
+  sudo apt update
+
+  sudo apt -y upgrade
+fi
 
 ## Finalización del proceso automatico
 
@@ -583,5 +622,4 @@ echo "Enlaces de los procesos pendientes"
 echo "VSCODE"
 echo "https://code.visualstudio.com/"
 
-# echo curl -L --output "vscode.deb" https://az764295.vo.msecnd.net/stable/dfd34e8260c270da74b5c2d86d61aee4b6d56977/code_1.66.2-1649664567_amd64.deb
 

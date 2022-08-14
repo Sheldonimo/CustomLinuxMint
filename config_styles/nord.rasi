@@ -1,22 +1,15 @@
-configuration {
-  show-icons: true;
-  font: "Roboto Regular 12";
-  drun-display-format: "{icon} {name}";
-  display-run: " ";
-  display-drun: " ";
-  display-window: " ";
-  modi: "window,run,drun";
-  icon-theme: "Tela-green-dark";
-}
+/******************************************************************************
+* ROFI Color theme
+* User: Sheldonimo
+* Copyright: Juan Alfaro
+******************************************************************************/
 
 * {
   background-color: rgba(46, 52, 64, 0.45);
-  bg-alt: hsla(222,0.163, 0.4, 0.6);
+  bg-alt: hsla(222,0.163, 0.4, 1);
   fg: #ECEFF4;
-
   nord-blue-light: #88C0D0;
   nord-yellow: #A8D7FE;
-
   border: 0;
   lines: 10;
   padding: 0;
@@ -39,14 +32,33 @@ listview {
 }
 
 element {
-  padding: 12;
-  orientation: vertical;
+  padding: 10;
+  children: [element-icon, element-text];
+  orientation: horizontal;
   text-color: @fg;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: @fg;
+    padding: 5 0;
+}
+
+element-text selected {
+  text-color: @nord-blue-light;
 }
 
 element selected {
   background-color: @bg-alt;
-  text-color: @nord-blue-light;
+}
+
+element-icon {
+  size: 30px;
+  background-color: inherit;
+}
+
+element-icon selected {
+  background-color: @bg-alt;
 }
 
 inputbar {
