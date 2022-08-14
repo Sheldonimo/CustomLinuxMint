@@ -16,3 +16,9 @@ also download some apps like:
 * copyq
 * obsstudio
 
+## Update theme linux
+
+To launch config_styles.sh one need to run:
+
+    bash config_styles.sh
+
