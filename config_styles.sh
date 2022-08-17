@@ -567,6 +567,9 @@ if ! command -v copyq &> /dev/null; then
 
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/copyq.gpg] http://ppa.launchpad.net/hluk/copyq/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/hluk-copyq-jammy.list >/dev/null
 
+  echo "Eliminando la llave de la ruta deprecada"
+  sudo apt-key del $key
+
   sudo apt update
 
 fi
@@ -590,6 +593,9 @@ if [ ! -f /usr/share/keyrings/libreoffice.gpg ]; then
 
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libreoffice.gpg] http://ppa.launchpad.net/libreoffice/ppa/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/libreoffice-ppa-jammy.list >/dev/null
 
+  echo "Eliminando la llave de la ruta deprecada"
+  sudo apt-key del $key
+
   sudo apt update
 
   sudo apt -y upgrade
@@ -610,6 +616,9 @@ if [ ! -f /usr/share/keyrings/obs-studio.gpg ]; then
   echo "Actualizando la llave en los respositorios"
 
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/obsproject-obs-studio-jammy.list >/dev/null
+
+  echo "Eliminando la llave de la ruta deprecada"
+  sudo apt-key del $key
 
   sudo apt update
 
