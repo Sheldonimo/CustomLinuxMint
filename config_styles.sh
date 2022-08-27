@@ -169,7 +169,7 @@ echo "Moviendo el Hack Nerd Font a /usr/share/fonts"
 
 echo "Instalando rofi"
 
-sudo apt -y install rofi
+sudo apt install -y rofi
 
 ## Moviendo el nuevo rofi theme
 
@@ -599,7 +599,7 @@ if [ ! -f /usr/share/keyrings/libreoffice.gpg ]; then
 
   sudo apt update
 
-  sudo apt -y upgrade
+  sudo apt upgrade -y 
 
 fi 
 
@@ -624,7 +624,7 @@ if [ ! -f /usr/share/keyrings/obs-studio.gpg ]; then
 
   sudo apt update
 
-  sudo apt -y upgrade
+  sudo apt upgrade -y
 fi
 
 ## Finalización del proceso automatico
