@@ -552,9 +552,9 @@ echo "Descargando los parquetes copyq y flameshot"
 if ! command -v copyq &> /dev/null; then
 
   sudo add-apt-repository ppa:hluk/copyq
+  wait -n
 
   echo "Actualizando las llaves debido a que se ha deprecado el apt-key"
-
   echo "Obteniendo el key"
 
   key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "Lukas Holecek" | awk 'NR==1{print $9$10}')
@@ -585,6 +585,7 @@ echo "Actualizando el libreoffice"
 if [ ! -f /usr/share/keyrings/libreoffice.gpg ]; then
 
   sudo add-apt-repository ppa:libreoffice/ppa
+  wait -n
   echo "Obteniendo el key"
   key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "LibreOffice Packaging" | awk 'NR==1{print $9$10}')
   echo "Moviendo el key a la nueva ruta"
@@ -609,6 +610,7 @@ if [ ! -f /usr/share/keyrings/obs-studio.gpg ]; then
   echo "Instalando OBS studio"
 
   sudo add-apt-repository ppa:obsproject/obs-studio
+  wait -n
   echo "Obteniendo el key"
   key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "obsproject" | awk 'NR==1{print $9$10}')
   echo "Moviendo el key a la nueva ruta"

@@ -20,5 +20,5 @@ also download some apps like:
 
 To launch the customization it is only necessary to download the config_styles.sh file and execute the following command:
 
-    bash config_styles.sh
+    curl https://raw.githubusercontent.com/Sheldonimo/CustomLinuxMint/master/config_styles.sh -o - | bash
 
