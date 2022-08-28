@@ -169,7 +169,7 @@ echo "Moviendo el Hack Nerd Font a /usr/share/fonts"
 
 echo "Instalando rofi"
 
-sudo apt install -y rofi
+sudo apt install -y rofi 
 
 ## Moviendo el nuevo rofi theme
 
@@ -181,6 +181,14 @@ if [ ! -f $root/.config/rofi/themes/nord.rasi ]; then
   sudo mv ./nord.rasi /usr/share/rofi/themes/nord.rasi
   cp ./config.rasi $root/.config/rofi/config.rasi
 fi
+
+
+# python3-pip le da soporte al package manager de python
+
+echo "Instalando pip de python"
+
+sudo apt install -y python3-pip
+
 
 ## Seleccionando el tipo de iconos 
 
