@@ -348,7 +348,7 @@ echo "Añadiendo poetry a la ruta"
 
 # verifica si ya se ha escrito en bashrc, las variables de entorno y si no se ha escrito se escribe
 
-if [ ! grep -q "# añade poetry al bash" $root/.bashrc ]; then
+if ! grep -q "# añade poetry al bash" $root/.bashrc ; then
 
   cd $root
   echo '' >> .bashrc
@@ -412,7 +412,7 @@ echo "Añadiendo configuraciones a .bashrc para arrancar con Pyenv"
 
 # verifica si ya se ha escrito en bashrc, las variables de entorno y si no se ha escrito se escribe
 
-if [ ! grep -q "# Se añade el inicializados para usar pyenv en terminal" $root/.bashrc ]; then
+if ! grep -q "# Se añade el inicializados para usar pyenv en terminal" $root/.bashrc ; then
 
   cd $root
   echo '' >> .bashrc
@@ -528,7 +528,7 @@ echo "Source: https://github.com/lilberick/Tips-Gnu-Linux/tree/master/ytfzf"
 echo "descargando complementos"
 
 sudo apt install -y jq mpv youtube-dl fzf
-pip3 install ueberzug
+python3 -m pip install ueberzug
 
 if ! command -v ytfzf &> /dev/null; then
 
@@ -551,7 +551,7 @@ echo "Descargando los parquetes copyq y flameshot"
 
 if ! command -v copyq &> /dev/null; then
 
-  sudo add-apt-repository ppa:hluk/copyq
+  sudo add-apt-repository -y ppa:hluk/copyq
   wait -n
 
   echo "Actualizando las llaves debido a que se ha deprecado el apt-key"
@@ -584,7 +584,7 @@ echo "Actualizando el libreoffice"
 
 if [ ! -f /usr/share/keyrings/libreoffice.gpg ]; then
 
-  sudo add-apt-repository ppa:libreoffice/ppa
+  sudo add-apt-repository -y ppa:libreoffice/ppa
   wait -n
   echo "Obteniendo el key"
   key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "LibreOffice Packaging" | awk 'NR==1{print $9$10}')
@@ -609,7 +609,7 @@ if [ ! -f /usr/share/keyrings/obs-studio.gpg ]; then
 
   echo "Instalando OBS studio"
 
-  sudo add-apt-repository ppa:obsproject/obs-studio
+  sudo add-apt-repository -y ppa:obsproject/obs-studio
   wait -n
   echo "Obteniendo el key"
   key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "obsproject" | awk 'NR==1{print $9$10}')

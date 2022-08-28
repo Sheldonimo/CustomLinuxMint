@@ -1,0 +1,7 @@
+
+# Se añade el inicializados para usar pyenv en terminal
+
+export PATH=$HOME/.pyenv/bin:$PATH
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
