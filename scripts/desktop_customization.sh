@@ -51,15 +51,22 @@ function main() {
     # <<--->> Setting configuration in desktop <<--->>
 
     # Setting font by default
-    #setting_fonts
+    setting_fonts
 
     # Setting Cursor by default
-    #setting_cursor
+    setting_cursor
 
     # Setting Icons by default
-    #setting_icons
+    setting_icons
 
+    # Setting Text Editor
+    setting_text_editor
 
+    # Setting Panel and applets
+    setting_panel_and_applets
+
+    # setting menu icon
+    setting_menu_icon
 
 }
 
@@ -294,10 +301,10 @@ function setting_fonts() {
     gsettings set org.cinnamon.desktop.interface font-name 'Roboto 10'
     gsettings set org.nemo.desktop font 'Roboto 10'
     gsettings set org.gnome.desktop.interface document-font-name 'Roboto 10'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font Mono 10'
     gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Roboto Bold 10'
-    gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font Mono Regular 10'
     gsettings set org.x.viewer.plugins.pythonconsole use-system-font false
-    gsettings set org.x.viewer.plugins.pythonconsole font 'Hack Nerd Font Mono Regular 10'
+    gsettings set org.x.viewer.plugins.pythonconsole font 'FiraCode Nerd Font Mono Regular 10'
 
     # changing setting scale
     gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
@@ -312,7 +319,7 @@ function setting_cursor() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Cursor." | tee -a $log_path
     # Setting Cursor by default
-    gsettings set org.cinnamon.desktop.interface cursor-theme 'BreezeX-Dark'
+    gsettings set org.cinnamon.desktop.interface cursor-theme 'breeze_cursors'
     gsettings set org.cinnamon.desktop.interface cursor-size 35
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Cursor setted." | tee -a $log_path
 
@@ -321,9 +328,101 @@ function setting_cursor() {
 function setting_icons() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Icons." | tee -a $log_path
+
+    gsettings set org.x.apps.portal color-scheme 'prefer-dark'
+    gsettings set org.cinnamon.desktop.interface gtk-theme 'Mint-Y-Dark-Aqua'
+    gsettings set org.cinnamon.theme name 'Mint-Y-Dark-Aqua'
+
     # Setting Icons by default
     gsettings set org.cinnamon.desktop.interface icon-theme 'Tela-green-dark'
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Icons setted." | tee -a $log_path
+
+}
+
+function setting_text_editor() {
+    
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Text Editor." | tee -a $log_path
+    
+        # Setting Text Editor
+        gsettings set org.x.editor.preferences.editor scheme 'cobalt'
+        gsettings set org.x.editor.preferences.editor prefer-dark-theme true
+        gsettings set org.x.editor.preferences.editor display-line-numbers true
+        gsettings set org.x.editor.preferences.editor tabs-size 4
+        gsettings set org.x.editor.preferences.editor display-right-margin true
+        gsettings set org.x.editor.preferences.editor draw-whitespace true
+        gsettings set org.x.editor.preferences.editor draw-whitespace-inside true
+        gsettings set org.x.editor.preferences.editor draw-whitespace-leading true
+        gsettings set org.x.editor.preferences.editor draw-whitespace-newline true
+        gsettings set org.x.editor.preferences.editor draw-whitespace-trailing true
+        gsettings set org.x.editor.preferences.editor editor-font 'FiraCode Nerd Font Mono Regular 10'
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Text Editor setted." | tee -a $log_path
+}
+
+function setting_panel_and_applets() {
+    
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting applets." | tee -a $log_path
+    
+        # Setting applets
+        gsettings set org.cinnamon enabled-applets "['panel1:center:0:menu@cinnamon.org:0', 'panel1:right:13:show-desktop@cinnamon.org:1', 'panel1:center:1:grouped-window-list@cinnamon.org:2', 'panel1:right:1:systray@cinnamon.org:3', 'panel1:right:2:xapp-status@cinnamon.org:4', 'panel1:right:12:notifications@cinnamon.org:5', 'panel1:right:4:printers@cinnamon.org:6', 'panel1:right:5:removable-drives@cinnamon.org:7', 'panel1:right:6:keyboard@cinnamon.org:8', 'panel1:right:7:favorites@cinnamon.org:9', 'panel1:right:8:network@cinnamon.org:10', 'panel1:right:9:sound@cinnamon.org:11', 'panel1:right:10:power@cinnamon.org:12', 'panel1:right:11:calendar@cinnamon.org:13', 'panel1:left:0:workspace-switcher@cinnamon.org:14']"
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} applets setted." | tee -a $log_path
+        # Setting Panels
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Panels." | tee -a $log_path
+        gsettings set org.cinnamon panels-enabled "['1:0:bottom']"
+        gsettings set org.cinnamon panels-height "['1:46', '2:40']"
+        gsettings set org.cinnamon panel-zone-icon-sizes '[{"panelId":1,"left":0,"center":0,"right":24}]'
+        gsettings set org.cinnamon panel-zone-symbolic-icon-sizes '[{"panelId": 1, "left": 32, "center": 32, "right": 16}]'
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Panels setted." | tee -a $log_path
+        
+}
+
+function setting_menu_icon(){
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Menu Icon." | tee -a $log_path
+
+    # /usr/share/icons/hicolor/scalable/apps/nombre_icon.svg
+    # investigar la siguiente ruta
+    # /home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json
+    # /home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json
+    # /home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json
+
+    icon_root="/usr/share/icons/hicolor/scalable/apps"
+    # Setting Menu Icon
+    if [ ! -f "$icon_root/linux-mint-galaxy-logo.png" ]; then
+
+    #mkdir $root/.config-desktop
+    #chmod 777 $root/.config-desktop
+    sudo cp ./images/linux-mint-galaxy-logo.png $icon_root/linux-mint-galaxy-logo.png
+
+    fi
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon moved to root." | tee -a $log_path
+    json_root_legacy="/home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json"
+    json_root="/home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json"
+
+    icon_root_escaped=$(echo $icon_root | sed 's_/_\\/_g')
+    # Cambiando el Icono del Menu
+    if [ -f $json_root_legacy ] ; then
+        # icon legacy: "/home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update logo menu in legacy icon root" | tee -a $log_path
+        sed -i "/\"menu-icon\": {/,/\"value\":/s/\"value\": \"[^\"]*\"/\"value\": \"$icon_root_escaped\/linux-mint-galaxy-logo.png\"/" $json_root_legacy
+        # updating the size of the icon 32 -> 36
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update size icon menu in legacy icon root" | tee -a $log_path
+        sed -i '/"menu-icon-size":/,/},/{s/"value": 32/"value": 36/}' $json_root_legacy
+    elif [ -f $json_root ] ; then
+        # icon new: "/home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update logo menu in new icon root" | tee -a $log_path
+        sed -i "/\"menu-icon\": {/,/\"value\":/s/\"value\": \"[^\"]*\"/\"value\": \"$icon_root_escaped\/linux-mint-galaxy-logo.png\"/" $json_root
+        # updating the size of the icon 32 -> 36
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update size icon menu in new icon root" | tee -a $log_path
+        sed -i '/"menu-icon-size":/,/},/{s/"value": 32/"value": 36/}' $json_root
+    else
+        # Don't found the file for change the icon menu
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : File icon menu not found" | tee -a $log_path
+    fi
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon setted." | tee -a $log_path
 
 }
 
