@@ -465,4 +465,4 @@ function setting_terminal_color_palette() {
 main
 
 # <<<----------------->>> End <<<----------------->>>
-echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} End desktop customization." | tee -a $log_path
+echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Thank you for customizing your desktop. =D " | tee -a $log_path
