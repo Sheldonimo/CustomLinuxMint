@@ -68,6 +68,9 @@ function main() {
     # setting menu icon
     setting_menu_icon
 
+    # setting the color palette of the terminal
+    setting_terminal_color_palette
+
 }
 
 # <<<----------------->>> Download functions <<<----------------->>>
@@ -426,8 +429,40 @@ function setting_menu_icon(){
 
 }
 
+function setting_terminal_color_palette() {
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Terminal Color Palette." | tee -a $log_path
+
+    # setting the color palette of the terminal
+    profile=$(gsettings get org.gnome.Terminal.ProfilesList default)
+    profile=${profile:1:-1}
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        background-color "rgb(13,33,39)"
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        cursor-shape "underline"
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        font "Hack Nerd Font Mono 12"
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        palette "['rgb(0,0,0)', 'rgb(170,0,0)', 'rgb(0,170,0)', 'rgb(170,85,0)', 'rgb(38,139,210)', 'rgb(170,0,170)', 'rgb(0,170,170)', 'rgb(170,170,170)', 'rgb(85,85,85)', 'rgb(255,85,85)', 'rgb(85,255,85)', 'rgb(255,255,85)', 'rgb(85,85,255)', 'rgb(255,85,255)', 'rgb(85,255,255)', 'rgb(255,255,255)']"
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-system-font true
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-theme-colors false
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        visible-name "Sheldonimo"
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette setted." | tee -a $log_path
+}
+
 # <<<----------------->>> Main <<<----------------->>>
 main
 
-echo "Log path is $log_path"
-echo "PWD: $PWD"
+# <<<----------------->>> End <<<----------------->>>
+echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} End desktop customization." | tee -a $log_path
