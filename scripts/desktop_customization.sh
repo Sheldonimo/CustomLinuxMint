@@ -326,6 +326,7 @@ function setting_text_editor() {
         gsettings set org.x.editor.preferences.editor display-line-numbers true
         gsettings set org.x.editor.preferences.editor tabs-size 4
         gsettings set org.x.editor.preferences.editor display-right-margin true
+        gsettings set org.x.editor.preferences.ui minimap-visible true
         gsettings set org.x.editor.preferences.editor draw-whitespace true
         gsettings set org.x.editor.preferences.editor draw-whitespace-inside true
         gsettings set org.x.editor.preferences.editor draw-whitespace-leading true
@@ -454,6 +455,33 @@ function setting_terminal_color_palette() {
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         use-theme-colors false
+    # transparency background
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-theme-transparency false
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-transparent-background true
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        background-transparency-percent 10
+    # keyboard shortcuts
+    gsettings set \
+        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
+        new-tab '<Primary>t'
+    gsettings set \
+        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
+        new-window '<Primary>n'
+    gsettings set \
+        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
+        close-tab '<Primary>w'
+    gsettings set \
+        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
+        paste '<Primary>v'
+    gsettings set \
+        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
+        select-all '<Primary>a'
+    # setting the name of the profile
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         visible-name "Sheldonimo"
