@@ -50,9 +50,6 @@ function main() {
 
     # <<--->> Setting configuration in desktop <<--->>
 
-    # Setting font by default
-    setting_fonts
-
     # Setting Cursor by default
     setting_cursor
 
@@ -67,6 +64,9 @@ function main() {
 
     # setting menu icon
     setting_menu_icon
+
+    # Setting font by default
+    setting_fonts
 
     # setting the color palette of the terminal
     setting_terminal_color_palette
@@ -292,32 +292,6 @@ function install_rofi() {
 
 # <<<----------------->>> Setting functions <<<----------------->>>
 
-function setting_fonts() {
-
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting fonts." | tee -a $log_path
-    # Setting font by default
-    # with the help of `dconf watch /` we can see the changes the next configuration.
-    # to see types dconf-editor in the terminal
-    # installing roboto fonts
-    sudo apt install -y fonts-roboto fonts-roboto-unhinted
-
-    gsettings set org.cinnamon.desktop.interface font-name 'Roboto 10'
-    gsettings set org.nemo.desktop font 'Roboto 10'
-    gsettings set org.gnome.desktop.interface document-font-name 'Roboto 10'
-    gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font Mono 10'
-    gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Roboto Bold 10'
-    gsettings set org.x.viewer.plugins.pythonconsole use-system-font false
-    gsettings set org.x.viewer.plugins.pythonconsole font 'FiraCode Nerd Font Mono Regular 10'
-
-    # changing setting scale
-    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
-
-    # changing font setting text scale
-
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
-
-}
-
 function setting_cursor() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Cursor." | tee -a $log_path
@@ -429,61 +403,60 @@ function setting_menu_icon(){
 
 }
 
+function setting_fonts() {
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting fonts." | tee -a $log_path
+    # Setting font by default
+    # with the help of `dconf watch /` we can see the changes the next configuration.
+    # to see types dconf-editor in the terminal
+    # installing roboto fonts
+    sudo apt install -y fonts-roboto fonts-roboto-unhinted
+
+    gsettings set org.cinnamon.desktop.interface font-name 'Roboto 10'
+    gsettings set org.nemo.desktop font 'Roboto 10'
+    gsettings set org.gnome.desktop.interface document-font-name 'Roboto 10'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'Hack Nerd Font Mono 10'
+    gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Roboto Bold 10'
+    gsettings set org.x.viewer.plugins.pythonconsole use-system-font false
+    gsettings set org.x.viewer.plugins.pythonconsole font 'FiraCode Nerd Font Mono Regular 10'
+
+    # changing setting scale
+    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
+    # changing font setting text scale
+    # the sleep is for wait until the change is applied
+    sleep 2
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
+
+}
+
 function setting_terminal_color_palette() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Terminal Color Palette." | tee -a $log_path
-
     # setting the color palette of the terminal
     profile=$(gsettings get org.gnome.Terminal.ProfilesList default)
     profile=${profile:1:-1}
-    echo "background-color"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         background-color "rgb(13,33,39)"
-    sleep 2
-    echo "cursor-shape"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         cursor-shape "underline"
-    sleep 2
-    echo "font"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         font "Hack Nerd Font Mono 12"
-    sleep 2
-    echo "palette"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         palette "['rgb(0,0,0)', 'rgb(170,0,0)', 'rgb(0,170,0)', 'rgb(170,85,0)', 'rgb(38,139,210)', 'rgb(170,0,170)', 'rgb(0,170,170)', 'rgb(170,170,170)', 'rgb(85,85,85)', 'rgb(255,85,85)', 'rgb(85,255,85)', 'rgb(255,255,85)', 'rgb(85,85,255)', 'rgb(255,85,255)', 'rgb(85,255,255)', 'rgb(255,255,255)']"
-    sleep 2
-    echo "use-system-font"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         use-system-font true
-    sleep 2
-    echo "use-theme-colors"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         use-theme-colors false
-    sleep 2
-    echo "visible-name"
     gsettings set \
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         visible-name "Sheldonimo"
-    sleep 2
-    echo "use-system-font para actualizacion de la fuente"
-
-    # updating font of terminal
-    # <<<----------------->>> Font <<<----------------->>>
-    # this is because the current font is not updated in the terminal by default
-    gsettings set \
-        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
-        use-system-font false
-    gsettings set \
-        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
-        use-system-font true
-    # <<<----------------->>> Font end <<<----------------->>>
-
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette setted." | tee -a $log_path
 }
