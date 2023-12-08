@@ -458,6 +458,18 @@ function setting_terminal_color_palette() {
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         visible-name "Sheldonimo"
 
+    # updating font of terminal
+    # <<<----------------->>> Font <<<----------------->>>
+    # this is because the current font is not updated in the terminal by default
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-system-font false
+    gsettings set \
+        org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
+        use-system-font true
+    # <<<----------------->>> Font end <<<----------------->>>
+
+
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette setted." | tee -a $log_path
 }
 
