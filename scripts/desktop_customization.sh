@@ -50,6 +50,9 @@ function main() {
 
     # <<--->> Setting configuration in desktop <<--->>
 
+    # Setting rofi
+    setting_main_shortcut
+
     # Setting Cursor by default
     setting_cursor
 
@@ -291,6 +294,33 @@ function install_rofi() {
 }
 
 # <<<----------------->>> Setting functions <<<----------------->>>
+
+function setting_main_shortcut() {
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting main shortcut." | tee -a $log_path
+
+    # Setting main shortcut
+    comando=("'gnome-screenshot -ac'" "'gnome-screenshot -c -d 1'" "'rofi -show-icons -modi drun -show drun'" "'copyq show'")
+    nombre=("'screenshot area'" "'screenshot'" "'rofi'" "'copyq'")
+    shortcut=("['<Alt><Shift>a']" "['<Alt><Shift>s']" "['<Alt>d']" "['<Super>v']")
+
+    path_key="/org/cinnamon/desktop/keybindings/custom-keybindings"
+
+    # Write de shortcut in the file dconf
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Writing shortcut in dconf." | tee -a $log_path
+
+    for i in ${!comando[@]};
+    do
+        dconf write $path_key/custom$i/binding "${shortcut[$i]}"
+        dconf write $path_key/custom$i/command "${comando[$i]}"
+        dconf write $path_key/custom$i/name "${nombre[$i]}"
+    done
+
+    dconf write /org/cinnamon/desktop/keybindings/custom-list "['__dummy__', 'custom0', 'custom1', 'custom2', 'custom3']"
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
+}
 
 function setting_cursor() {
 
