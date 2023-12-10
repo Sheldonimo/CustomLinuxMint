@@ -65,6 +65,9 @@ function main() {
     # Setting Panel and applets
     setting_panel_and_applets
 
+    # Setting Calendar
+    setting_calendar
+
     # setting menu icon
     setting_menu_icon
 
@@ -73,6 +76,9 @@ function main() {
 
     # setting the color palette of the terminal
     setting_terminal_color_palette
+
+    # setting the background desktop
+    setting_background_desktop
 
 }
 
@@ -386,15 +392,38 @@ function setting_panel_and_applets() {
         
 }
 
+function setting_calendar(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Calendar." | tee -a $log_path
+
+    json_root_legacy="/home/$USER/.cinnamon/configs/calendar@cinnamon.org/13.json"
+    json_root="/home/$USER/.config/cinnamon/spices/calendar@cinnamon.org/13.json"
+
+    # Setting Calendar
+    if [ -f $json_root_legacy ] ; then
+        # for legacy path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
+        sed -i '/"show-events":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
+        sed -i '/"use-custom-format":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
+        sed -i '/"custom-format":/,/},/{s/"value": "[^"]*"/"value": "%e %b %H:%M"/}' $json_root_legacy
+
+    elif [ -f $json_root ] ; then
+        # for new path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
+        sed -i '/"show-events":/,/},/{s/"value": false/"value": true/}' $json_root
+        sed -i '/"use-custom-format":/,/},/{s/"value": false/"value": true/}' $json_root
+        sed -i '/"custom-format":/,/},/{s/"value": "[^"]*"/"value": "%e %b %H:%M"/}' $json_root
+    else
+        # Don't found the file for change the icon menu
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : File calendar not found" | tee -a $log_path
+    fi
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar setted." | tee -a $log_path
+
+}
+
 function setting_menu_icon(){
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Menu Icon." | tee -a $log_path
-
-    # /usr/share/icons/hicolor/scalable/apps/nombre_icon.svg
-    # investigar la siguiente ruta
-    # /home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json
-    # /home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json
-    # /home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json
 
     icon_root="/usr/share/icons/hicolor/scalable/apps"
     # Setting Menu Icon
@@ -517,6 +546,25 @@ function setting_terminal_color_palette() {
         visible-name "Sheldonimo"
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette setted." | tee -a $log_path
+}
+
+function setting_background_desktop(){
+    
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Background Desktop." | tee -a $log_path
+    
+        # setting the background desktop
+        codename=$(lsb_release -c | awk '{print $2}')
+        path="/usr/share/backgrounds/linuxmint-$codename"
+        image_name=$(ls $path/*.jpg | head -n 1)
+        gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
+        gsettings set org.cinnamon.desktop.background picture-options "zoom"
+        gsettings set org.cinnamon.desktop.slideshow slideshow-enabled true
+        gsettings set org.cinnamon.desktop.slideshow slideshow-delay 30
+        gsettings set org.cinnamon.desktop.slideshow random-order true
+        gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
+    
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  
+
 }
 
 # <<<----------------->>> Main <<<----------------->>>
