@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# by: Sheldonimo
 
 function main() {
 
@@ -79,6 +79,18 @@ function main() {
 
     # setting the background desktop
     setting_background_desktop
+
+    # setting notification
+    setting_notification
+
+    # setting redshift (night light)
+    setting_redshift
+
+    # setting desktop icons
+    setting_desktop_icons
+
+    # setting max volume
+    setting_max_volume
 
 }
 
@@ -536,9 +548,6 @@ function setting_terminal_color_palette() {
         close-tab '<Primary>w'
     gsettings set \
         org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
-        paste '<Primary>v'
-    gsettings set \
-        org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/\
         select-all '<Primary>a'
     # setting the name of the profile
     gsettings set \
@@ -566,6 +575,76 @@ function setting_background_desktop(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  
 
 }
+
+function setting_notification(){
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Notification." | tee -a $log_path
+
+    # setting notification
+    json_root_legacy="/home/$USER/.cinnamon/configs/notifications@cinnamon.org/notifications@cinnamon.org.json"
+    json_root="/home/$USER/.config/cinnamon/spices/notifications@cinnamon.org/notifications@cinnamon.org.json"
+
+    # Setting Calendar
+    if [ -f $json_root_legacy ] ; then
+        # for legacy path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
+        sed -i '/"showEmptyTray":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
+
+    elif [ -f $json_root ] ; then
+        # for new path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
+        sed -i '/"showEmptyTray":/,/},/{s/"value": false/"value": true/}' $json_root
+    else
+        # Don't found the file for change the icon menu
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : File calendar not found" | tee -a $log_path
+    fi
+    # setting notification
+    gsettings set org.cinnamon.desktop.notifications botton-notification true
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification setted." | tee -a $log_path
+
+}
+
+function setting_redshift(){
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Redshift." | tee -a $log_path
+
+    # setting redshift
+    path="/home/$USER/.config/autostart/redshift-gtk.desktop"
+    if [ -f $path ] ; then
+        # for legacy path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : Update setting redshift" | tee -a $log_path
+        sed -i 's/X-GNOME-Autostart-enabled=false/X-GNOME-Autostart-enabled=true/' $path
+    else
+        # Don't found the file for change the icon menu
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : File redshift not found" | tee -a $log_path
+    fi
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift setted." | tee -a $log_path
+}
+
+function setting_desktop_icons(){
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Desktop Icons." | tee -a $log_path
+    # setting desktop icons
+    gsettings set org.nemo.desktop computer-icon-visible true
+    gsettings set org.nemo.desktop home-icon-visible true
+    gsettings set org.nemo.desktop trash-icon-visible true
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop Icons setted." | tee -a $log_path
+
+}
+
+function setting_desktop(){
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Desktop." | tee -a $log_path
+
+    # setting maximum volume to 150% (note: is possible set a value over 150)
+    gsettings set org.cinnamon.desktop.sound maximum-volume 150
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop setted." | tee -a $log_path   
+}
+
 
 # <<<----------------->>> Main <<<----------------->>>
 main
