@@ -92,6 +92,10 @@ function main() {
     # setting max volume
     setting_max_volume
 
+    # Tools for develop
+    # `dconf watch /` to see the changes when we change the configuration graphically
+    # to see all conf settings use `dconf-editor` in the terminal
+    
 }
 
 # <<<----------------->>> Download functions <<<----------------->>>
@@ -306,7 +310,10 @@ function install_rofi() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing rofi." | tee -a $log_path
     # Install rofi
-    ./tmp/fresh-rofi-theme/install.sh
+    previus_root=$(pwd)
+    cd ./tmp/fresh-rofi-theme
+    ./install.sh
+    cd $previus_root
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rofi Installed." | tee -a $log_path
 
 }
