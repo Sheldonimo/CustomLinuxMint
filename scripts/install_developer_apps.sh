@@ -8,6 +8,9 @@ function main() {
 
     # # <<--->> Download all files <<--->>
 
+    # Download powerlevel10k
+    download_powerlevel10k
+
     # # Download fonts
     # download_font
 
@@ -61,6 +64,14 @@ function main() {
 
 # <<<----------------->>> Download functions <<<----------------->>>
 
+function download_powerlevel10k() {
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading powerlevel10k." | tee -a $log_path
+    # Download powerlevel10k
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.config/powerlevel10k
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} powerlevel10k Downloaded." | tee -a $log_path
+}
+
+
 
 # function download_font() {
 #     dato=$1
@@ -86,12 +97,8 @@ function setting_zsh_theme(){
     # copy ~/.zshrc and ~/.p10k.zsh
     cp ./theme/.zshrc ~/.zshrc
     cp ./theme/.p10k.zsh ~/.p10k.zsh
-    # create folder powerlevel10k
-    mkdir -p ~/.config/powerlevel10k
     # copy theme/powerlevel10k.zsh-theme
-    cp ./theme/powerlevel10k.zsh-theme ~/.config/powerlevel10k/powerlevel10k.zsh-theme  
-    # copy internal folder
-    cp -r ./theme/internal ~/.config/powerlevel10k/internal
+    #cp ./theme/powerlevel10k.zsh-theme ~/.config/powerlevel10k/powerlevel10k.zsh-theme  
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
 }
 
