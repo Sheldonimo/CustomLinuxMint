@@ -616,6 +616,16 @@ function setting_redshift(){
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Redshift." | tee -a $log_path
 
+    # validate if redshift is installed
+    if command -v redshift &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift is installed." | tee -a "$log_path"
+    else 
+        sudo apt install -y redshift-gtk
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift not installed." | tee -a "$log_path"
+    fi
+    # executing redshift
+    redshift-gtk &
+    sleep 2
     # setting redshift
     path="/home/$USER/.config/autostart/redshift-gtk.desktop"
     if [ -f $path ] ; then
