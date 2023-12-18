@@ -90,6 +90,8 @@ function setting_zsh_theme(){
     mkdir -p ~/.config/powerlevel10k
     # copy theme/powerlevel10k.zsh-theme
     cp ./theme/powerlevel10k.zsh-theme ~/.config/powerlevel10k/powerlevel10k.zsh-theme  
+    # copy internal folder
+    cp -r ./theme/internal ~/.config/powerlevel10k/internal
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
 }
 
