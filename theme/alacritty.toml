@@ -1,0 +1,66 @@
+[colors.bright]
+black = "#545454"
+blue = "#5555ff"
+cyan = "#6ae3f9"
+green = "#1cc411"
+magenta = "#ff55ff"
+red = "#FF5555"
+white = "#ffffff"
+yellow = "#fee409"
+
+[colors.cursor]
+cursor = "#aaaaaa"
+text = "#122637"
+
+[colors.normal]
+black = "#000000"
+blue = "#268bd2"
+cyan = "#00bbbb"
+green = "#55ff55"
+magenta = "#ff005d"
+red = "#ff0000"
+white = "#bbbbbb"
+yellow = "#ecc809"
+
+[colors.primary]
+background = "#0d2127"
+foreground = "#c5c8c6"
+
+[cursor.style]
+shape = "Underline"
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 11.0
+
+[font.normal]
+family = "Hack Nerd Font Mono"
+style = "Regular"
+
+[[mouse.bindings]]
+action = "Copy"
+mouse = "Right"
+
+[[mouse.bindings]]
+action = "PasteSelection"
+mods = "Control"
+mouse = "Right"
+
+[[mouse.bindings]]
+action = "PasteSelection"
+mods = "Shift"
+mouse = "Right"
+
+[shell]
+args = ["--login"]
+program = "/usr/bin/zsh"
+
+[window]
+opacity = 0.9
+title = "Alacritty"
+
+[window.dimensions]
+columns = 81
+lines = 27

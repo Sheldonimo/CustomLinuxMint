@@ -220,7 +220,8 @@ function setting_zsh_theme(){
 
 function setting_plugins_zsh(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
-    echo "\n# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
+    echo "" >> ~/.zshrc
+    echo "# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
     echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
     echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
     echo "source /usr/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
@@ -230,7 +231,8 @@ function setting_plugins_zsh(){
 function setting_git_tree_visualizations(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations to bash and zsh." | tee -a $log_path
     for file in ~/.zshrc ~/.bashrc; do
-        echo "\n# <<<--------->>> Git tree Visualizations <<<--------->>>" >> "$file"
+        echo "" >> "$file"
+        echo "# <<<--------->>> Git tree Visualizations <<<--------->>>" >> "$file"
         echo "# ways to visualize the git log more graphically"
         echo "alias lg=\"lg1\"" >> "$file"
         echo "alias lg1=\"lg1-specific --all\"" >> "$file"
@@ -246,8 +248,10 @@ function setting_git_tree_visualizations(){
 function setting_exa(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting exa." | tee -a $log_path
     # Setting exa
-    echo "\nalias ll=\"exa -alh\"" >> ~/.zshrc
-    echo "\nalias ll=\"exa -alh\"" >> ~/.bashrc
+    echo "" >> ~/.zshrc
+    echo "alias ll=\"exa -alh\"" >> ~/.zshrc
+    echo "" >> ~/.bashrc
+    echo "alias ll=\"exa -alh\"" >> ~/.bashrc
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
 }
 
@@ -260,7 +264,8 @@ function setting_zsh_theme(){
 
 function setting_plugins_zsh(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
-    echo "\n# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
+    echo "" >> ~/.zshrc
+    echo "# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
     echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
     echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
     echo "source /usr/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
@@ -273,8 +278,9 @@ function setting_alacritty(){
     # Copy format alacritty
     mkdir ~/.config/alacritty
     cp ./theme/alacritty.yml ~/.config/alacritty/alacritty.yml
+    cp ./theme/alacritty.toml ~/.config/alacritty/alacritty.toml
     # Setting alacritty like a default terminal
-    dconf write /org/cinnamon/desktop/applications/terminal/exec 'alacritty'
+    dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty Installed." | tee -a $log_path
 }
 
