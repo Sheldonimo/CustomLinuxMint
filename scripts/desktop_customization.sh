@@ -343,6 +343,8 @@ function setting_main_shortcut() {
     done
 
     dconf write /org/cinnamon/desktop/keybindings/custom-list "['__dummy__', 'custom0', 'custom1', 'custom2', 'custom3']"
+    # Open terminal
+    dconf write /org/cinnamon/desktop/keybindings/media-keys/terminal "['<Primary><Alt>t', '<Super>Return']"
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
 }
