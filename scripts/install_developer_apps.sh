@@ -95,7 +95,7 @@ function download_plugins_zsh() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading plugins zsh." | tee -a $log_path
     # Download plugins zsh
     # Clone repository zsh-syntax-highlighting
-    git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
 
     # Crear directorio y descargar zsh-autosuggestions
     sudo mkdir /usr/local/share/zsh-autosuggestions/
