@@ -102,7 +102,7 @@ function download_plugins_zsh() {
     sudo wget -O /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/master/zsh-autosuggestions.zsh
 
     # Crear directorio y descargar sudo plugin de Oh My Zsh
-    sudo mkdir /usr/share/zsh-sudo/
+    sudo mkdir /usr/local/share/zsh-sudo/
     sudo wget -O /usr/local/share/zsh-sudo/sudo.plugin.zsh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
 
     # Fin de descarga de plugins zsh
