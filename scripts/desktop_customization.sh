@@ -577,7 +577,7 @@ function setting_background_desktop(){
         gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
         gsettings set org.cinnamon.desktop.background picture-options "zoom"
         gsettings set org.cinnamon.desktop.background.slideshow slideshow-enabled true
-        gsettings set org.cinnamon.desktop.background.slideshow slideshow-delay 30
+        gsettings set org.cinnamon.desktop.background.slideshow delay 30
         gsettings set org.cinnamon.desktop.background.slideshow random-order true
         gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
     
@@ -608,7 +608,7 @@ function setting_notification(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : File calendar not found" | tee -a $log_path
     fi
     # setting notification
-    gsettings set org.cinnamon.desktop.notifications botton-notification true
+    gsettings set org.cinnamon.desktop.notifications bottom-notifications true
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification setted." | tee -a $log_path
 
@@ -654,7 +654,7 @@ function setting_desktop_icons(){
 
 }
 
-function setting_desktop(){
+function setting_max_volume(){
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Desktop." | tee -a $log_path
 
