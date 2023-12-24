@@ -576,9 +576,9 @@ function setting_background_desktop(){
         image_name=$(ls $path/*.jpg | head -n 1)
         gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
         gsettings set org.cinnamon.desktop.background picture-options "zoom"
-        gsettings set org.cinnamon.desktop.slideshow slideshow-enabled true
-        gsettings set org.cinnamon.desktop.slideshow slideshow-delay 30
-        gsettings set org.cinnamon.desktop.slideshow random-order true
+        gsettings set org.cinnamon.desktop.background.slideshow slideshow-enabled true
+        gsettings set org.cinnamon.desktop.background.slideshow slideshow-delay 30
+        gsettings set org.cinnamon.desktop.background.slideshow random-order true
         gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
     
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  

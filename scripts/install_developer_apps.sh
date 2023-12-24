@@ -270,23 +270,6 @@ function setting_exa(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
 }
 
-function setting_zsh_theme(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting zsh theme." | tee -a $log_path
-    cp ./theme/.zshrc ~/.zshrc
-    cp ./theme/.p10k.zsh ~/.p10k.zsh
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
-}
-
-function setting_plugins_zsh(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
-    echo "" >> ~/.zshrc
-    echo "# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
-    echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-    echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
-    echo "source /usr/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Installed." | tee -a $log_path
-}
-
 function setting_alacritty(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting alacritty." | tee -a $log_path
     # <<----------->> Setting alacritty <<----------->>
