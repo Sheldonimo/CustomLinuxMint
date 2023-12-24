@@ -33,6 +33,9 @@ function main() {
     # Install zsh
     install_zsh
 
+    # Install plugins zsh
+    install_plugins_zsh
+
     # Install neofetch and htop
     install_neofetch_and_htop
 
@@ -91,17 +94,16 @@ function download_powerlevel10k() {
 function download_plugins_zsh() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading plugins zsh." | tee -a $log_path
     # Download plugins zsh
-    # Crear directorio y descargar zsh-syntax-highlighting
-    sudo mkdir /usr/share/zsh-syntax-highlighting/
-    sudo wget -O /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh https://raw.githubusercontent.com/zsh-users/zsh-syntax-highlighting/master/zsh-syntax-highlighting.zsh
+    # Clone repository zsh-syntax-highlighting
+    git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
 
     # Crear directorio y descargar zsh-autosuggestions
-    sudo mkdir /usr/share/zsh-autosuggestions/
-    sudo wget -O /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/master/zsh-autosuggestions.zsh
+    sudo mkdir /usr/local/share/zsh-autosuggestions/
+    sudo wget -O /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/master/zsh-autosuggestions.zsh
 
     # Crear directorio y descargar sudo plugin de Oh My Zsh
     sudo mkdir /usr/share/zsh-sudo/
-    sudo wget -O /usr/share/zsh-sudo/sudo.plugin.zsh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
+    sudo wget -O /usr/local/share/zsh-sudo/sudo.plugin.zsh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
 
     # Fin de descarga de plugins zsh
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Downloaded." | tee -a $log_path
@@ -145,6 +147,19 @@ function install_zsh(){
     # Install green icons
     sudo apt install -y zsh
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh Installed." | tee -a $log_path
+}
+
+function install_plugins_zsh(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing plugins zsh." | tee -a $log_path
+    begin_path=$(pwd)
+    # Install plugins zsh
+    # Install zsh-syntax-highlighting
+    cd ./tmp/zsh-syntax-highlighting
+    sudo make install
+    # back to original path
+    cd $begin_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Installed." | tee -a $log_path
+
 }
 
 function install_neofetch_and_htop(){
@@ -222,9 +237,9 @@ function setting_plugins_zsh(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
     echo "" >> ~/.zshrc
     echo "# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
-    echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-    echo "source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
-    echo "source /usr/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
+    echo "source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+    echo "source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
+    echo "source /usr/local/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Installed." | tee -a $log_path
 }
 
