@@ -20,6 +20,9 @@ function main() {
     # Download Alacritty
     download_alacritty
 
+    # Download ranger
+    download_ranger
+
     # # <<--->> Unpackage all files <<--->>
 
     # # Unpackage fonts
@@ -48,6 +51,14 @@ function main() {
     # Install alacritty
     install_alacritty
 
+    # Install ranger
+    install_ranger
+
+    # Install poetry
+    install_poetry
+
+    # Install Node
+    install_node
     # <<--->> Setting configuration in desktop <<--->>
 
     # Setting zsh
@@ -64,6 +75,12 @@ function main() {
 
     # Settings alacritty
     setting_alacritty
+
+    # Settings poetry
+    setting_poetry
+
+    # Settings pyenv
+    setting_pyenv
 
 }
 
@@ -132,6 +149,17 @@ function download_alacritty(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Alacritty." | tee -a $log_path
         git clone https://github.com/alacritty/alacritty.git ./tmp/Alacritty
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty Downloaded." | tee -a $log_path
+        # Waiting until all files are downloaded
+        wait -n
+    fi
+}
+
+function download_ranger(){
+    # Download Ranger
+    if [ ! -d "./tmp/ranger" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Ranger." | tee -a $log_path
+        git clone https://github.com/ranger/ranger.git ./tmp/ranger
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger Downloaded." | tee -a $log_path
         # Waiting until all files are downloaded
         wait -n
     fi
@@ -222,7 +250,46 @@ function install_alacritty(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty Installed." | tee -a $log_path
 }
 
+function install_ranger(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Ranger." | tee -a $log_path
+    begin_path=$(pwd)
+    # <<------>> Compile Ranger <<------>>
+    cd ./tmp/ranger
+    sudo make install
+    # <<------>>  back to original path <<------>> 
+    cd $begin_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger Installed." | tee -a $log_path
+}
 
+function install_poetry(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Poetry." | tee -a $log_path
+    # Install poetry
+    curl -sSL https://install.python-poetry.org | python3 -
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Poetry Installed." | tee -a $log_path
+}
+
+function install_pyenv(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing pyenv." | tee -a $log_path
+    # Install pyenv
+    curl https://pyenv.run | bash
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv Installed." | tee -a $log_path
+}
+
+function install_node(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Node." | tee -a $log_path
+    # Install Node
+    # Getting the latest LTS version of Node
+    NODE_MAJOR=$(curl -s https://deb.nodesource.com/ | grep "NODE_MAJOR=" | sed 's/.*NODE_MAJOR=\([0-9]*\).*/\1/')
+    # Validate if NODE_MAJOR is a number
+    if [[ $NODE_MAJOR =~ ^[0-9]{2}$ ]]; then
+        sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+        sudo apt-get update
+        sudo apt-get install nodejs -y
+    fi
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Node Installed." | tee -a $log_path
+}
 
 # <<<----------------->>> Setting functions <<<----------------->>>
 
@@ -263,9 +330,13 @@ function setting_git_tree_visualizations(){
 function setting_exa(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting exa." | tee -a $log_path
     # Setting exa
+    # to ~/.zshrc
     echo "" >> ~/.zshrc
+    echo "# <<<--------->>> exa <<<--------->>>" >> ~/.zshrc
     echo "alias ll=\"exa -alh\"" >> ~/.zshrc
+    # to ~/.bashrc
     echo "" >> ~/.bashrc
+    echo "# <<<--------->>> exa <<<--------->>>" >> ~/.bashrc
     echo "alias ll=\"exa -alh\"" >> ~/.bashrc
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
 }
@@ -280,6 +351,42 @@ function setting_alacritty(){
     # Setting alacritty like a default terminal
     dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty Installed." | tee -a $log_path
+}
+
+function setting_poetry(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting poetry." | tee -a $log_path
+    # Setting poetry
+    # to ~/.zshrc
+    echo "" >> ~/.zshrc
+    echo "# <<<--------->>> Poetry <<<--------->>>" >> ~/.zshrc
+    echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.zshrc
+    # to ~/.bashrc
+    echo "" >> ~/.bashrc
+    echo "# <<<--------->>> Poetry <<<--------->>>" >> ~/.bashrc
+    echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry Installed." | tee -a $log_path
+
+}
+
+function setting_pyenv(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting pyenv." | tee -a $log_path
+    # Setting pyenv in ~/.zshrc and ~/.bashrc
+    for file in ~/.zshrc ~/.bashrc; do
+        echo "" >> "$file"
+        echo "# <<<--------->>> Pyenv <<<--------->>>" >> "$file"
+        echo "" >> "$file"
+        echo "# Add Pyenv root path" >> "$file"
+        echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> "$file"
+        echo "" >> "$file"
+        echo "# Update PATH for Pyenv" >> "$file"
+        echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> "$file"
+        echo "" >> "$file"
+        echo "# Initialize Pyenv and Pyenv-Virtualenv" >> "$file"
+        echo "eval \"\$(pyenv init -)\"" >> "$file"
+        echo "eval \"\$(pyenv virtualenv-init -)\"" >> "$file"
+    done
+    
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
 }
 
 # <<<----------------->>> Main <<<----------------->>>

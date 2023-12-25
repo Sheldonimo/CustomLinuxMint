@@ -505,7 +505,7 @@ function setting_fonts() {
     gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
     # changing font setting text scale
     # the sleep is for wait until the change is applied
-    sleep 2
+    sleep 3
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
 
