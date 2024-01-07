@@ -16,6 +16,8 @@ function main() {
     case "$answer" in
 
     1)  
+        # Require sudo access
+        sudo -v
         #echo "run Install All Customizations..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation All Customizations." | tee -a $log_path
         install_pip_and_git
@@ -24,24 +26,32 @@ function main() {
         ask_to_run_script "install_developer_apps.sh" "false"
         ;;
     2)  
+        # Require sudo access
+        sudo -v
         #echo "run Install Desktop Customization..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Desktop Customization." | tee -a $log_path
         install_pip_and_git
         ask_to_run_script "desktop_customization.sh" "false"
         ;;
     3)  
+        # Require sudo access
+        sudo -v
         #echo "run Install Developer Apps..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Developer Apps." | tee -a $log_path
         install_pip_and_git
         ask_to_run_script "install_developer_apps.sh" "false"
         ;;
     4)  
+        # Require sudo access
+        sudo -v
         #echo "run Install General Purpose Apps..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation General Purpose Apps." | tee -a $log_path
         install_pip_and_git
         ask_to_run_script "install_general_purpose_apps.sh" "false"
         ;;
     5)  
+        # Require sudo access
+        sudo -v
         #echo "Multi-Selection setup..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Custom Selection setup." | tee -a $log_path
         install_pip_and_git
