@@ -320,33 +320,108 @@ function install_rofi() {
 
 # <<<----------------->>> Setting functions <<<----------------->>>
 
-function setting_main_shortcut() {
+# Function to check if a custom command exists
+function exist_shortcut() {
+    # Arguments: $1 = name of the custom command, $2 = binding of the custom command
+    # 1=rofi , 2=['<Alt>d']
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting main shortcut." | tee -a $log_path
-
-    # Setting main shortcut
-    comando=("'gnome-screenshot -ac'" "'gnome-screenshot -c -d 1'" "'rofi -show-icons -modi drun -show drun'" "'copyq show'")
-    nombre=("'screenshot area'" "'screenshot'" "'rofi'" "'copyq'")
-    shortcut=("['<Alt><Shift>a']" "['<Alt><Shift>s']" "['<Alt>d']" "['<Super>v']")
-
+    # Path where the custom commands are stored in dconf
     path_key="/org/cinnamon/desktop/keybindings/custom-keybindings"
 
-    # Write de shortcut in the file dconf
+    # Read the list of custom commands
+    custom_list=$(dconf read /org/cinnamon/desktop/keybindings/custom-list)
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Writing shortcut in dconf." | tee -a $log_path
+    # Extract the custom command names
+    custom_names=$(echo $custom_list | grep -o "custom[0-9]*")
 
-    for i in ${!comando[@]};
-    do
-        dconf write $path_key/custom$i/binding "${shortcut[$i]}"
-        dconf write $path_key/custom$i/command "${comando[$i]}"
-        dconf write $path_key/custom$i/name "${nombre[$i]}"
+    # Print each custom command name
+    flag=false # Flag to indicate if the custom command exists
+    for name in $custom_names; do
+        dconf_name=$(dconf read $path_key/$name/name)
+        dconf_shortcut=$(dconf read $path_key/$name/binding)
+        if [ "$dconf_name" == "$1" ] && [ "$dconf_shortcut" == "$2" ]; then
+            flag=true
+            break
+        fi
+    done
+    echo $flag
+}
+
+# Function to find the maximum custom index
+function get_max_custom_index() {
+    # input example: "['custom5', 'custom0', 'custom1', 'custom2', 'custom3', 'custom4']"
+    local input_list="$1"
+    local max_index=-1
+
+    # Extract numbers from the input list
+    local numbers=$(echo "$input_list" | grep -o -E 'custom[0-9]+' | tr -dc '0-9\n')
+
+    # Find the maximum index
+    for number in $numbers; do
+        if (( number > max_index )); then
+            max_index=$number
+        fi
     done
 
-    dconf write /org/cinnamon/desktop/keybindings/custom-list "['__dummy__', 'custom0', 'custom1', 'custom2', 'custom3']"
-    # Open terminal
-    dconf write /org/cinnamon/desktop/keybindings/media-keys/terminal "['<Primary><Alt>t', '<Super>Return']"
+    # Return the result
+    echo $max_index
+    # output example: 5
+}
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
+function setting_main_shortcut() {
+    # Validate if the shortcut is already set
+    res=$(exist_shortcut "'rofi'" "['<Alt>d']")
+
+    if [ $res == "true" ]; then
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting main shortcut." | tee -a $log_path
+
+        # Setting main shortcuts
+        declare -a commands=(
+        "'gnome-screenshot -ac'"
+        "'gnome-screenshot -c -d 1'"
+        "'rofi -show-icons -modi drun -show drun'"
+        )
+        declare -a names=(
+        "'screenshot area'"
+        "'screenshot'"
+        "'rofi'"
+        )
+        declare -a shortcuts=(
+        "['<Alt><Shift>a']"
+        "['<Alt><Shift>s']"
+        "['<Alt>d']"
+        )
+
+        path_key="/org/cinnamon/desktop/keybindings/custom-keybindings"
+
+        # Update the custom-list
+        custom_list=$(dconf read /org/cinnamon/desktop/keybindings/custom-list)
+        max_custom=$(get_max_custom_index "$custom_list")
+
+        # Write de shortcut in the file dconf
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Writing shortcut in dconf." | tee -a $log_path
+
+        for i in ${!commands[@]};
+        do
+            index=$((max_custom + i + 1))
+            dconf write $path_key/custom$index/binding "${shortcuts[$i]}"
+            dconf write $path_key/custom$index/command "${commands[$i]}"
+            dconf write $path_key/custom$index/name "${names[$i]}"
+        done
+
+        # Calculate the sum of the number of commands and max_custom
+        suma=$((max_custom + ${#commands[@]}))
+        # $((...)) is the arithmetic expansion in bash
+        # ${#commands[@]} is the number of elements in the array
+        dconf write /org/cinnamon/desktop/keybindings/custom-list "['__dummy__$(printf "', 'custom%d" $(seq 0 $suma))']"
+
+        # Open terminal add another shortcut
+        dconf write /org/cinnamon/desktop/keybindings/media-keys/terminal "['<Primary><Alt>t', '<Super>Return']"
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
+    fi
 }
 
 function setting_cursor() {

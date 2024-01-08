@@ -58,6 +58,9 @@ function main() {
     # Setting logseq
     setting_logseq
 
+    # Setting copyq
+    setting_copyq
+
     # Setting plugins zsh
     #setting_plugins_zsh
 
@@ -70,7 +73,7 @@ function main() {
 # <<<----------------->>> Download functions <<<----------------->>>
 
 function download_logseq() {
-    if grep -iq '^x|logseq' "$INSTALL_LIST"; then
+    if grep -iq '^x|logseq' "$INSTALL_LIST" && ! command -v logseq &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading logseq." | tee -a $log_path
         # Download logseq
         # Get the latest release from github
@@ -89,8 +92,14 @@ function download_logseq() {
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Logseq." | tee -a $log_path
             curl -L --output "./tmp/Logseq-linux-x64.AppImage" $html_url/$file_name
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Logseq Downloaded." | tee -a $log_path
-            # Waiting until all files are downloaded
-            wait -n
+        fi
+
+        # Download the icon
+        icon_url="https://raw.githubusercontent.com/logseq/logseq/master/resources/icons/logseq.png"
+        if [ ! -f "./tmp/logseq-icon.png" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading logseq icon." | tee -a $log_path
+            curl -L --output "./tmp/logseq-icon.png" $icon_url
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq icon Downloaded." | tee -a $log_path
         fi
     fi
 }
@@ -114,6 +123,91 @@ function get_lastest_url() {
 
 
 # <<<----------------->>> Installation functions <<<----------------->>>
+
+function install_imagemagick(){
+    # Validate if imagemagick is not installed
+    if ! command -v convert &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing imagemagick." | tee -a $log_path
+        # Install imagemagick
+        sudo apt install -y imagemagick
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} imagemagick Installed." | tee -a $log_path
+    fi
+}
+
+# Function to check if a custom command exists
+function exist_shortcut() {
+    # Arguments: $1 = name of the custom command, $2 = binding of the custom command
+    # 1=rofi , 2=['<Alt>d']
+
+    # Path where the custom commands are stored in dconf
+    path_key="/org/cinnamon/desktop/keybindings/custom-keybindings"
+
+    # Read the list of custom commands
+    custom_list=$(dconf read /org/cinnamon/desktop/keybindings/custom-list)
+
+    # Extract the custom command names
+    custom_names=$(echo $custom_list | grep -o "custom[0-9]*")
+
+    # Print each custom command name
+    flag=false # Flag to indicate if the custom command exists
+    for name in $custom_names; do
+        dconf_name=$(dconf read $path_key/$name/name)
+        dconf_shortcut=$(dconf read $path_key/$name/binding)
+        if [ "$dconf_name" == "$1" ] && [ "$dconf_shortcut" == "$2" ]; then
+            flag=true
+            break
+        fi
+    done
+    echo $flag
+}
+
+# Function to find the maximum custom index
+function get_max_custom_index() {
+    # input example: "['custom5', 'custom0', 'custom1', 'custom2', 'custom3', 'custom4']"
+    local input_list="$1"
+    local max_index=-1
+
+    # Extract numbers from the input list
+    local numbers=$(echo "$input_list" | grep -o -E 'custom[0-9]+' | tr -dc '0-9\n')
+
+    # Find the maximum index
+    for number in $numbers; do
+        if (( number > max_index )); then
+            max_index=$number
+        fi
+    done
+
+    # Return the result
+    echo $max_index
+    # output example: 5
+}
+
+# Function to add a shortcut
+function add_shortcut() {
+    # input example: shortcuts, commands, names
+    # Example arguments: 1=['<Alt><Shift>a'], 2='gnome-screenshot -ac', 3='screenshot area'
+
+    local binding="$1"
+    local command="$2"
+    local name="$3"
+
+    local path_key="/org/cinnamon/desktop/keybindings/custom-keybindings"
+
+    # Update the custom-list
+    custom_list=$(dconf read /org/cinnamon/desktop/keybindings/custom-list)
+    max_custom=$(get_max_custom_index "$custom_list")
+    index=$((max_custom + 1))
+
+    # Write the shortcut in the file dconf
+    dconf write "$path_key/custom$index/binding" "$binding"
+    dconf write "$path_key/custom$index/command" "$command"
+    dconf write "$path_key/custom$index/name" "$name"
+
+    # $((...)) is the arithmetic expansion in bash
+
+    dconf write /org/cinnamon/desktop/keybindings/custom-list "['__dummy__$(printf "', 'custom%d" $(seq 0 $index))']"
+
+}
 
 function install_vscode() {
     if grep -iq '^x|vscode' "$INSTALL_LIST" && ! command -v code &> /dev/null; then
@@ -238,48 +332,86 @@ function install_tesseract_ocr() {
 # <<<----------------->>> Setting functions <<<----------------->>>
 
 function setting_tesseract_ocr(){
-    if grep -iq '^x|tesseract-ocr' "$INSTALL_LIST"; then
 
-        # flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
-        # gnome-screenshot -ac && xclip -selection clipboard -t image/png -o | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
+    # Validate if the shortcut exist
+    res=$(exist_shortcut "'ocr_flameshot'" "['<Alt><Shift>z']")
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tesseract-ocr setted." | tee -a $log_path
+    if [ "$res" == "true" ] && grep -iq '^x|tesseract-ocr' "$INSTALL_LIST"; then
+      
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting tesseract-ocr." | tee -a $log_path
+
+        local binding="['<Alt><Shift>z']"
+        local command="'flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard'"
+        # Commands:
+        # - flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
+        # - gnome-screenshot -ac && xclip -selection clipboard -t image/png -o | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
+        local name="'ocr_flameshot'"
+
+        add_shortcut "$binding" "$command" "$name"
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
+        
     fi
+
 }
 
 function setting_logseq() {
-    if grep -iq '^x|logseq' "$INSTALL_LIST"; then
+    if grep -iq '^x|logseq' "$INSTALL_LIST" && ! command -v tesseract &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting logseq." | tee -a $log_path
         # Setting logseq
         # Create the folder
         mkdir -p ~/.local/share/applications
+        mkdir -p ~/.local/share/logseq
         # Copy the file
-        cp ./tmp/Logseq-linux-x64.AppImage ~/.local/share/applications/Logseq-linux-x64.AppImage
-        # Create the file
-        touch ~/.local/share/applications/Logseq.desktop
-        # Add the content
-        echo "[Desktop Entry]" >> ~/.local/share/applications/Logseq.desktop
-        echo "Name=Logseq" >> ~/.local/share/applications/Logseq.desktop
-        echo "Exec=~/.local/share/applications/Logseq-linux-x64.AppImage" >> ~/.local/share/applications/Logseq.desktop
-        echo "Icon=" >> ~/.local/share/applications/Logseq.desktop
-        echo "Type=Application" >> ~/.local/share/applications/Logseq.desktop
-        echo "Categories=Development;" >> ~/.local/share/applications/Logseq.desktop
-        echo "Terminal=false" >> ~/.local/share/applications/Logseq.desktop
-        echo "StartupWMClass=Logseq" >> ~/.local/share/applications/Logseq.desktop
-        echo "Comment=Logseq" >> ~/.local/share/applications/Logseq.desktop
-        echo "MimeType=application/x-executable;" >> ~/.local/share/applications/Logseq.desktop
-        echo "Keywords=Logseq;" >> ~/.local/share/applications/Logseq.desktop
-        echo "Actions=" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-Desktop-File-Install-Version=0.26" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-Version=0.0.1" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-BuildId=0.0.1" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-Comment=Generated by appimagetool" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-Arch=x86_64" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-Name=Logseq" >> ~/.local/share/applications/Logseq.desktop
-        echo "X-AppImage-Type=appimage" >> ~/.local/share/applications/Logseq.desktop
+        cp ./tmp/Logseq-linux-x64.AppImage ~/.local/share/logseq/Logseq-linux-x64.AppImage
+        # Give execution permissions
+        chmod +x ~/.local/share/logseq/Logseq-linux-x64.AppImage
+
+        # Installing imagemagick if it is not installed
+        install_imagemagick
+
+        # Create the icons
+        original_image="./tmp/logseq-icon.png"
+        sizes=(16 24 32 48 64 128 512)
+
+        for size in "${sizes[@]}"; do
+            # Validate if the directory exist
+            if [ ! -d "$HOME/.local/share/icons/hicolor/${size}x${size}/apps" ]; then
+                # Crear el directorio si no existe
+                mkdir -p "$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
+            fi
+            # Redimensionar y guardar en la ruta correspondiente
+            convert "$original_image" -resize "${size}x${size}" "$HOME/.local/share/icons/hicolor/${size}x${size}/apps/logseq-icon.png"
+        done
+        # Create the desktop file
+        # logseq.app
+        # en la ruta ~/.local/share/applications/logseq.desktop
+
+        # falta crear el archivo .sh para ejecutar el logseq en la ruta ~/.local/share/logseq
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq setted." | tee -a $log_path
     fi
+}
+
+function setting_copyq(){
+
+    # Validate if the shortcut exist
+    res=$(exist_shortcut "'copyq'" "['<Super>v']")
+
+    if [ $res == "true" ]; then
+      
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting copyq in shortcuts." | tee -a $log_path
+
+        local binding="['<Super>v']"
+        local command="'copyq show'"
+        local name="'copyq'"
+
+        add_shortcut "$binding" "$command" "$name"
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
+        
+    fi
+
 }
 
 # <<<----------------->>> Main <<<----------------->>>

@@ -42,6 +42,9 @@ function main() {
     # Install bat
     install_bat
 
+    # Install imagemagick
+    install_imagemagick
+
     # Install alacritty
     install_alacritty
 
@@ -234,6 +237,16 @@ function install_bat(){
         # Install bat
         sudo dpkg -i ./tmp/bat_amd64.deb
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Installed." | tee -a $log_path
+    fi
+}
+
+function install_imagemagick(){
+    # Validate if imagemagick is not installed
+    if ! command -v convert &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing imagemagick." | tee -a $log_path
+        # Install imagemagick
+        sudo apt install -y imagemagick
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} imagemagick Installed." | tee -a $log_path
     fi
 }
 
