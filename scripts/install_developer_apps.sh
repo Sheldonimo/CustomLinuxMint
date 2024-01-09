@@ -377,8 +377,8 @@ function install_docker(){
 function setting_zsh_theme(){
     if [ ! -f ~/.zshrc ] && [ ! -f ~/.p10k.zsh ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting zsh theme." | tee -a $log_path
-        cp ./theme/.zshrc ~/.zshrc
-        cp ./theme/.p10k.zsh ~/.p10k.zsh
+        cp ./resources/.zshrc ~/.zshrc
+        cp ./resources/.p10k.zsh ~/.p10k.zsh
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
     fi
 }
@@ -446,8 +446,8 @@ function setting_alacritty(){
     # <<----------->> Setting alacritty <<----------->>
     # Copy format alacritty
     mkdir ~/.config/alacritty
-    cp ./theme/alacritty.yml ~/.config/alacritty/alacritty.yml
-    cp ./theme/alacritty.toml ~/.config/alacritty/alacritty.toml
+    cp ./resources/alacritty.yml ~/.config/alacritty/alacritty.yml
+    cp ./resources/alacritty.toml ~/.config/alacritty/alacritty.toml
     # Setting alacritty like a default terminal
     dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty Installed." | tee -a $log_path

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Logseq
+Comment=open-source platform for knowledge management.
+Exec=~/.local/bin/logseq
+Icon=logseq-icon
+Terminal=false
+Categories=Utility;Office;Productivity;
+Keywords=Knowledge;Outliner;Notes;Productivity;
+MimeType=x-scheme-handler/logseq;text/html;

@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# Path to the AppImage
+
+APP_PATH="$HOME/.local/share/logseq"
+NAME_APP="Logseq-linux-x64.AppImage"
+DESKTOP_FILE="$HOME/.local/share/applications/logseq.desktop"
+
+# Function to update Logseq
+function update_logseq() {
+    # Download logseq
+    # Get the latest release from github
+    html_url=$(get_lastest_url "logseq/logseq")
+
+    # Get the version from the url
+    new_version=$(echo "$html_url" | awk -F'/download/' '{print $2}')
+
+    # Current version
+    current_version=$(grep "Version=" "$DESKTOP_FILE" | awk -F '=' '{print $2}')
+
+    # Check if the version is the same
+    if [ "$new_version" = "$current_version" ]; then
+        echo "Already up to date."
+        exit 0
+    fi
+
+    # Get the file name from the url
+    file_name="Logseq-linux-x64-$new_version.AppImage"
+
+    # Download the file
+    if [ -f "$APP_PATH/$NAME_APP" ]; then
+        echo "Downloading Logseq..."
+        curl -L --output "$APP_PATH/SHA256SUMS.txt" $html_url/SHA256SUMS.txt
+        curl -L --output "$APP_PATH/$file_name" $html_url/$file_name
+        echo "Download complete."
+    fi
+
+    # Verify the checksum
+    status=$(sha256sum --check --ignore-missing --quiet "$APP_PATH/SHA256SUMS.txt" | awk -F ': ' '{print $2}')
+
+    if [ "$status" = "OK" ]; then
+        echo "Checksum OK."
+    elif [ "$status" = "FAILED" ]; then
+        echo "Checksum failed."
+        echo "Removing the downloaded files..."
+        find "$APP_PATH/" -maxdepth 1 -type f ! -name '$NAME_APP' -exec rm {} +
+        echo "Verify your connection and try again."
+        echo "Exiting..."
+        exit 1
+    else
+        echo "Error: Checksum file not found."
+        echo "Exiting..."
+        exit 1
+    fi
+    # Update version the desktop file
+    echo "Updating Logseq desktop file..."
+    sed -i "s/^Version=.*$/Version=$new_version/" "$DESKTOP_FILE"
+    # Delete the old file
+    rm -f "$APP_PATH/SHA256SUMS.txt"
+    rm -f "$APP_PATH/$NAME_APP"
+    # rename the new file
+    mv "$APP_PATH/$file_name" "$APP_PATH/$NAME_APP"
+    # Make the file executable
+    chmod +x "$APP_PATH/$NAME_APP"
+    echo "Update complete."
+}
+
+# Arguments: 1=name_github_user/name_repo (e.i ryanoasis/nerd-fonts)
+function get_lastest_url() {
+        # URL de la API para el último release del repositorio
+        #Example: "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+        api_url="https://api.github.com/repos/$1/releases/latest"
+        # Realizar la solicitud y extraer solo la primera coincidencia de "html_url"
+        html_url=$(curl -s $api_url | grep -m 1 '"html_url":' | awk -F '"' '{print $4}' | sed 's|/tag/|/download/|')
+        # el curl -s es para que no muestre el progreso de la descarga
+        # el grep -m 1 es para que solo muestre la primera coincidencia
+        # el awk -F '"' '{print $4}' es para que solo muestre la cuarta columna y usa como separador " (la comilla doble)
+        # el sed 's|/tag/|/download/|' es para reemplazar la cadena "/tag/" por "/download/"
+        # URL de descarga del archivo
+        echo $html_url
+}
+
+# Function to display help
+function show_help() {
+    echo "Logseq Launcher Script"
+    echo "Usage:"
+    echo "  logseq              Starts Logseq normally."
+    echo "  logseq update       Updates Logseq to the latest version."
+    echo "  logseq --help | -h  Displays this help message."
+}
+
+# Argument handling
+case "$1" in
+    "")
+        "$APP_PATH"
+        ;;
+    update)
+        update_logseq
+        ;;
+    -h|--help)
+        show_help
+        ;;
+    *)
+        echo "Error: Unrecognized option."
+        echo "Run 'logseq -h | --help' to see available options."
+        exit 1
+        ;;
+esac

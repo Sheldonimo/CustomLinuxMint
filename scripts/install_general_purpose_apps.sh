@@ -82,6 +82,9 @@ function download_logseq() {
         # Get the version from the url
         version=$(echo "$html_url" | awk -F'/download/' '{print $2}')
 
+        # Update the version in the desktop file
+        sed -i "s/^Version=.*$/Version=$version/" "./resources/logseq.desktop"
+
         # Get the file name from the url
         file_name="Logseq-linux-x64-$version.AppImage"
 
@@ -356,7 +359,7 @@ function setting_tesseract_ocr(){
 }
 
 function setting_logseq() {
-    if grep -iq '^x|logseq' "$INSTALL_LIST" && ! command -v tesseract &> /dev/null; then
+    if grep -iq '^x|logseq' "$INSTALL_LIST" && ! command -v logseq &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting logseq." | tee -a $log_path
         # Setting logseq
         # Create the folder
@@ -383,11 +386,28 @@ function setting_logseq() {
             # Redimensionar y guardar en la ruta correspondiente
             convert "$original_image" -resize "${size}x${size}" "$HOME/.local/share/icons/hicolor/${size}x${size}/apps/logseq-icon.png"
         done
-        # Create the desktop file
-        # logseq.app
-        # en la ruta ~/.local/share/applications/logseq.desktop
 
-        # falta crear el archivo .sh para ejecutar el logseq en la ruta ~/.local/share/logseq
+        # Create a script to run logseq and update logseq
+        cp ./resources/logseq ~/.local/bin/logseq
+        chmod +x ~/.local/bin/logseq
+        # Create the desktop file
+        # change ~ to $HOME
+        sed -i "s|~|$HOME|g" "./resources/logseq.desktop"
+        # Copy the file
+        cp ./resources/logseq.desktop ~/.local/share/applications/logseq.desktop
+
+        # Add logseq shortcut
+        local binding="['<Alt>Return']"
+        local command="'$HOME/.local/bin/logseq'"
+        local name="'Logseq'"
+
+        # Validate if the shortcut exist
+        res=$(exist_shortcut "$name" "$binding")
+
+        if [ $res == "true" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting logseq in shortcuts." | tee -a $log_path
+            add_shortcut "$binding" "$command" "$name"
+        fi
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq setted." | tee -a $log_path
     fi
