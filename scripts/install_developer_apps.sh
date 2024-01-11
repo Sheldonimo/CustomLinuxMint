@@ -108,7 +108,7 @@ function get_lastest_url() {
 function download_powerlevel10k() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading powerlevel10k." | tee -a $log_path
     # Download powerlevel10k
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.config/powerlevel10k
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $HOME/.config/powerlevel10k
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} powerlevel10k Downloaded." | tee -a $log_path
 }
 
@@ -338,7 +338,7 @@ function install_node(){
         if [[ $NODE_MAJOR =~ ^[0-9]{2}$ ]]; then
             sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg
             curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
             sudo apt-get update
             sudo apt-get install nodejs -y
         fi
@@ -353,7 +353,7 @@ function install_docker(){
         # Install Docker
         # Add Docker's official GPG key:
         sudo apt-get update
-        sudo apt-get install ca-certificates curl gnupg
+        sudo apt-get install -y ca-certificates curl gnupg
         sudo install -m 0755 -d /etc/apt/keyrings
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
         sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -366,7 +366,7 @@ function install_docker(){
         sudo apt-get update
 
         # Install Docker Engine:
-        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Docker Installed." | tee -a $log_path
     fi
@@ -375,22 +375,22 @@ function install_docker(){
 # <<<----------------->>> Setting functions <<<----------------->>>
 
 function setting_zsh_theme(){
-    if [ ! -f ~/.zshrc ] && [ ! -f ~/.p10k.zsh ]; then
+    if [ ! -f $HOME/.zshrc ] && [ ! -f $HOME/.p10k.zsh ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting zsh theme." | tee -a $log_path
-        cp ./resources/.zshrc ~/.zshrc
-        cp ./resources/.p10k.zsh ~/.p10k.zsh
+        cp ./resources/.zshrc $HOME/.zshrc
+        cp ./resources/.p10k.zsh $HOME/.p10k.zsh
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
     fi
 }
 
 function setting_plugins_zsh(){
-    if ! grep -iq '^# <<<--------->>> Plugins' ~/.zshrc; then
+    if ! grep -iq '^# <<<--------->>> Plugins' $HOME/.zshrc; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
-        echo "" >> ~/.zshrc
-        echo "# <<<--------->>> Plugins <<<--------->>>" >> ~/.zshrc
-        echo "source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-        echo "source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
-        echo "source /usr/local/share/zsh-sudo/sudo.plugin.zsh" >> ~/.zshrc
+        echo "" >> $HOME/.zshrc
+        echo "# <<<--------->>> Plugins <<<--------->>>" >> $HOME/.zshrc
+        echo "source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
+        echo "source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> $HOME/.zshrc
+        echo "source /usr/local/share/zsh-sudo/sudo.plugin.zsh" >> $HOME/.zshrc
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Installed." | tee -a $log_path
     fi 
 }
@@ -399,12 +399,12 @@ function setting_git_tree_visualizations(){
     # Setting variable to know where to add git tree visualizations
     installed=""
     # Validate if git tree visualizations is not installed in zsh
-    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' ~/.zshrc; then
-        installed="${installed} ~/.zshrc"
+    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.zshrc; then
+        installed="${installed} $HOME/.zshrc"
     fi
     # Validate if git tree visualizations is not installed in bash
-    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' ~/.bashrc; then
-        installed="${installed} ~/.bashrc"
+    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.bashrc; then
+        installed="${installed} $HOME/.bashrc"
     fi
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations to bash and zsh." | tee -a $log_path
@@ -426,17 +426,17 @@ function setting_git_tree_visualizations(){
 function setting_exa(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting exa." | tee -a $log_path
     # Setting exa
-    # to ~/.zshrc
-    if ! grep -iq '^# <<<--------->>> exa' ~/.zshrc; then
-        echo "" >> ~/.zshrc
-        echo "# <<<--------->>> exa <<<--------->>>" >> ~/.zshrc
-        echo "alias ll=\"exa -alh\"" >> ~/.zshrc
+    # to $HOME/.zshrc
+    if ! grep -iq '^# <<<--------->>> exa' $HOME/.zshrc; then
+        echo "" >> $HOME/.zshrc
+        echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.zshrc
+        echo "alias ll=\"exa -alh\"" >> $HOME/.zshrc
     fi
-    # to ~/.bashrc
-    if ! grep -iq '^# <<<--------->>> exa' ~/.bashrc; then
-        echo "" >> ~/.bashrc
-        echo "# <<<--------->>> exa <<<--------->>>" >> ~/.bashrc
-        echo "alias ll=\"exa -alh\"" >> ~/.bashrc
+    # to $HOME/.bashrc
+    if ! grep -iq '^# <<<--------->>> exa' $HOME/.bashrc; then
+        echo "" >> $HOME/.bashrc
+        echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.bashrc
+        echo "alias ll=\"exa -alh\"" >> $HOME/.bashrc
     fi
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
 }
@@ -445,9 +445,9 @@ function setting_alacritty(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting alacritty." | tee -a $log_path
     # <<----------->> Setting alacritty <<----------->>
     # Copy format alacritty
-    mkdir ~/.config/alacritty
-    cp ./resources/alacritty.yml ~/.config/alacritty/alacritty.yml
-    cp ./resources/alacritty.toml ~/.config/alacritty/alacritty.toml
+    mkdir $HOME/.config/alacritty
+    cp ./resources/alacritty.yml $HOME/.config/alacritty/alacritty.yml
+    cp ./resources/alacritty.toml $HOME/.config/alacritty/alacritty.toml
     # Setting alacritty like a default terminal
     dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty Installed." | tee -a $log_path
@@ -456,17 +456,17 @@ function setting_alacritty(){
 function setting_poetry(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting poetry." | tee -a $log_path
     # Setting poetry
-    # to ~/.zshrc
-    if ! grep -iq '^# <<<--------->>> Poetry' ~/.zshrc; then
-        echo "" >> ~/.zshrc
-        echo "# <<<--------->>> Poetry <<<--------->>>" >> ~/.zshrc
-        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.zshrc
+    # to $HOME/.zshrc
+    if ! grep -iq '^# <<<--------->>> Poetry' $HOME/.zshrc; then
+        echo "" >> $HOME/.zshrc
+        echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.zshrc
+        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.zshrc
     fi
-    # to ~/.bashrc
-    if ! grep -iq '^# <<<--------->>> Poetry' ~/.bashrc; then
-        echo "" >> ~/.bashrc
-        echo "# <<<--------->>> Poetry <<<--------->>>" >> ~/.bashrc
-        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc
+    # to $HOME/.bashrc
+    if ! grep -iq '^# <<<--------->>> Poetry' $HOME/.bashrc; then
+        echo "" >> $HOME/.bashrc
+        echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.bashrc
+        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.bashrc
     fi
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry Installed." | tee -a $log_path
 }
@@ -476,15 +476,15 @@ function setting_pyenv(){
     # Setting pyenv
     installed=""
     # Validate if pyenv is not installed in zsh
-    if ! grep -iq '^# <<<--------->>> Pyenv' ~/.zshrc; then
-        installed="${installed} ~/.zshrc"
+    if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
+        installed="${installed} $HOME/.zshrc"
     fi
     # Validate if git tree visualizations is not installed in bash
-    if ! grep -iq '^# <<<--------->>> Pyenv' ~/.bashrc; then
-        installed="${installed} ~/.bashrc"
+    if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.bashrc; then
+        installed="${installed} $HOME/.bashrc"
     fi
 
-    # Setting pyenv in ~/.zshrc and ~/.bashrc
+    # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
     for file in $installed; do
         echo "" >> "$file"
         echo "# <<<--------->>> Pyenv <<<--------->>>" >> "$file"

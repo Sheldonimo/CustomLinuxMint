@@ -234,18 +234,8 @@ function install_copyq() {
         # Install copyq
         # Add the CopyQ PPA (Personal Package Archive) to the system
         sudo add-apt-repository -y ppa:hluk/copyq
-        wait -n  # Wait for the process to complete
-        # Inform about updating keys due to deprecation of apt-key
-        echo "Updating keys as apt-key is deprecated"
-        # Extract the key associated with Lukas Holecek
-        key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "Lukas Holecek" | awk 'NR==1{print $9$10}')
-        # Export the key and convert it for the new APT keyring system
-        sudo apt-key export $key | sudo gpg --dearmour -o /usr/share/keyrings/copyq.gpg
-        # Inform about updating the key in the repositories
-        # Add the repository with the new keyring path
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/copyq.gpg] http://ppa.launchpad.net/hluk/copyq/ubuntu $ubuntu_codename main" | sudo tee /etc/apt/sources.list.d/hluk-copyq.list >/dev/null
-        # Removing the key from the deprecated path
-        sudo apt-key del $key
+        # Add architecture amd64
+        sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/hluk-copyq-$ubuntu_codename.list"
         # Update the repositories
         sudo apt update
         # Install CopyQ
@@ -272,22 +262,12 @@ function install_obs_studio() {
         # Install obs-studio
         sudo add-apt-repository -y ppa:obsproject/obs-studio
         wait -n  # Wait for the process to complete
-        # Inform about updating keys due to deprecation of apt-key
-        echo "Updating keys as apt-key is deprecated"
-        # Extract the key associated with obsproject
-        key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "obsproject" | awk 'NR==1{print $9$10}')
-        # Export the key and convert it for the new APT keyring system
-        sudo apt-key export $key | sudo gpg --dearmour -o /usr/share/keyrings/obs-studio.gpg
-        # Inform about updating the key in the repositories
-        # Add the repository with the new keyring path
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu $ubuntu_codename main" | sudo tee /etc/apt/sources.list.d/obsproject-obs-studio.list >/dev/null
-        # Removing the key from the deprecated path
-        sudo apt-key del $key
+        # Add architecture amd64
+        sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/obsproject-obs-studio-$ubuntu_codename.list"
         # Update the repositories
         sudo apt update
         # Install obs-studio
         sudo apt install obs-studio -y
-
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} obs-studio installed." | tee -a $log_path
     fi
 }
@@ -363,12 +343,12 @@ function setting_logseq() {
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting logseq." | tee -a $log_path
         # Setting logseq
         # Create the folder
-        mkdir -p ~/.local/share/applications
-        mkdir -p ~/.local/share/logseq
+        mkdir -p $HOME/.local/share/applications
+        mkdir -p $HOME/.local/share/logseq
         # Copy the file
-        cp ./tmp/Logseq-linux-x64.AppImage ~/.local/share/logseq/Logseq-linux-x64.AppImage
+        cp ./tmp/Logseq-linux-x64.AppImage $HOME/.local/share/logseq/Logseq-linux-x64.AppImage
         # Give execution permissions
-        chmod +x ~/.local/share/logseq/Logseq-linux-x64.AppImage
+        chmod +x $HOME/.local/share/logseq/Logseq-linux-x64.AppImage
 
         # Installing imagemagick if it is not installed
         install_imagemagick
@@ -388,13 +368,13 @@ function setting_logseq() {
         done
 
         # Create a script to run logseq and update logseq
-        cp ./resources/logseq ~/.local/bin/logseq
-        chmod +x ~/.local/bin/logseq
+        cp ./resources/logseq $HOME/.local/bin/logseq
+        chmod +x $HOME/.local/bin/logseq
         # Create the desktop file
         # change ~ to $HOME
         sed -i "s|~|$HOME|g" "./resources/logseq.desktop"
         # Copy the file
-        cp ./resources/logseq.desktop ~/.local/share/applications/logseq.desktop
+        cp ./resources/logseq.desktop $HOME/.local/share/applications/logseq.desktop
 
         # Add logseq shortcut
         local binding="['<Alt>Return']"
