@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# by: Sheldonimo
+
 # global variable
 export log_path=$PWD/installation_log_$(date +%Y-%m-%d_%H-%M-%S).log
 

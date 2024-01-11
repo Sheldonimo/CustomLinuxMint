@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# by: Sheldonimo
 
 # Path to the AppImage
 
@@ -92,7 +93,7 @@ function show_help() {
 # Argument handling
 case "$1" in
     "")
-        "$APP_PATH"
+        "$APP_PATH/$NAME_APP" > /dev/null 2>&1 &
         ;;
     update)
         update_logseq

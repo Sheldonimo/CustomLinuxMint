@@ -55,18 +55,17 @@ function main() {
 
     # <<--->> Setting configuration in desktop <<--->>
 
+    # Setting tesseract-ocr
+    setting_tesseract_ocr
+
+    # Setting flameshot
+    setting_flameshot
+
     # Setting logseq
     setting_logseq
 
     # Setting copyq
     setting_copyq
-
-    # Setting plugins zsh
-    #setting_plugins_zsh
-
-    # Settings git tree visualizations
-    #setting_git_tree_visualizations
-
 
 }
 
@@ -299,7 +298,7 @@ function install_libreoffice() {
 }
 
 function install_tesseract_ocr() {
-    if grep -iq '^x|tesseract-ocr' "$INSTALL_LIST" && ! command -v tesseract &> /dev/null; then
+    if grep -iq '^x|tesseract' "$INSTALL_LIST" && ! command -v tesseract &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing tesseract-ocr." | tee -a $log_path
         # Add ppa repository
         sudo add-apt-repository -y ppa:alex-p/tesseract-ocr-devel
@@ -307,7 +306,11 @@ function install_tesseract_ocr() {
         # Update the repositories
         sudo apt update
         # Install tesseract-ocr
-        sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa tesseract-ocr-osd -y
+        sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa tesseract-ocr-osd xclip -y
+        # tesseract-ocr is for the ocr
+        # tesseract-ocr-eng is for the english language
+        # tesseract-ocr-spa is for the spanish language
+        # xclip is for copy the text to the clipboard
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tesseract-ocr installed." | tee -a $log_path
     fi
 }
@@ -317,14 +320,23 @@ function install_tesseract_ocr() {
 function setting_tesseract_ocr(){
 
     # Validate if the shortcut exist
-    res=$(exist_shortcut "'ocr_flameshot'" "['<Alt><Shift>z']")
+    if ! command -v ocr_flameshot &> /dev/null; then
+        # Create a script to run ocr_flameshot
+        echo '#!/usr/bin/env bash' >> $HOME/.local/bin/ocr_flameshot
+        echo "# by: Sheldonimo" >> $HOME/.local/bin/ocr_flameshot
+        echo "flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard" >> $HOME/.local/bin/ocr_flameshot
+        chmod +x $HOME/.local/bin/ocr_flameshot
+    fi
 
-    if [ "$res" == "true" ] && grep -iq '^x|tesseract-ocr' "$INSTALL_LIST"; then
+    # Validate if the shortcut exist
+    res=$(exist_shortcut "'ocr_flameshot'" "['<Alt><Shift>z']")
+    # Validate if tesseract-ocr is installed
+    if [ "$res" == "false" ] && grep -iq '^x|tesseract' "$INSTALL_LIST"; then
       
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting tesseract-ocr." | tee -a $log_path
 
         local binding="['<Alt><Shift>z']"
-        local command="'flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard'"
+        local command="'ocr_flameshot'"
         # Commands:
         # - flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
         # - gnome-screenshot -ac && xclip -selection clipboard -t image/png -o | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
@@ -333,6 +345,26 @@ function setting_tesseract_ocr(){
         add_shortcut "$binding" "$command" "$name"
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
+        
+    fi
+
+}
+
+function setting_flameshot() {
+    # Validate if the shortcut exist
+    res=$(exist_shortcut "'flameshot'" "['<Alt><Shift>z']")
+
+    if [ $res == "false" ]; then
+      
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting flameshot in shortcuts." | tee -a $log_path
+
+        local binding="['<Alt><Shift>q']"
+        local command="'flameshot gui'"
+        local name="'flameshot'"
+
+        add_shortcut "$binding" "$command" "$name"
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} flameshot setted." | tee -a $log_path
         
     fi
 
@@ -384,7 +416,7 @@ function setting_logseq() {
         # Validate if the shortcut exist
         res=$(exist_shortcut "$name" "$binding")
 
-        if [ $res == "true" ]; then
+        if [ $res == "false" ]; then
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting logseq in shortcuts." | tee -a $log_path
             add_shortcut "$binding" "$command" "$name"
         fi
@@ -398,7 +430,7 @@ function setting_copyq(){
     # Validate if the shortcut exist
     res=$(exist_shortcut "'copyq'" "['<Super>v']")
 
-    if [ $res == "true" ]; then
+    if [ $res == "false" ]; then
       
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting copyq in shortcuts." | tee -a $log_path
 
