@@ -422,12 +422,13 @@ function setting_logseq() {
         fi
 
         # Setting logseq theme
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting a custom theme for logseq "sheldonimo-theme"." | tee -a $log_path
         # Create the folder
-        mkdir -p $HOME/.config/Logseq/config
+        mkdir -p $HOME/.logseq/config
         # Copy the file
         cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
         # modify the file edn
-        echo "{:custom-css-url \"@import url(assets:///home/rex/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
+        echo "{:custom-css-url \"@import url('assets:///home/rex/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq setted." | tee -a $log_path
     fi
