@@ -30,14 +30,19 @@ function update_logseq() {
 
     # Download the file
     if [ -f "$APP_PATH/$NAME_APP" ]; then
+        echo "Downloading CHECKSUM file..."
+        wget -q --show-progress -O "$APP_PATH/SHA256SUMS.txt" $html_url/SHA256SUMS.txt
         echo "Downloading Logseq..."
-        curl -L --output "$APP_PATH/SHA256SUMS.txt" $html_url/SHA256SUMS.txt
-        curl -L --output "$APP_PATH/$file_name" $html_url/$file_name
+        wget -q --show-progress -O "$APP_PATH/$file_name" $html_url/$file_name
         echo "Download complete."
     fi
 
     # Verify the checksum
-    status=$(sha256sum --check --ignore-missing --quiet "$APP_PATH/SHA256SUMS.txt" | awk -F ': ' '{print $2}')
+    # Change directory to the app path
+    cd "$APP_PATH"
+    status=$(sha256sum --check --ignore-missing "$APP_PATH/SHA256SUMS.txt" | awk -F ': ' '{print $2}')
+    # Return to the previous directory (> /dev/null is to hide the standard output)
+    cd - > /dev/null
 
     if [ "$status" = "OK" ]; then
         echo "Checksum OK."

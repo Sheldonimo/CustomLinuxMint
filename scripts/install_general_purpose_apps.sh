@@ -44,6 +44,9 @@ function main() {
     # Install flameshot
     install_flameshot
 
+    # Install tldr
+    install_tldr
+
     # Install obs-studio
     install_obs_studio
 
@@ -92,7 +95,7 @@ function download_logseq() {
         # Download the file
         if [ ! -f "./tmp/Logseq-linux-x64.AppImage" ]; then
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Logseq." | tee -a $log_path
-            curl -L --output "./tmp/Logseq-linux-x64.AppImage" $html_url/$file_name
+            wget -q --show-progress -O "./tmp/Logseq-linux-x64.AppImage" $html_url/$file_name
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Logseq Downloaded." | tee -a $log_path
         fi
 
@@ -100,7 +103,7 @@ function download_logseq() {
         icon_url="https://raw.githubusercontent.com/logseq/logseq/master/resources/icons/logseq.png"
         if [ ! -f "./tmp/logseq-icon.png" ]; then
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading logseq icon." | tee -a $log_path
-            curl -L --output "./tmp/logseq-icon.png" $icon_url
+            wget -q --show-progress -O "./tmp/logseq-icon.png" $icon_url
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq icon Downloaded." | tee -a $log_path
         fi
     fi
@@ -253,6 +256,15 @@ function install_flameshot() {
     fi
 }
 
+function install_tldr() {
+    if grep -iq '^x|tldr' "$INSTALL_LIST" && ! command -v tldr &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing tldr." | tee -a $log_path
+        # Install flameshot
+        pip3 install tldr
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tldr installed." | tee -a $log_path
+    fi
+}
+
 function install_obs_studio() {
     if grep -iq '^x|obs-studio' "$INSTALL_LIST" && ! command -v obs &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing obs-studio." | tee -a $log_path
@@ -354,7 +366,7 @@ function setting_flameshot() {
     # Validate if the shortcut exist
     res=$(exist_shortcut "'flameshot'" "['<Alt><Shift>z']")
 
-    if [ $res == "false" ]; then
+    if grep -iq '^x|flameshot' "$INSTALL_LIST" && [ $res == "false" ]; then
       
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting flameshot in shortcuts." | tee -a $log_path
 
@@ -439,7 +451,7 @@ function setting_copyq(){
     # Validate if the shortcut exist
     res=$(exist_shortcut "'copyq'" "['<Super>v']")
 
-    if [ $res == "false" ]; then
+    if grep -iq '^x|copyq' "$INSTALL_LIST" && [ $res == "false" ]; then
       
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting copyq in shortcuts." | tee -a $log_path
 

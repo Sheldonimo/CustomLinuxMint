@@ -109,14 +109,14 @@ function download_font() {
     # Download Hack Nerd Font Mono
     if [ ! -f "./tmp/Hack.zip" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Hack Nerd Font Mono." | tee -a $log_path
-    curl -L --output "./tmp/Hack.zip" $html_url/Hack.zip
+    wget -q --show-progress -O "./tmp/Hack.zip" $html_url/Hack.zip
     # Waiting until all files are downloaded
     wait -n
     fi
     # Download FiraCode
     if [ ! -f "./tmp/FiraCode.zip" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading FiraCode." | tee -a $log_path
-    curl -L --output "./tmp/FiraCode.zip" $html_url/FiraCode.zip
+    wget -q --show-progress -O "./tmp/FiraCode.zip" $html_url/FiraCode.zip
     # Waiting until all files are downloaded
     wait -n
     fi
@@ -131,7 +131,7 @@ function download_cursor() {
     # Download Capitaine Cursors
     if [ ! -f "./tmp/BreezeX-Dark.tar.gz" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading BreezeX_Cursor." | tee -a $log_path
-    curl -L --output "./tmp/BreezeX-Dark.tar.gz" $html_url/BreezeX-Dark.tar.gz
+    wget -q --show-progress -O "./tmp/BreezeX-Dark.tar.gz" $html_url/BreezeX-Dark.tar.gz
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Downloaded." | tee -a $log_path
     # Waiting until all files are downloaded
     wait -n
@@ -147,7 +147,7 @@ function download_icons() {
     # Download Tela-icon-theme
     if [ ! -f "./tmp/Tela-icons.tar.gz" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Tela-icons." | tee -a $log_path
-    curl -L --output "./tmp/Tela-icons.tar.gz" $html_url.tar.gz
+    wget -q --show-progress -O "./tmp/Tela-icons.tar.gz" $html_url.tar.gz
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Downloaded." | tee -a $log_path
     # Waiting until all files are downloaded
     wait -n
@@ -159,7 +159,7 @@ function download_rofi() {
     html_url="https://github.com/Sheldonimo/fresh-rofi-theme/archive/refs/heads/master.zip"
     if [ ! -f "./tmp/fresh-rofi-theme.zip" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading fresh-rofi-theme." | tee -a $log_path
-    curl -L --output "./tmp/fresh-rofi-theme.zip" $html_url
+    wget -q --show-progress -O "./tmp/fresh-rofi-theme.zip" $html_url
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Downloaded." | tee -a $log_path
     # Waiting until all files are downloaded
     wait -n

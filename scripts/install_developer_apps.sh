@@ -140,7 +140,7 @@ function download_bat() {
     # Download Capitaine Cursors
     if [ ! -f "./tmp/bat_amd64.deb" ]; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading bat." | tee -a $log_path
-    curl -L --output "./tmp/bat_amd64.deb" $html_url/$file_name
+    wget -q --show-progress -O "./tmp/bat_amd64.deb" $html_url/$file_name
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Downloaded." | tee -a $log_path
     # Waiting until all files are downloaded
     wait -n
