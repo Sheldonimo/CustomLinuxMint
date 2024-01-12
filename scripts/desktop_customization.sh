@@ -420,6 +420,9 @@ function setting_main_shortcut() {
         # Open terminal add another shortcut
         dconf write /org/cinnamon/desktop/keybindings/media-keys/terminal "['<Primary><Alt>t', '<Super>Return']"
 
+        # Changing key to moving and resize windows from Alt to Super
+        dconf write /org/cinnamon/desktop/wm/preferences/mouse-button-modifier "'<Super>'"
+
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
     fi
 }

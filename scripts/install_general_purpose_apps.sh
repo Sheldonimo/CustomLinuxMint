@@ -220,9 +220,9 @@ function install_vscode() {
         sudo chmod 644 /etc/apt/keyrings/packages.microsoft.gpg
         # Add the repository to Apt sources:
         echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-        # Install Docker Engine:
+        # Install vscode:
         sudo apt-get update
-        sudo apt-get install code -y
+        sudo apt install code -y
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} vscode installed." | tee -a $log_path
     fi
 }
@@ -234,7 +234,7 @@ function install_copyq() {
         # Add the CopyQ PPA (Personal Package Archive) to the system
         sudo add-apt-repository -y ppa:hluk/copyq
         # Add architecture amd64
-        sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/hluk-copyq-$ubuntu_codename.list"
+        sudo sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/hluk-copyq-$ubuntu_codename.list"
         # Update the repositories
         sudo apt update
         # Install CopyQ
@@ -262,7 +262,7 @@ function install_obs_studio() {
         sudo add-apt-repository -y ppa:obsproject/obs-studio
         wait -n  # Wait for the process to complete
         # Add architecture amd64
-        sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/obsproject-obs-studio-$ubuntu_codename.list"
+        sudo sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/obsproject-obs-studio-$ubuntu_codename.list"
         # Update the repositories
         sudo apt update
         # Install obs-studio
@@ -317,7 +317,7 @@ function install_tesseract_ocr() {
 
 # <<<----------------->>> Setting functions <<<----------------->>>
 
-function setting_tesseract_ocr(){
+function setting_tesseract_ocr() {
 
     # Validate if the shortcut exist
     if ! command -v ocr_flameshot &> /dev/null; then
@@ -421,6 +421,14 @@ function setting_logseq() {
             add_shortcut "$binding" "$command" "$name"
         fi
 
+        # Setting logseq theme
+        # Create the folder
+        mkdir -p $HOME/.config/Logseq/config
+        # Copy the file
+        cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
+        # modify the file edn
+        echo "{:custom-css-url \"@import url(assets:///home/rex/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
+        
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq setted." | tee -a $log_path
     fi
 }
