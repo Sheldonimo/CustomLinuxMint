@@ -186,17 +186,17 @@ function download_font() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
     # Download Hack Nerd Font Mono
     if [ ! -f "./tmp/Hack.zip" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Hack Nerd Font Mono." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/Hack.zip" $html_url/Hack.zip
-    # Waiting until all files are downloaded
-    wait -n
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Hack Nerd Font Mono." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/Hack.zip" $html_url/Hack.zip
+        # Waiting until all files are downloaded
+        wait -n
     fi
     # Download FiraCode
     if [ ! -f "./tmp/FiraCode.zip" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading FiraCode." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/FiraCode.zip" $html_url/FiraCode.zip
-    # Waiting until all files are downloaded
-    wait -n
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading FiraCode." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/FiraCode.zip" $html_url/FiraCode.zip
+        # Waiting until all files are downloaded
+        wait -n
     fi
 
 }
@@ -208,11 +208,11 @@ function download_cursor() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
     # Download Capitaine Cursors
     if [ ! -f "./tmp/BreezeX-Dark.tar.gz" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading BreezeX_Cursor." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/BreezeX-Dark.tar.gz" $html_url/BreezeX-Dark.tar.gz
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Downloaded." | tee -a $log_path
-    # Waiting until all files are downloaded
-    wait -n
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading BreezeX_Cursor." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/BreezeX-Dark.tar.gz" $html_url/BreezeX-Dark.tar.gz
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Downloaded." | tee -a $log_path
+        # Waiting until all files are downloaded
+        wait -n
     fi
 }
 
@@ -224,11 +224,11 @@ function download_icons() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
     # Download Tela-icon-theme
     if [ ! -f "./tmp/Tela-icons.tar.gz" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Tela-icons." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/Tela-icons.tar.gz" $html_url.tar.gz
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Downloaded." | tee -a $log_path
-    # Waiting until all files are downloaded
-    wait -n
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Tela-icons." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/Tela-icons.tar.gz" $html_url.tar.gz
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Downloaded." | tee -a $log_path
+        # Waiting until all files are downloaded
+        wait -n
     fi
 }
 
@@ -236,27 +236,27 @@ function download_rofi() {
     # Download rofi
     html_url="https://github.com/Sheldonimo/fresh-rofi-theme/archive/refs/heads/master.zip"
     if [ ! -f "./tmp/fresh-rofi-theme.zip" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading fresh-rofi-theme." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/fresh-rofi-theme.zip" $html_url
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Downloaded." | tee -a $log_path
-    # Waiting until all files are downloaded
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading fresh-rofi-theme." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/fresh-rofi-theme.zip" $html_url
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Downloaded." | tee -a $log_path
+        # Waiting until all files are downloaded
     wait -n
     fi
 }
 
 # Arguments: 1=name_github_user/name_repo (e.i ryanoasis/nerd-fonts)
 function get_lastest_url() {
-        # URL de la API para el último release del repositorio
-        #Example: "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
-        api_url="https://api.github.com/repos/$1/releases/latest"
-        # Realizar la solicitud y extraer solo la primera coincidencia de "html_url"
-        html_url=$(curl -s $api_url | grep -m 1 '"html_url":' | awk -F '"' '{print $4}' | sed 's|/tag/|/download/|')
-        # el curl -s es para que no muestre el progreso de la descarga
-        # el grep -m 1 es para que solo muestre la primera coincidencia
-        # el awk -F '"' '{print $4}' es para que solo muestre la cuarta columna y usa como separador " (la comilla doble)
-        # el sed 's|/tag/|/download/|' es para reemplazar la cadena "/tag/" por "/download/"
-        # URL de descarga del archivo
-        echo $html_url
+    # URL de la API para el último release del repositorio
+    #Example: "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+    api_url="https://api.github.com/repos/$1/releases/latest"
+    # Realizar la solicitud y extraer solo la primera coincidencia de "html_url"
+    html_url=$(curl -s $api_url | grep -m 1 '"html_url":' | awk -F '"' '{print $4}' | sed 's|/tag/|/download/|')
+    # el curl -s es para que no muestre el progreso de la descarga
+    # el grep -m 1 es para que solo muestre la primera coincidencia
+    # el awk -F '"' '{print $4}' es para que solo muestre la cuarta columna y usa como separador " (la comilla doble)
+    # el sed 's|/tag/|/download/|' es para reemplazar la cadena "/tag/" por "/download/"
+    # URL de descarga del archivo
+    echo $html_url
 }
 
 # <<<----------------->>> Unpackage functions <<<----------------->>>
@@ -264,63 +264,63 @@ function get_lastest_url() {
 function Unpackage_font() {
     # Unpackage Hack Nerd Font Mono
     if [ ! -d "./tmp/Hack" ]; then
-    # Create a new folder to unpack the zip file
-    mkdir -p "./tmp/Hack"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Hack Nerd Font Mono." | tee -a $log_path
-    unzip "./tmp/Hack.zip" -d "./tmp/Hack/"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Hack Nerd Font Mono Unpackaged." | tee -a $log_path
-    # Delete zip file
-    rm -f "./tmp/Hack.zip"
+        # Create a new folder to unpack the zip file
+        mkdir -p "./tmp/Hack"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Hack Nerd Font Mono." | tee -a $log_path
+        unzip "./tmp/Hack.zip" -d "./tmp/Hack/"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Hack Nerd Font Mono Unpackaged." | tee -a $log_path
+        # Delete zip file
+        rm -f "./tmp/Hack.zip"
     fi
     # Unpackage FiraCode
     if [ ! -d "./tmp/FiraCode" ]; then
-    # Create a new folder to unpack the zip file
-    mkdir -p "./tmp/FiraCode"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging FiraCode." | tee -a $log_path
-    unzip "./tmp/FiraCode.zip" -d "./tmp/FiraCode/"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} FiraCode Unpackaged." | tee -a $log_path
-    # Delete zip file
-    rm -f "./tmp/FiraCode.zip"
+        # Create a new folder to unpack the zip file
+        mkdir -p "./tmp/FiraCode"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging FiraCode." | tee -a $log_path
+        unzip "./tmp/FiraCode.zip" -d "./tmp/FiraCode/"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} FiraCode Unpackaged." | tee -a $log_path
+        # Delete zip file
+        rm -f "./tmp/FiraCode.zip"
     fi
 }
 
 function Unpackage_cursor() {
     # Unpackage BreezeX_Cursor
     if [ ! -d "./tmp/BreezeX-Dark" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging BreezeX_Cursor." | tee -a $log_path
-    tar -xzf "./tmp/BreezeX-Dark.tar.gz" -C "./tmp/"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Unpackaged." | tee -a $log_path
-    # Delete tar.gz file
-    rm -f "./tmp/BreezeX-Dark.tar.gz"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging BreezeX_Cursor." | tee -a $log_path
+        tar -xzf "./tmp/BreezeX-Dark.tar.gz" -C "./tmp/"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Unpackaged." | tee -a $log_path
+        # Delete tar.gz file
+        rm -f "./tmp/BreezeX-Dark.tar.gz"
     fi
 }
 
 function Unpackage_icons() {
     # Unpackage Tela-icons
     if [ ! -d "./tmp/Tela-icon-theme" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Tela-icons." | tee -a $log_path
-    tar -xzf "./tmp/Tela-icons.tar.gz" -C "./tmp/"
-    # identify the name of the folder that begin with "Tela" and doesn't have any dot "." and rename it to "Tela-icons"
-    folder_icons=$(ls ./tmp/ | grep -i "^Tela[^.]*$")
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rename folder_icons: $folder_icons -> Tela-icons" | tee -a $log_path
-    mv "./tmp/$folder_icons" "./tmp/Tela-icons"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Unpackaged." | tee -a $log_path
-    # Delete tar.gz file
-    rm -f "./tmp/Tela-icons.tar.gz"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Tela-icons." | tee -a $log_path
+        tar -xzf "./tmp/Tela-icons.tar.gz" -C "./tmp/"
+        # identify the name of the folder that begin with "Tela" and doesn't have any dot "." and rename it to "Tela-icons"
+        folder_icons=$(ls ./tmp/ | grep -i "^Tela[^.]*$")
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rename folder_icons: $folder_icons -> Tela-icons" | tee -a $log_path
+        mv "./tmp/$folder_icons" "./tmp/Tela-icons"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Unpackaged." | tee -a $log_path
+        # Delete tar.gz file
+        rm -f "./tmp/Tela-icons.tar.gz"
     fi
 }
 
 function Unpackage_rofi() {
     # Unpackage rofi
     if [ ! -d "./tmp/fresh-rofi-theme-master" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging fresh-rofi-theme." | tee -a $log_path
-    unzip "./tmp/fresh-rofi-theme.zip" -d "./tmp/"
-    # Change name fresh-rofi-theme-master -> fresh-rofi-theme
-    mv "./tmp/fresh-rofi-theme-master" "./tmp/fresh-rofi-theme"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Unpackaged." | tee -a $log_path
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Folder Renamed fresh-rofi-theme-master -> fresh-rofi-theme." | tee -a $log_path
-    # Delete zip file
-    rm -f "./tmp/fresh-rofi-theme.zip"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging fresh-rofi-theme." | tee -a $log_path
+        unzip "./tmp/fresh-rofi-theme.zip" -d "./tmp/"
+        # Change name fresh-rofi-theme-master -> fresh-rofi-theme
+        mv "./tmp/fresh-rofi-theme-master" "./tmp/fresh-rofi-theme"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Unpackaged." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Folder Renamed fresh-rofi-theme-master -> fresh-rofi-theme." | tee -a $log_path
+        # Delete zip file
+        rm -f "./tmp/fresh-rofi-theme.zip"
     fi
 }
 
@@ -537,41 +537,41 @@ function setting_icons() {
 
 function setting_text_editor() {
     
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Text Editor." | tee -a $log_path
-    
-        # Setting Text Editor
-        gsettings set org.x.editor.preferences.editor scheme 'cobalt'
-        gsettings set org.x.editor.preferences.editor prefer-dark-theme true
-        gsettings set org.x.editor.preferences.editor display-line-numbers true
-        gsettings set org.x.editor.preferences.editor tabs-size 4
-        gsettings set org.x.editor.preferences.editor display-right-margin true
-        gsettings set org.x.editor.preferences.ui minimap-visible true
-        gsettings set org.x.editor.preferences.editor draw-whitespace true
-        gsettings set org.x.editor.preferences.editor draw-whitespace-inside true
-        gsettings set org.x.editor.preferences.editor draw-whitespace-leading true
-        gsettings set org.x.editor.preferences.editor draw-whitespace-newline true
-        gsettings set org.x.editor.preferences.editor draw-whitespace-trailing true
-        gsettings set org.x.editor.preferences.editor editor-font 'FiraCode Nerd Font Mono Regular 10'
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Text Editor." | tee -a $log_path
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Text Editor setted." | tee -a $log_path
+    # Setting Text Editor
+    gsettings set org.x.editor.preferences.editor scheme 'cobalt'
+    gsettings set org.x.editor.preferences.editor prefer-dark-theme true
+    gsettings set org.x.editor.preferences.editor display-line-numbers true
+    gsettings set org.x.editor.preferences.editor tabs-size 4
+    gsettings set org.x.editor.preferences.editor display-right-margin true
+    gsettings set org.x.editor.preferences.ui minimap-visible true
+    gsettings set org.x.editor.preferences.editor draw-whitespace true
+    gsettings set org.x.editor.preferences.editor draw-whitespace-inside true
+    gsettings set org.x.editor.preferences.editor draw-whitespace-leading true
+    gsettings set org.x.editor.preferences.editor draw-whitespace-newline true
+    gsettings set org.x.editor.preferences.editor draw-whitespace-trailing true
+    gsettings set org.x.editor.preferences.editor editor-font 'FiraCode Nerd Font Mono Regular 10'
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Text Editor setted." | tee -a $log_path
 }
 
 function setting_panel_and_applets() {
     
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting applets." | tee -a $log_path
-    
-        # Setting applets
-        gsettings set org.cinnamon enabled-applets "['panel1:center:0:menu@cinnamon.org:0', 'panel1:right:13:show-desktop@cinnamon.org:1', 'panel1:center:1:grouped-window-list@cinnamon.org:2', 'panel1:right:1:systray@cinnamon.org:3', 'panel1:right:2:xapp-status@cinnamon.org:4', 'panel1:right:12:notifications@cinnamon.org:5', 'panel1:right:4:printers@cinnamon.org:6', 'panel1:right:5:removable-drives@cinnamon.org:7', 'panel1:right:6:keyboard@cinnamon.org:8', 'panel1:right:7:favorites@cinnamon.org:9', 'panel1:right:8:network@cinnamon.org:10', 'panel1:right:9:sound@cinnamon.org:11', 'panel1:right:10:power@cinnamon.org:12', 'panel1:right:11:calendar@cinnamon.org:13', 'panel1:left:0:workspace-switcher@cinnamon.org:14']"
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting applets." | tee -a $log_path
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} applets setted." | tee -a $log_path
-        # Setting Panels
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Panels." | tee -a $log_path
-        gsettings set org.cinnamon panels-enabled "['1:0:bottom']"
-        gsettings set org.cinnamon panels-height "['1:46', '2:40']"
-        gsettings set org.cinnamon panel-zone-icon-sizes '[{"panelId":1,"left":0,"center":0,"right":24}]'
-        gsettings set org.cinnamon panel-zone-symbolic-icon-sizes '[{"panelId": 1, "left": 32, "center": 32, "right": 16}]'
+    # Setting applets
+    gsettings set org.cinnamon enabled-applets "['panel1:center:0:menu@cinnamon.org:0', 'panel1:right:13:show-desktop@cinnamon.org:1', 'panel1:center:1:grouped-window-list@cinnamon.org:2', 'panel1:right:1:systray@cinnamon.org:3', 'panel1:right:2:xapp-status@cinnamon.org:4', 'panel1:right:12:notifications@cinnamon.org:5', 'panel1:right:4:printers@cinnamon.org:6', 'panel1:right:5:removable-drives@cinnamon.org:7', 'panel1:right:6:keyboard@cinnamon.org:8', 'panel1:right:7:favorites@cinnamon.org:9', 'panel1:right:8:network@cinnamon.org:10', 'panel1:right:9:sound@cinnamon.org:11', 'panel1:right:10:power@cinnamon.org:12', 'panel1:right:11:calendar@cinnamon.org:13', 'panel1:left:0:workspace-switcher@cinnamon.org:14']"
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Panels setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} applets setted." | tee -a $log_path
+    # Setting Panels
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Panels." | tee -a $log_path
+    gsettings set org.cinnamon panels-enabled "['1:0:bottom']"
+    gsettings set org.cinnamon panels-height "['1:46', '2:40']"
+    gsettings set org.cinnamon panel-zone-icon-sizes '[{"panelId":1,"left":0,"center":0,"right":24}]'
+    gsettings set org.cinnamon panel-zone-symbolic-icon-sizes '[{"panelId": 1, "left": 32, "center": 32, "right": 16}]'
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Panels setted." | tee -a $log_path
         
 }
 
@@ -612,9 +612,9 @@ function setting_menu_icon(){
     # Setting Menu Icon
     if [ ! -f "$icon_root/linux-mint-galaxy-logo.png" ]; then
 
-    #mkdir $root/.config-desktop
-    #chmod 777 $root/.config-desktop
-    sudo cp ./images/linux-mint-galaxy-logo.png $icon_root/linux-mint-galaxy-logo.png
+        #mkdir $root/.config-desktop
+        #chmod 777 $root/.config-desktop
+        sudo cp ./images/linux-mint-galaxy-logo.png $icon_root/linux-mint-galaxy-logo.png
 
     fi
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon moved to root." | tee -a $log_path
@@ -730,20 +730,20 @@ function setting_terminal_color_palette() {
 
 function setting_background_desktop(){
     
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Background Desktop." | tee -a $log_path
-    
-        # setting the background desktop
-        codename=$(lsb_release -c | awk '{print $2}')
-        path="/usr/share/backgrounds/linuxmint-$codename"
-        image_name=$(ls $path/*.jpg | head -n 1)
-        gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
-        gsettings set org.cinnamon.desktop.background picture-options "zoom"
-        gsettings set org.cinnamon.desktop.background.slideshow slideshow-enabled true
-        gsettings set org.cinnamon.desktop.background.slideshow delay 30
-        gsettings set org.cinnamon.desktop.background.slideshow random-order true
-        gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
-    
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Background Desktop." | tee -a $log_path
+
+    # setting the background desktop
+    codename=$(lsb_release -c | awk '{print $2}')
+    path="/usr/share/backgrounds/linuxmint-$codename"
+    image_name=$(ls $path/*.jpg | head -n 1)
+    gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
+    gsettings set org.cinnamon.desktop.background picture-options "zoom"
+    gsettings set org.cinnamon.desktop.background.slideshow slideshow-enabled true
+    gsettings set org.cinnamon.desktop.background.slideshow delay 30
+    gsettings set org.cinnamon.desktop.background.slideshow random-order true
+    gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  
 
 }
 

@@ -139,11 +139,11 @@ function download_bat() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
     # Download Capitaine Cursors
     if [ ! -f "./tmp/bat_amd64.deb" ]; then
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading bat." | tee -a $log_path
-    wget -q --show-progress -O "./tmp/bat_amd64.deb" $html_url/$file_name
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Downloaded." | tee -a $log_path
-    # Waiting until all files are downloaded
-    wait -n
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading bat." | tee -a $log_path
+        wget -q --show-progress -O "./tmp/bat_amd64.deb" $html_url/$file_name
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Downloaded." | tee -a $log_path
+        # Waiting until all files are downloaded
+        wait -n
     fi
 }
 
