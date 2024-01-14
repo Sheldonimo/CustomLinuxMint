@@ -120,11 +120,11 @@ function download_plugins_zsh() {
 
     # Crear directorio y descargar zsh-autosuggestions
     sudo mkdir /usr/local/share/zsh-autosuggestions/
-    sudo wget -O /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/master/zsh-autosuggestions.zsh
+    sudo wget -q --show-progress -O /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/master/zsh-autosuggestions.zsh
 
     # Crear directorio y descargar sudo plugin de Oh My Zsh
     sudo mkdir /usr/local/share/zsh-sudo/
-    sudo wget -O /usr/local/share/zsh-sudo/sudo.plugin.zsh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
+    sudo wget -q --show-progress -O /usr/local/share/zsh-sudo/sudo.plugin.zsh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
 
     # Fin de descarga de plugins zsh
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Downloaded." | tee -a $log_path
