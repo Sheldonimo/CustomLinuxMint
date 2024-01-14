@@ -60,16 +60,16 @@ function change_iconColor(){
     unset iconColor
 }
 
-# Function to execute the script
-iconColorBanner
-#read inputs
-read_input
-let choose=$?
-iconColor=$(change_iconColor $choose)
-
 # <<<------------------------->>>  <<<------------------------->>>
 
 function main() {
+
+    # Function to execute the script
+    iconColorBanner
+    #read inputs
+    read_input
+    let choose=$?
+    iconColor=$(change_iconColor $choose)
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
     echo "Install Desktop Customization..."
@@ -667,7 +667,7 @@ function setting_fonts() {
     gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
     # changing font setting text scale
     # the sleep is for wait until the change is applied
-    wait_second 3
+    wait_second 5
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
 
