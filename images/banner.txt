@@ -1,17 +1,17 @@
-            ┏━━━━━━━━━━━━━━━━━┫ Custom Linux Mint  Installer ┣━━━━━━━━━━━━━━━━━┓
-            ┃                                                                   ┃
-▄▄▄▄▄▄▄▄▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▄                                                        ┃
-█                      █  1- Install All Customizations  (Full installation)    ┃
-█         ▄▟▙▄▄        █                                                        ┃
-█    ▗▟ ▐████████▄     █  2- Desktop Customization Only (Modify desktop layout) ┃
-█   ▟██ ▐██  ██████▍   █                                                        ┃
-█   ███ ▐██  ██▍ ██▍   █  3- Developer Apps Only (Install dev tools/apps)       ┃
-█   ███ ▐██  ██▍ ██▍   █                                                        ┃
-█   ███ ▐██  ██▍ ██▍   █  4- General Purpose Apps Only (Install general apps)   ┃
-█   ███▄ ▝▜  ██▍ ██▍   █                                                        ┃
-█   ▀▜████▄  ██▍ ▛▘    █  5- Multi-Selection  (Choose multiple options)         ┃
-█      ▀▀▜█  ▛▘        █                                                        ┃
-█                      █  6- Exit                                               ┃
-▀▀▀▀▀▀▀▀▀▀▀▀█▀▀▀▀▀▀▀▀▀▀▀                                                        ┃
-            ┃                                                                   ┃
-            ┗━━━━━━━━━┫ https://github.com/Sheldonimo/CustomLinuxMint ┣━━━━━━━━━┛
+            ┏━━━━━━━━━━━━━━━━┫ Custom Linux Mint  Installer ┣━━━━━━━━━━━━━━━━┓
+            ┃                                                                 ┃
+▄▄▄▄▄▄▄▄▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▄                                                      ┃
+█                      █  1. Install All Customizations (Full installation)   ┃
+█         ▄▟▙▄▄        █                                                      ┃
+█    ▗▟ ▐████████▄     █  2. Desktop Customization Only (Modify desktop setup)┃
+█   ▟██ ▐██  ██████▍   █                                                      ┃
+█   ███ ▐██  ██▍ ██▍   █  3. Developer Apps Only (Install dev tools/apps)     ┃
+█   ███ ▐██  ██▍ ██▍   █                                                      ┃
+█   ███ ▐██  ██▍ ██▍   █  4. General Purpose Apps Only (Install general apps) ┃
+█   ███▄ ▝▜  ██▍ ██▍   █                                                      ┃
+█   ▀▜████▄  ██▍ ▛▘    █  5. Multi-Selection  (Choose multiple options)       ┃
+█      ▀▀▜█  ▛▘        █                                                      ┃
+█                      █  6. Exit                                             ┃
+▀▀▀▀▀▀▀▀▀▀▀▀█▀▀▀▀▀▀▀▀▀▀▀                                                      ┃
+            ┃                                                                 ┃
+            ┗━━━━━━━━┫ https://github.com/Sheldonimo/CustomLinuxMint ┣━━━━━━━━┛

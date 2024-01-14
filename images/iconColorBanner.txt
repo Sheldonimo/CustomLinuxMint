@@ -1,0 +1,18 @@
+            ┏━━━━━━━━━━━━━━━━┫ Choose Your Icon Color Variant ┣━━━━━━━━━━━━━━━┓
+            ┃             0. green (Default)   Green color folder version     ┃
+▄▄▄▄▄▄▄▄▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▄  1. yellow            Yellow color folder version    ┃
+█                      █  2. blue              Blue color folder version      ┃
+█         ▄▟▙▄▄        █  3. red               Red color folder version       ┃
+█    ▗▟ ▐████████▄     █  4. purple            Purple color folder version    ┃
+█   ▟██ ▐██  ██████▍   █  5. grey              Grey color folder version      ┃
+█   ███ ▐██  ██▍ ██▍   █  6. dracula           Dracula color folder version   ┃
+█   ███ ▐██  ██▍ ██▍   █  7. black             Black color folder version     ┃
+█   ███ ▐██  ██▍ ██▍   █  8. brown             Brown color folder version     ┃
+█   ███▄ ▝▜  ██▍ ██▍   █  9. orange            Orange color folder version    ┃
+█   ▀▜████▄  ██▍ ▛▘    █  10. pink             Pink color folder version      ┃
+█      ▀▀▜█  ▛▘        █  11. standard         Standard color folder version  ┃
+█                      █  12. manjaro          Manjaro color folder version   ┃
+▀▀▀▀▀▀▀▀▀▀▀▀█▀▀▀▀▀▀▀▀▀▀▀  13. ubuntu           Ubuntu color folder version    ┃
+            ┃             14. nord             nord color folder version      ┃
+            ┗━━━━━━━━┫ https://github.com/Sheldonimo/CustomLinuxMint ┣━━━━━━━━┛
+

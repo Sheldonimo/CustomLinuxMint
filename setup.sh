@@ -13,6 +13,7 @@ function main() {
 
     #read inputs
     read_input
+    # $? is limited between 0 and 255, so we can use it to return the user's choice
     let answer=$?
 
     case "$answer" in
@@ -116,6 +117,9 @@ function exitScript() {
 }
 
 function banner() {
+    # print banner
+    # How can I make a banner?
+    # cat iconColorBanner.txt | lolcat -p 3 -F 0.12 -S 0 --force > iconColorBanner
     local banner_path="$PWD/images/banner"
     if [ -f $banner_path ];then 
         clear && echo ""

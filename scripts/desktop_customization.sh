@@ -1,6 +1,71 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
 
+# <<<----------------->>> Global variables <<<----------------->>>
+
+# Declare global variable
+iconColor=""
+
+# <<<-------------------->>> Functions <<<-------------------->>>
+function error() {
+    echo -e "\033[1;31merror:\e[0m $@"
+    exit 1
+}
+
+function warning() {
+    echo -e "\033[1;33mWarning:\e[0m $@"
+}
+
+function iconColorBanner() {
+    local iconColorBanner_path="$PWD/images/iconColorBanner"
+    if [ -f $iconColorBanner_path ];then 
+        clear && echo ""
+        cat $iconColorBanner_path
+        echo ""
+    else
+        error "iconColorBanner not Found..."
+    fi
+    unset iconColorBanner_path
+}
+
+function read_input() {
+    while true ;do
+        read -p "[choose an option]$ " choose
+        choose=${choose:-0} # default value is 0
+        if [[ "$choose" =~ ^([0-9]|1[0-4])$ ]];then
+            break
+        fi
+        warning "choose a number between 0 to 14"
+    done
+
+    case $choose in
+        0) iconColor="green" ;;
+        1) iconColor="yellow" ;;
+        2) iconColor="blue" ;;
+        3) iconColor="red" ;;
+        4) iconColor="purple" ;;
+        5) iconColor="grey" ;;
+        6) iconColor="dracula" ;;
+        7) iconColor="black" ;;
+        8) iconColor="brown" ;;
+        9) iconColor="orange" ;;
+        10) iconColor="pink" ;;
+        11) iconColor="standard" ;;
+        12) iconColor="manjaro" ;;
+        13) iconColor="ubuntu" ;;
+        14) iconColor="nord" ;;
+        *) iconColor="unknown" ;;  # this should never happen
+    esac
+
+}
+
+# Function to execute the script
+iconColorBanner
+#read inputs
+read_input
+
+# <<<------------------------->>>  <<<------------------------->>>
+
 function main() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
@@ -96,6 +161,16 @@ function main() {
     # `dconf watch /` to see the changes when we change the configuration graphically
     # to see all conf settings use `dconf-editor` in the terminal
     
+}
+
+# <<<----------------->>> General functions <<<----------------->>>
+
+function wait_second() {
+    for (( i=0 ; i<$1 ; i++ ));do
+        echo -n "."
+        sleep 1
+    done
+    echo ""
 }
 
 # <<<----------------->>> Download functions <<<----------------->>>
@@ -301,7 +376,7 @@ function install_icons() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Tela-icons." | tee -a $log_path
     # Install green icons
-    sudo ./tmp/Tela-icons/install.sh green
+    sudo ./tmp/Tela-icons/install.sh $iconColor
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Installed." | tee -a $log_path
 
 }
@@ -447,6 +522,12 @@ function setting_icons() {
 
     # Setting Icons by default
     gsettings set org.cinnamon.desktop.interface icon-theme 'Tela-green-dark'
+
+    # Setting Icons in the bar menu
+    qt5_config_path="$HOME/.config/qt5ct/qt5ct.conf"
+    icon_theme="Tela-$iconColor-dark"
+    sed -i "s/^icon_theme=.*$/icon_theme=$icon_theme/" "$qt5_config_path"
+
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Icons setted." | tee -a $log_path
 
 }
@@ -583,7 +664,7 @@ function setting_fonts() {
     gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
     # changing font setting text scale
     # the sleep is for wait until the change is applied
-    sleep 3
+    wait_second 3
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
 
