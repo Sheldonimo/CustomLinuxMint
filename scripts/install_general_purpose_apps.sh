@@ -348,7 +348,7 @@ function setting_tesseract_ocr() {
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting tesseract-ocr." | tee -a $log_path
 
         local binding="['<Alt><Shift>z']"
-        local command="'ocr_flameshot'"
+        local command="'$HOME/.local/bin/ocr_flameshot'"
         # Commands:
         # - flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard
         # - gnome-screenshot -ac && xclip -selection clipboard -t image/png -o | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard

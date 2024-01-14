@@ -23,8 +23,8 @@ function main() {
         sudo -v
         #echo "run Install All Customizations..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation All Customizations." | tee -a $log_path
-        install_pip_and_git
         ask_to_run_script "desktop_customization.sh" "false"
+        install_pip_and_git
         ask_to_run_script "install_general_purpose_apps.sh" "false"
         ask_to_run_script "install_developer_apps.sh" "false"
         ;;
@@ -33,8 +33,8 @@ function main() {
         sudo -v
         #echo "run Install Desktop Customization..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Desktop Customization." | tee -a $log_path
-        install_pip_and_git
         ask_to_run_script "desktop_customization.sh" "false"
+        install_pip_and_git
         ;;
     3)  
         # Require sudo access

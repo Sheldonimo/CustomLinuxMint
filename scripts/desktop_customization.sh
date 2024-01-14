@@ -447,7 +447,7 @@ function setting_main_shortcut() {
     # Validate if the shortcut is already set
     res=$(exist_shortcut "'rofi'" "['<Alt>d']")
 
-    if [ $res == "true" ]; then
+    if [ $res == "false" ]; then
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting main shortcut." | tee -a $log_path
 
