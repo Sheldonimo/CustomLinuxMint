@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
 
-# <<<----------------->>> Global variables <<<----------------->>>
-
-# Declare global variable
-iconColor=""
-
 # <<<-------------------->>> Functions <<<-------------------->>>
 function error() {
     echo -e "\033[1;31merror:\e[0m $@"
@@ -38,7 +33,12 @@ function read_input() {
         warning "choose a number between 0 to 14"
     done
 
-    case $choose in
+    return $choose
+}
+
+function change_iconColor(){    
+    local iconColor=""
+    case $1 in
         0) iconColor="green" ;;
         1) iconColor="yellow" ;;
         2) iconColor="blue" ;;
@@ -56,13 +56,16 @@ function read_input() {
         14) iconColor="nord" ;;
         *) iconColor="unknown" ;;  # this should never happen
     esac
-
+    echo $iconColor
+    unset iconColor
 }
 
 # Function to execute the script
 iconColorBanner
 #read inputs
 read_input
+let choose=$?
+iconColor=$(change_iconColor $choose)
 
 # <<<------------------------->>>  <<<------------------------->>>
 
