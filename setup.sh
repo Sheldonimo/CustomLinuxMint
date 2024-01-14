@@ -88,6 +88,8 @@ run_script() {
     else
         error "$script_name not Found..."    
     fi
+    # Create tmp folder
+    create_tmp_folder
     # Validate if $script_path is equal to desktop_customization.sh
     if [ "$script_name" == "desktop_customization.sh" ]; then
         # Function to execute the script
@@ -234,11 +236,16 @@ function install_pip_and_git() {
         sudo apt-get install -y python3-pip git
     fi
 
+}
+
+function create_tmp_folder() {
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Creating temporary folder." | tee -a $log_path
     # check if exit the folder tmp and create it if not exist.
     if [ ! -d "./tmp" ]; then
         mkdir ./tmp
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tmp folder created." | tee -a $log_path
     fi
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Temporary folder created: $tmp." | tee -a $log_path
 }
 
 function error() {
