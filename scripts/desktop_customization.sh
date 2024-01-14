@@ -1,75 +1,12 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
 
-# <<<-------------------->>> Functions <<<-------------------->>>
-function error() {
-    echo -e "\033[1;31merror:\e[0m $@"
-    exit 1
-}
-
-function warning() {
-    echo -e "\033[1;33mWarning:\e[0m $@"
-}
-
-function iconColorBanner() {
-    local iconColorBanner_path="$PWD/images/iconColorBanner"
-    if [ -f $iconColorBanner_path ];then 
-        clear && echo ""
-        cat $iconColorBanner_path
-        echo ""
-    else
-        error "iconColorBanner not Found..."
-    fi
-    unset iconColorBanner_path
-}
-
-function read_input() {
-    while true ;do
-        read -p "[choose an option]$ " choose
-        choose=${choose:-0} # default value is 0
-        if [[ "$choose" =~ ^([0-9]|1[0-4])$ ]];then
-            break
-        fi
-        warning "choose a number between 0 to 14"
-    done
-
-    return $choose
-}
-
-function change_iconColor(){    
-    local iconColor=""
-    case $1 in
-        0) iconColor="green" ;;
-        1) iconColor="yellow" ;;
-        2) iconColor="blue" ;;
-        3) iconColor="red" ;;
-        4) iconColor="purple" ;;
-        5) iconColor="grey" ;;
-        6) iconColor="dracula" ;;
-        7) iconColor="black" ;;
-        8) iconColor="brown" ;;
-        9) iconColor="orange" ;;
-        10) iconColor="pink" ;;
-        11) iconColor="standard" ;;
-        12) iconColor="manjaro" ;;
-        13) iconColor="ubuntu" ;;
-        14) iconColor="nord" ;;
-        *) iconColor="unknown" ;;  # this should never happen
-    esac
-    echo $iconColor
-    unset iconColor
-}
+iconColor=$1
 
 # <<<------------------------->>>  <<<------------------------->>>
 
 function main() {
 
-    # Function to execute the script
-    iconColorBanner
-    #read inputs
-    read_input
-    let choose=$?
-    iconColor=$(change_iconColor $choose)
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
     echo "Install Desktop Customization..."

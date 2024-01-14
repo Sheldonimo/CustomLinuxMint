@@ -88,8 +88,69 @@ run_script() {
     else
         error "$script_name not Found..."    
     fi
-    bash "$script_path"
+    # Validate if $script_path is equal to desktop_customization.sh
+    if [ "$script_name" == "desktop_customization.sh" ]; then
+        # Function to execute the script
+        iconColorBanner
+        #read inputs
+        read_input_color
+        let choose=$?
+        iconColor=$(change_iconColor $choose)
+        # run script
+        bash "$script_path" "$iconColor"
+    else       
+        bash "$script_path"
+    fi
     unset script_path
+}
+
+function iconColorBanner() {
+    local iconColorBanner_path="$PWD/images/iconColorBanner"
+    if [ -f $iconColorBanner_path ];then 
+        clear && echo ""
+        cat $iconColorBanner_path
+        echo ""
+    else
+        error "iconColorBanner not Found..."
+    fi
+    unset iconColorBanner_path
+}
+
+function read_input_color() {
+    while true ;do
+        read -p "[choose an option]$ " choose
+        choose=${choose:-0} # default value is 0
+        if [[ "$choose" =~ ^([0-9]|1[0-4])$ ]];then
+            break
+        fi
+        warning "choose a number between 0 to 14"
+    done
+
+    return $choose
+}
+
+function change_iconColor(){    
+    local iconColor=""
+    case $1 in
+        0) iconColor="green" ;;
+        1) iconColor="yellow" ;;
+        2) iconColor="blue" ;;
+        3) iconColor="red" ;;
+        4) iconColor="purple" ;;
+        5) iconColor="grey" ;;
+        6) iconColor="dracula" ;;
+        7) iconColor="black" ;;
+        8) iconColor="brown" ;;
+        9) iconColor="orange" ;;
+        10) iconColor="pink" ;;
+        11) iconColor="standard" ;;
+        12) iconColor="manjaro" ;;
+        13) iconColor="ubuntu" ;;
+        14) iconColor="nord" ;;
+        *) iconColor="unknown" ;;  # this should never happen
+    esac
+    echo $iconColor
+    unset iconColor
 }
 
 function wait_second() {
