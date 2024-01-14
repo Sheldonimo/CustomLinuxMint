@@ -96,6 +96,7 @@ run_script() {
         read_input_color
         let choose=$?
         iconColor=$(change_iconColor $choose)
+        wait_second 2
         # run script
         bash "$script_path" "$iconColor"
     else       
