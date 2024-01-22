@@ -436,7 +436,7 @@ function setting_main_shortcut() {
         # Changing key to moving and resize windows from Alt to Super
         dconf write /org/cinnamon/desktop/wm/preferences/mouse-button-modifier "'<Super>'"
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Shortcut is set up." | tee -a $log_path
     fi
 }
 
@@ -446,7 +446,7 @@ function setting_cursor() {
     # Setting Cursor by default
     gsettings set org.cinnamon.desktop.interface cursor-theme 'breeze_cursors'
     gsettings set org.cinnamon.desktop.interface cursor-size 35
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Cursor setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Cursor is set up." | tee -a $log_path
 
 }
 
@@ -466,7 +466,7 @@ function setting_icons() {
     icon_theme="Tela-$iconColor-dark"
     sed -i "s/^icon_theme=.*$/icon_theme=$icon_theme/" "$qt5_config_path"
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Icons setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Icons is set up." | tee -a $log_path
 
 }
 
@@ -488,7 +488,7 @@ function setting_text_editor() {
     gsettings set org.x.editor.preferences.editor draw-whitespace-trailing true
     gsettings set org.x.editor.preferences.editor editor-font 'FiraCode Nerd Font Mono Regular 10'
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Text Editor setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Text Editor is set up." | tee -a $log_path
 }
 
 function setting_panel_and_applets() {
@@ -498,7 +498,7 @@ function setting_panel_and_applets() {
     # Setting applets
     gsettings set org.cinnamon enabled-applets "['panel1:center:0:menu@cinnamon.org:0', 'panel1:right:13:show-desktop@cinnamon.org:1', 'panel1:center:1:grouped-window-list@cinnamon.org:2', 'panel1:right:1:systray@cinnamon.org:3', 'panel1:right:2:xapp-status@cinnamon.org:4', 'panel1:right:12:notifications@cinnamon.org:5', 'panel1:right:4:printers@cinnamon.org:6', 'panel1:right:5:removable-drives@cinnamon.org:7', 'panel1:right:6:keyboard@cinnamon.org:8', 'panel1:right:7:favorites@cinnamon.org:9', 'panel1:right:8:network@cinnamon.org:10', 'panel1:right:9:sound@cinnamon.org:11', 'panel1:right:10:power@cinnamon.org:12', 'panel1:right:11:calendar@cinnamon.org:13', 'panel1:left:0:workspace-switcher@cinnamon.org:14']"
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} applets setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} applets is set up." | tee -a $log_path
     # Setting Panels
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Panels." | tee -a $log_path
     gsettings set org.cinnamon panels-enabled "['1:0:bottom']"
@@ -506,7 +506,7 @@ function setting_panel_and_applets() {
     gsettings set org.cinnamon panel-zone-icon-sizes '[{"panelId":1,"left":0,"center":0,"right":24}]'
     gsettings set org.cinnamon panel-zone-symbolic-icon-sizes '[{"panelId": 1, "left": 32, "center": 32, "right": 16}]'
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Panels setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Panels is set up." | tee -a $log_path
         
 }
 
@@ -535,7 +535,7 @@ function setting_calendar(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : File calendar not found" | tee -a $log_path
     fi
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar is set up." | tee -a $log_path
 
 }
 
@@ -577,7 +577,7 @@ function setting_menu_icon(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : File icon menu not found" | tee -a $log_path
     fi
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon is set up." | tee -a $log_path
 
 }
 
@@ -604,7 +604,7 @@ function setting_fonts() {
     # the sleep is for wait until the change is applied
     wait_second 5
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fonts is set up." | tee -a $log_path
 
 }
 
@@ -660,7 +660,7 @@ function setting_terminal_color_palette() {
         org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${profile}/\
         visible-name "Sheldonimo"
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Terminal Color Palette is set up." | tee -a $log_path
 }
 
 function setting_background_desktop(){
@@ -678,7 +678,7 @@ function setting_background_desktop(){
     gsettings set org.cinnamon.desktop.background.slideshow random-order true
     gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop setted." | tee -a $log_path  
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop is set up." | tee -a $log_path  
 
 }
 
@@ -707,7 +707,7 @@ function setting_notification(){
     # setting notification
     gsettings set org.cinnamon.desktop.notifications bottom-notifications true
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification is set up." | tee -a $log_path
 
 }
 
@@ -736,7 +736,7 @@ function setting_redshift(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : File redshift not found" | tee -a $log_path
     fi
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift is set up." | tee -a $log_path
 }
 
 function setting_desktop_icons(){
@@ -747,7 +747,7 @@ function setting_desktop_icons(){
     gsettings set org.nemo.desktop home-icon-visible true
     gsettings set org.nemo.desktop trash-icon-visible true
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop Icons setted." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop Icons is set up." | tee -a $log_path
 
 }
 
@@ -758,7 +758,7 @@ function setting_max_volume(){
     # setting maximum volume to 150% (note: is possible set a value over 150)
     gsettings set org.cinnamon.desktop.sound maximum-volume 150
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop setted." | tee -a $log_path   
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop is set up." | tee -a $log_path   
 }
 
 

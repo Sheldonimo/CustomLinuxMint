@@ -119,7 +119,7 @@ function download_plugins_zsh() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading plugins zsh." | tee -a $log_path
     # Download plugins zsh
     # Clone repository zsh-syntax-highlighting
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
+    git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
 
     # Crear directorio y descargar zsh-autosuggestions
     sudo mkdir /usr/local/share/zsh-autosuggestions/
@@ -154,7 +154,7 @@ function download_alacritty(){
     # Download Alacritty
     if [ ! -d "./tmp/Alacritty" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Alacritty." | tee -a $log_path
-        git clone https://github.com/alacritty/alacritty.git ./tmp/Alacritty
+        git clone --depth 1 https://github.com/alacritty/alacritty.git ./tmp/Alacritty
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty Downloaded." | tee -a $log_path
         # Waiting until all files are downloaded
         wait -n
@@ -165,7 +165,7 @@ function download_ranger(){
     # Download Ranger
     if [ ! -d "./tmp/ranger" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading Ranger." | tee -a $log_path
-        git clone https://github.com/ranger/ranger.git ./tmp/ranger
+        git clone --depth 1 https://github.com/ranger/ranger.git ./tmp/ranger
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger Downloaded." | tee -a $log_path
         # Waiting until all files are downloaded
         wait -n
@@ -382,19 +382,19 @@ function setting_zsh_theme(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting zsh theme." | tee -a $log_path
         cp ./resources/.zshrc $HOME/.zshrc
         cp ./resources/.p10k.zsh $HOME/.p10k.zsh
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme Installed." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh theme is set up." | tee -a $log_path
     fi
 }
 
 function setting_plugins_zsh(){
-    if ! grep -iq '^# <<<--------->>> Plugins' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Plugins' $HOME/.zshrc; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting plugins zsh." | tee -a $log_path
         echo "" >> $HOME/.zshrc
         echo "# <<<--------->>> Plugins <<<--------->>>" >> $HOME/.zshrc
         echo "source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
         echo "source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> $HOME/.zshrc
         echo "source /usr/local/share/zsh-sudo/sudo.plugin.zsh" >> $HOME/.zshrc
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh Installed." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} plugins zsh is set up." | tee -a $log_path
     fi 
 }
 
@@ -402,7 +402,7 @@ function setting_git_tree_visualizations(){
     # Setting variable to know where to add git tree visualizations
     installed=""
     # Validate if git tree visualizations is not installed in zsh
-    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.zshrc; then
         installed="${installed} $HOME/.zshrc"
     fi
     # Validate if git tree visualizations is not installed in bash
@@ -423,14 +423,14 @@ function setting_git_tree_visualizations(){
         echo "alias lg2-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''%C(white)%s%C(reset) %C(dim white)- %an%C(reset)'\"" >> "$file"
         echo "alias lg3-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''%C(white)%s%C(reset)%n''%C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'\"" >> "$file"
     done
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations Installed." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a $log_path
 }
 
 function setting_exa(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting exa." | tee -a $log_path
     # Setting exa
     # to $HOME/.zshrc
-    if ! grep -iq '^# <<<--------->>> exa' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> exa' $HOME/.zshrc; then
         echo "" >> $HOME/.zshrc
         echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.zshrc
         echo "alias ll=\"exa -alh\"" >> $HOME/.zshrc
@@ -441,7 +441,7 @@ function setting_exa(){
         echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.bashrc
         echo "alias ll=\"exa -alh\"" >> $HOME/.bashrc
     fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa is set up." | tee -a $log_path
 }
 
 function setting_alacritty(){
@@ -453,14 +453,14 @@ function setting_alacritty(){
     cp ./resources/alacritty.toml $HOME/.config/alacritty/alacritty.toml
     # Setting alacritty like a default terminal
     dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty Installed." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty is set up." | tee -a $log_path
 }
 
 function setting_poetry(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting poetry." | tee -a $log_path
     # Setting poetry
     # to $HOME/.zshrc
-    if ! grep -iq '^# <<<--------->>> Poetry' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Poetry' $HOME/.zshrc; then
         echo "" >> $HOME/.zshrc
         echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.zshrc
         echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.zshrc
@@ -471,7 +471,7 @@ function setting_poetry(){
         echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.bashrc
         echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.bashrc
     fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry Installed." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry is set up." | tee -a $log_path
 }
 
 function setting_pyenv(){
@@ -479,7 +479,7 @@ function setting_pyenv(){
     # Setting pyenv
     installed=""
     # Validate if pyenv is not installed in zsh
-    if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
         installed="${installed} $HOME/.zshrc"
     fi
     # Validate if git tree visualizations is not installed in bash
@@ -512,7 +512,7 @@ function setting_ranger(){
         # Setting ranger
         installed=""
         # Validate if ranger is not installed in zsh
-        if ! grep -iq '^# <<<--------->>> ranger' $HOME/.zshrc; then
+        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> ranger' $HOME/.zshrc; then
             installed="${installed} $HOME/.zshrc"
         fi
         # Validate if git tree visualizations is not installed in bash
@@ -532,7 +532,7 @@ function setting_ranger(){
 
         done
     fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger Installed." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger is set up." | tee -a $log_path
 }
 
 # <<<----------------->>> Main <<<----------------->>>

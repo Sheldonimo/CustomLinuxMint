@@ -353,7 +353,7 @@ function install_ytfzf(){
         echo "deb [arch=amd64] http://download.opensuse.org/repositories/home:/justkidding/xUbuntu_$UBUNTU_CODE/ /" | sudo tee /etc/apt/sources.list.d/ueberzugpp.list
         curl -fsSL https://download.opensuse.org/repositories/home:justkidding/xUbuntu_$UBUNTU_CODE/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ueberzugpp.gpg > /dev/null
         sudo apt update
-        sudo apt install ueberzugpp
+        sudo apt install -y ueberzugpp
         # Install ytfzf
         git clone --depth 1 https://github.com/pystardust/ytfzf ./tmp/ytfzf
         cd ./tmp/ytfzf
@@ -370,7 +370,7 @@ function install_signal(){
     # Linux distributions such as Ubuntu, Mint etc.
 
     # 1. Install our official public software signing key:
-    wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
+    wget -q --show-progress -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
     cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
 
     # 2. Add our repository to your list of repositories:
@@ -378,7 +378,7 @@ function install_signal(){
     sudo tee /etc/apt/sources.list.d/signal-xenial.list
 
     # 3. Update your package database and install Signal:
-    sudo apt update && sudo apt install signal-desktop
+    sudo apt update && sudo apt install -y signal-desktop
     
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} signal installed." | tee -a $log_path
 }
@@ -412,7 +412,7 @@ function setting_tesseract_ocr() {
 
         add_shortcut "$binding" "$command" "$name"
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq is set up." | tee -a $log_path
         
     fi
 
@@ -432,7 +432,7 @@ function setting_flameshot() {
 
         add_shortcut "$binding" "$command" "$name"
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} flameshot setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} flameshot is set up." | tee -a $log_path
         
     fi
 
@@ -498,7 +498,7 @@ function setting_logseq() {
         # modify the file edn
         echo "{:custom-css-url \"@import url('assets:///home/rex/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
         
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq is set up." | tee -a $log_path
     fi
 }
 
@@ -520,7 +520,7 @@ function setting_copyq(){
         mkdir -p $HOME/.config/autostart
         cp ./resources/copyq.desktop $HOME/.config/autostart/copyq.desktop
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq is set up." | tee -a $log_path
         
     fi
 
@@ -532,7 +532,7 @@ function setting_ytfzf(){
         # Setting ytfzf
         installed=""
         # Validate if ranger is not installed in zsh
-        if ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.zshrc; then
+        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.zshrc; then
             installed="${installed} $HOME/.zshrc"
         fi
         # Validate if git tree visualizations is not installed in bash
@@ -567,7 +567,7 @@ YTFZF_EXTMENU_LEN=220                               # Specifies the length of th
 invidious_instance="https://inv.zzls.xyz"           # Sets a specific Invidious instance for Ytfzf
 EOF
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf setted." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf is set up." | tee -a $log_path
     fi
 }
 
