@@ -86,6 +86,9 @@ function main() {
     # Settings pyenv
     setting_pyenv
 
+    # Settings ranger
+    setting_ranger
+
 }
 
 # <<<----------------->>> Download functions <<<----------------->>>
@@ -501,6 +504,35 @@ function setting_pyenv(){
     done
     
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
+}
+
+function setting_ranger(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ranger." | tee -a $log_path
+    if command -v ranger &> /dev/null; then
+        # Setting ranger
+        installed=""
+        # Validate if ranger is not installed in zsh
+        if ! grep -iq '^# <<<--------->>> ranger' $HOME/.zshrc; then
+            installed="${installed} $HOME/.zshrc"
+        fi
+        # Validate if git tree visualizations is not installed in bash
+        if ! grep -iq '^# <<<--------->>> ranger' $HOME/.bashrc; then
+            installed="${installed} $HOME/.bashrc"
+        fi
+
+        # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
+        for file in $installed; do
+            echo "" >> "$file"
+            echo "# <<<--------->>> ranger <<<--------->>>" >> "$file"
+            echo "" >> "$file"
+            echo "alias ranger=\"source ranger\"" >> "$file"
+            echo "" >> "$file"
+            echo "export EDITOR=\"nano\"" >> "$file"
+            echo "export VISUAL=\"nano\"" >> "$file"
+
+        done
+    fi
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger Installed." | tee -a $log_path
 }
 
 # <<<----------------->>> Main <<<----------------->>>

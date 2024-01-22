@@ -56,6 +56,12 @@ function main() {
     # Install tesseract-ocr
     install_tesseract_ocr
 
+    # Install ytfzf
+    install_ytfzf
+
+    # Install signal
+    install_signal
+
     # <<--->> Setting configuration in desktop <<--->>
 
     # Setting tesseract-ocr
@@ -69,6 +75,9 @@ function main() {
 
     # Setting copyq
     setting_copyq
+
+    # Setting ytfzf
+    setting_ytfzf
 
 }
 
@@ -327,6 +336,53 @@ function install_tesseract_ocr() {
     fi
 }
 
+function install_ytfzf(){
+    if grep -iq '^x|ytfzf' "$INSTALL_LIST" && ! command -v ytfzf &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing ytfzf." | tee -a $log_path
+        # install dependencies
+        sudo apt install -y mpv jq fzf suckless-tools
+        pip3 install yt-dlp
+        # Install ueberzugcpp
+        UBUNTU_CODE=$(inxi -Sx | awk -F'Ubuntu ' '/base:/ {print $2}'| cut -d' ' -f1)  
+        # inxi -Sx: Runs 'inxi' to display system info with extra details.
+        # | (pipe): Passes output of the previous command to the next.
+        # awk -F'Ubuntu ': Uses 'awk' with field separator set to 'Ubuntu '.
+        #   '/base:/ {print $2}': In 'awk', searches lines containing 'base:' and prints the second field.
+        # | (pipe): Again, passes output to the next command.
+        # cut -d'  ' -f1: Uses 'cut' with delimiter as two spaces, extracts the first field.
+        echo "deb [arch=amd64] http://download.opensuse.org/repositories/home:/justkidding/xUbuntu_$UBUNTU_CODE/ /" | sudo tee /etc/apt/sources.list.d/ueberzugpp.list
+        curl -fsSL https://download.opensuse.org/repositories/home:justkidding/xUbuntu_$UBUNTU_CODE/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ueberzugpp.gpg > /dev/null
+        sudo apt update
+        sudo apt install ueberzugpp
+        # Install ytfzf
+        git clone --depth 1 https://github.com/pystardust/ytfzf ./tmp/ytfzf
+        cd ./tmp/ytfzf
+        sudo make install doc
+        cd -
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf installed." | tee -a $log_path
+    fi
+
+}
+
+function install_signal(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing signal." | tee -a $log_path
+    # NOTE: These instructions only work for 64-bit Debian-based
+    # Linux distributions such as Ubuntu, Mint etc.
+
+    # 1. Install our official public software signing key:
+    wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
+    cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
+
+    # 2. Add our repository to your list of repositories:
+    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
+    sudo tee /etc/apt/sources.list.d/signal-xenial.list
+
+    # 3. Update your package database and install Signal:
+    sudo apt update && sudo apt install signal-desktop
+    
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} signal installed." | tee -a $log_path
+}
+
 # <<<----------------->>> Setting functions <<<----------------->>>
 
 function setting_tesseract_ocr() {
@@ -461,10 +517,58 @@ function setting_copyq(){
 
         add_shortcut "$binding" "$command" "$name"
 
+        mkdir -p $HOME/.config/autostart
+        cp ./resources/copyq.desktop $HOME/.config/autostart/copyq.desktop
+
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq setted." | tee -a $log_path
         
     fi
 
+}
+
+function setting_ytfzf(){    
+    if grep -iq '^x|ytfzf' "$INSTALL_LIST" && command -v ytfzf &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ytfzf." | tee -a $log_path
+        # Setting ytfzf
+        installed=""
+        # Validate if ranger is not installed in zsh
+        if ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.zshrc; then
+            installed="${installed} $HOME/.zshrc"
+        fi
+        # Validate if git tree visualizations is not installed in bash
+        if ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.bashrc; then
+            installed="${installed} $HOME/.bashrc"
+        fi
+
+        # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
+        for file in $installed; do
+            echo "" >> "$file"
+            echo "# <<<--------->>> ytfzf <<<--------->>>" >> "$file"
+            echo "" >> "$file"
+            echo "# Show thumbnails" >> "$file"
+            echo " alias yt=\"ytfzf -t\"" >> "$file"
+            echo "# Play only the audio and reopen the menu when the video stops playing" >> "$file"
+            echo "alias ytm=\"ytfzf -lm\"" >> "$file"
+        done
+
+        # Setting ytfzf en $HOME/.config/ytfzf/conf.sh
+        # Create the folder
+        mkdir -p $HOME/.config/ytfzf
+        
+        cat << EOF > $HOME/.config/ytfzf/conf.sh
+YTFZF_HIST=1                                        # Enables search history in Ytfzf
+YTFZF_LOOP=0                                        # Disables looping of videos in Ytfzf
+video_pref="bestvideo[height<=?720][fps<=?30]"      # Sets video preference to max 720p resolution and 30 FPS. Another e.i [height<=?1080]
+audio_pref='bestaudio/audio'                        # Sets audio preference to best available quality
+YTFZF_ENABLE_FZF_DEFAULT_OPTS=1                     # Enables default FZF (Fuzzy Finder) options in Ytfzf
+FZF_PLAYER="mpv"                                    # Sets MPV as the default player for Ytfzf
+YTFZF_EXTMENU='rofi -dmenu -fuzzy -width 1500'      # Sets Rofi with specific options as external menu for Ytfzf
+YTFZF_EXTMENU_LEN=220                               # Specifies the length of the external menu in Ytfzf
+invidious_instance="https://inv.zzls.xyz"           # Sets a specific Invidious instance for Ytfzf
+EOF
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf setted." | tee -a $log_path
+    fi
 }
 
 # <<<----------------->>> Main <<<----------------->>>
