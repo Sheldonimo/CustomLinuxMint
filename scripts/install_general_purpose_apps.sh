@@ -62,7 +62,16 @@ function main() {
     # Install signal
     install_signal
 
+    # Install blanket
+    install_blanket
+
+    # Install miktex
+    install_miktex
+
     # <<--->> Setting configuration in desktop <<--->>
+
+    # Setting vscode
+    setting_vscode
 
     # Setting tesseract-ocr
     setting_tesseract_ocr
@@ -78,6 +87,9 @@ function main() {
 
     # Setting ytfzf
     setting_ytfzf
+
+    # Setting miktex
+    setting_miktex
 
 }
 
@@ -365,25 +377,92 @@ function install_ytfzf(){
 }
 
 function install_signal(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing signal." | tee -a $log_path
-    # NOTE: These instructions only work for 64-bit Debian-based
-    # Linux distributions such as Ubuntu, Mint etc.
+    if grep -iq '^x|signal' "$INSTALL_LIST" && ! command -v signal-desktop &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing signal." | tee -a $log_path
+        # NOTE: These instructions only work for 64-bit Debian-based
+        # Linux distributions such as Ubuntu, Mint etc.
 
-    # 1. Install our official public software signing key:
-    wget -q --show-progress -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
-    cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
+        # 1. Install our official public software signing key:
+        wget -q --show-progress -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
+        cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
 
-    # 2. Add our repository to your list of repositories:
-    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
-    sudo tee /etc/apt/sources.list.d/signal-xenial.list
+        # 2. Add our repository to your list of repositories:
+        echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
+        sudo tee /etc/apt/sources.list.d/signal-xenial.list
 
-    # 3. Update your package database and install Signal:
-    sudo apt update && sudo apt install -y signal-desktop
-    
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} signal installed." | tee -a $log_path
+        # 3. Update your package database and install Signal:
+        sudo apt update && sudo apt install -y signal-desktop
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} signal installed." | tee -a $log_path
+    fi
+}
+
+function install_blanket(){
+    if grep -iq '^x|blanket' "$INSTALL_LIST" && ! command -v blanket &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing blanket." | tee -a $log_path
+        # Install blanket
+        # Add the repository
+        sudo add-apt-repository -y ppa:haecker-felix/release
+        # Update the repositories
+        sudo apt update
+        # Install blanket
+        sudo apt install blanket -y
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} blanket installed." | tee -a $log_path
+    fi
+}
+
+function install_miktex(){
+    if grep -iq '^x|miktex' "$INSTALL_LIST" && ! command -v miktexsetup &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing miktex." | tee -a $log_path
+        # Install miktex
+        # Add the repository
+        curl -fsSL https://miktex.org/download/key | sudo tee /usr/share/keyrings/miktex-keyring.asc > /dev/null
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/miktex-keyring.asc] https://miktex.org/download/ubuntu jammy universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+        sudo apt-get update
+        # Install miktex
+        sudo apt-get install -y miktex
+        # Finish the installation
+        sudo miktexsetup --shared=yes finish
+        sudo initexmf --admin --set-config-value [MPM]AutoInstall=1
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} miktex installed." | tee -a $log_path
+    fi
 }
 
 # <<<----------------->>> Setting functions <<<----------------->>>
+
+function setting_vscode(){
+    if grep -iq '^x|vscode' "$INSTALL_LIST" && command -v code &> /dev/null; then
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting vscode." | tee -a $log_path
+    # Setting vscode
+    # Add bracket Pair Colorization
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"editor.bracketPairColorization.independentColorPoolPerBracketType": true}'
+    # Opens untrusted files in restricted window.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"security.workspace.trust.untrustedFiles": "newWindow"}'
+    # Disable telemetry
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"telemetry.telemetryLevel": "off"}'
+    # Add fonts to vscode
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" "{\"editor.fontFamily\": \"'Fira Code', 'Hack Nerd Font Mono', 'monospace', monospace\"}"
+    # Add ligatures to vscode
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"editor.fontLigatures": true}'
+    # Set unlimited time for diff editor computations.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"diffEditor.maxComputationTime": 0}'
+    # Applies the following settings only to Python files and Auto-formats code on typing in Python files.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"[python]": {"editor.formatOnType": true}}'
+    # Associates *.md files with Markdown format.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '"files.associations": {"*.md": "markdown"}'
+    #* Using vscode extension called "Code spell Checker"
+    # Custom word list for the spell checker and add the word "Sheldonimo" to the spell checker dictionary.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"cSpell.userWords": ["Sheldonimo"]}'
+    # Defines file types for spell checking.
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"cSpell.enableFiletypes": ["tex","markdown"]}'
+    #* Using vscode extension called "Gitlens"
+    # Disable telemetry in gitlens
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"gitlens.telemetry.enabled": false}'
+
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting vscode is set up." | tee -a $log_path
+    fi
+}
 
 function setting_tesseract_ocr() {
 
@@ -571,6 +650,106 @@ EOF
     fi
 }
 
+function setting_miktex(){
+    if grep -iq '^x|miktex' "$INSTALL_LIST" && command -v code &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting miktex." | tee -a $log_path
+        # Crear un archivo temporal
+        tmpfile=$(mktemp)
+
+        # Escribir el JSON en el archivo temporal
+        cat > $tmpfile << EOF
+{
+    "latex-workshop.latex.recipes": [
+      {
+          "name": "xelatex -> biber -> xelatex*2",
+          "tools": [
+              "xelatex",
+              "biber",
+              "xelatex",
+              "xelatex"
+          ]
+      }  
+  ],
+  "latex-workshop.latex.tools": [
+      {
+          "name": "pdflatex",
+          "command": "pdflatex",
+          "args": [
+              "-synctex=1",
+              "-interaction=nonstopmode",
+              "-file-line-error",
+              "%DOC%"
+          ]
+      },
+      {
+          "name": "bibtex",
+          "command": "bibtex",
+          "args": [
+              "%DOCFILE%"
+          ]
+      },
+      {
+          "name": "biber",
+          "command": "biber",
+          "args": [
+              "%DOCFILE%"
+          ]
+      },
+      {
+          "name": "xelatex",
+          "command": "xelatex",
+          "args": [
+              "-synctex=1",
+              "-interaction=nonstopmode",
+              "-file-line-error",
+              "%DOC%"
+          ]
+      }
+  
+  ]
+    ,"latex-workshop.latex.autoClean.run": "onBuilt",
+    "latex-workshop.latex.clean.fileTypes": [
+    "*.aux",
+    "*.bbl",
+    "*.blg",
+    "*.idx",
+    "*.ind",
+    "*.lof",
+    "*.lot",
+    "*.out",
+    "*.toc",
+    "*.acn",
+    "*.acr",
+    "*.alg",
+    "*.glg",
+    "*.glo",
+    "*.gls",
+    "*.ist",
+    "*.fls",
+    "*.log",
+    "*.fdb_latexmk",
+    "*.synctex.gz",
+    "*.bcf",
+    "*.run.xml"
+    ], 
+      "latex-workshop.view.pdf.viewer": "tab",
+    
+    "latex-workshop.showContextMenu": true,
+    "workbench.editorAssociations": {
+      "*.pdf": "latex-workshop-pdf-hook"
+    }
+}
+EOF
+
+        # Ejecutar el script de Python con el contenido del archivo temporal
+        python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" "$(cat $tmpfile)"
+
+        # Eliminar el archivo temporal
+        rm $tmpfile
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} miktex is set up." | tee -a $log_path
+    fi
+}
 # <<<----------------->>> Main <<<----------------->>>
 main
 
