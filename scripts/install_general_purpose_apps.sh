@@ -435,6 +435,10 @@ function setting_vscode(){
     if grep -iq '^x|vscode' "$INSTALL_LIST" && command -v code &> /dev/null; then
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting vscode." | tee -a $log_path
     # Setting vscode
+    if [ ! -f "$HOME/.config/Code/User/settings.json" ]; then
+        mkdir -p "$HOME/.config/Code/User"
+        echo "{}" > "$HOME/.config/Code/User/settings.json"
+    fi
     # Add bracket Pair Colorization
     python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"editor.bracketPairColorization.independentColorPoolPerBracketType": true}'
     # Opens untrusted files in restricted window.
@@ -575,7 +579,7 @@ function setting_logseq() {
         # Copy the file
         cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
         # modify the file edn
-        echo "{:custom-css-url \"@import url('assets:///home/rex/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
+        echo "{:custom-css-url \"@import url('assets://$HOME/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq is set up." | tee -a $log_path
     fi
