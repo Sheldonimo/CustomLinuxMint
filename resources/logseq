@@ -71,6 +71,14 @@ function update_logseq() {
     echo "Update complete."
 }
 
+function get_current_version(){
+
+    # Current version
+    current_version=$(grep "Version=" "$DESKTOP_FILE" | awk -F '=' '{print $2}')
+    echo "logseq $current_version"
+
+}
+
 # Arguments: 1=name_github_user/name_repo (e.i ryanoasis/nerd-fonts)
 function get_lastest_url() {
         # URL de la API para el último release del repositorio
@@ -90,9 +98,10 @@ function get_lastest_url() {
 function show_help() {
     echo "Logseq Launcher Script"
     echo "Usage:"
-    echo "  logseq              Starts Logseq normally."
-    echo "  logseq update       Updates Logseq to the latest version."
-    echo "  logseq --help | -h  Displays this help message."
+    echo "  logseq                Starts Logseq normally."
+    echo "  logseq update         Updates Logseq to the latest version."
+    echo "  logseq --version | -v Prints the current version of the executable logseq"
+    echo "  logseq --help | -h    Displays this help message."
 }
 
 # Argument handling
@@ -103,6 +112,9 @@ case "$1" in
     update)
         update_logseq
         ;;
+    -v|--version)
+	get_current_version
+	;;
     -h|--help)
         show_help
         ;;

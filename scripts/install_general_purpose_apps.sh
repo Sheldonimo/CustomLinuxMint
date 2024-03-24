@@ -446,7 +446,7 @@ function setting_vscode(){
     # Disable telemetry
     python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"telemetry.telemetryLevel": "off"}'
     # Add fonts to vscode
-    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" "{\"editor.fontFamily\": \"'Fira Code', 'Hack Nerd Font Mono', 'monospace', monospace\"}"
+    python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" "{\"editor.fontFamily\": \"'FiraCode Nerd Font', 'Hack Nerd Font Mono', 'monospace', monospace\"}"
     # Add ligatures to vscode
     python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"editor.fontLigatures": true}'
     # Set unlimited time for diff editor computations.
