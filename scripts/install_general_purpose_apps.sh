@@ -623,7 +623,7 @@ function setting_ytfzf(){
             installed="${installed} $HOME/.bashrc"
         fi
 
-        # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
+        # Setting ytfzf in $HOME/.zshrc and $HOME/.bashrc
         for file in $installed; do
             echo "" >> "$file"
             echo "# <<<--------->>> ytfzf <<<--------->>>" >> "$file"

@@ -36,8 +36,8 @@ function main() {
     # Install neofetch and htop
     install_neofetch_and_htop
 
-    # Install exa
-    install_exa
+    # Install eza
+    install_eza
 
     # Install bat
     install_bat
@@ -74,8 +74,8 @@ function main() {
     # Settings git tree visualizations
     setting_git_tree_visualizations
 
-    # Settings exa
-    setting_exa
+    # Settings eza
+    setting_eza
 
     # Settings alacritty
     setting_alacritty
@@ -221,15 +221,15 @@ function install_neofetch_and_htop(){
     fi 
 }
 
-function install_exa(){
-    # Validate if exa is not installed
-    if ! command -v exa &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing exa." | tee -a $log_path
-        # Install exa
-        # "Source: https://the.exa.website/#installation"
-        # "Download: exa A modern replacement for ls"
-        sudo apt install -y exa
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa Installed." | tee -a $log_path
+function install_eza(){
+    # Validate if eza is not installed
+    if ! command -v eza &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing eza." | tee -a $log_path
+        # Install eza
+        # "Source: https://eza.rocks/#installation"
+        # "Download: eza A modern replacement for ls"
+        sudo apt install -y eza
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} eza Installed." | tee -a $log_path
     fi
 }
 
@@ -426,22 +426,22 @@ function setting_git_tree_visualizations(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a $log_path
 }
 
-function setting_exa(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting exa." | tee -a $log_path
-    # Setting exa
+function setting_eza(){
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting eza." | tee -a $log_path
+    # Setting eza
     # to $HOME/.zshrc
-    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> exa' $HOME/.zshrc; then
+    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> eza' $HOME/.zshrc; then
         echo "" >> $HOME/.zshrc
-        echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.zshrc
-        echo "alias ll=\"exa -alh\"" >> $HOME/.zshrc
+        echo "# <<<--------->>> eza <<<--------->>>" >> $HOME/.zshrc
+        echo "alias ll=\"eza -alh\"" >> $HOME/.zshrc
     fi
     # to $HOME/.bashrc
-    if ! grep -iq '^# <<<--------->>> exa' $HOME/.bashrc; then
+    if ! grep -iq '^# <<<--------->>> eza' $HOME/.bashrc; then
         echo "" >> $HOME/.bashrc
-        echo "# <<<--------->>> exa <<<--------->>>" >> $HOME/.bashrc
-        echo "alias ll=\"exa -alh\"" >> $HOME/.bashrc
+        echo "# <<<--------->>> eza <<<--------->>>" >> $HOME/.bashrc
+        echo "alias ll=\"eza -alh\"" >> $HOME/.bashrc
     fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} exa is set up." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} eza is set up." | tee -a $log_path
 }
 
 function setting_alacritty(){
@@ -503,6 +503,9 @@ function setting_pyenv(){
         echo "eval \"\$(pyenv virtualenv-init -)\"" >> "$file"
     done
     
+    # Installing dependencies to compile python runtime
+    sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libncurses5-dev libncursesw5-dev libffi-dev liblzma-dev libsqlite3-dev tk-dev
+       
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
 }
 
