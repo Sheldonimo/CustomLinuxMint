@@ -647,7 +647,7 @@ YTFZF_ENABLE_FZF_DEFAULT_OPTS=1                     # Enables default FZF (Fuzzy
 FZF_PLAYER="mpv"                                    # Sets MPV as the default player for Ytfzf
 YTFZF_EXTMENU='rofi -dmenu -fuzzy -width 1500'      # Sets Rofi with specific options as external menu for Ytfzf
 YTFZF_EXTMENU_LEN=220                               # Specifies the length of the external menu in Ytfzf
-invidious_instance="https://inv.zzls.xyz"           # Sets a specific Invidious instance for Ytfzf
+invidious_instance="https://vid.puffyan.us"         # Sets a specific Invidious instance for Ytfzf
 EOF
 
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf is set up." | tee -a $log_path
