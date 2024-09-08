@@ -97,9 +97,13 @@ run_script() {
         let choose=$?
         iconColor=$(change_iconColor $choose)
         wait_second 2
+        # Install pip3 and git
+        install_pip_and_git
         # run script
         bash "$script_path" "$iconColor"
     else       
+        # Install pip3 and git
+        install_pip_and_git
         bash "$script_path"
     fi
     unset script_path
@@ -203,14 +207,13 @@ function ask_to_run_script() {
         read -p "Do you want to execute the script $script_name? (Y/n): " choice
         # Default to 'yes' if the input is empty, 'y', or 'Y'
         if [[ -z $choice || $choice == "y" || $choice == "Y" ]]; then
-            # Install pip3 and git
-            install_pip_and_git
             # run the script
             run_script "$script_name"
         else
             echo "Skipping $script_name."
         fi
     else
+        # run the script
         run_script "$script_name"
     fi
 }
