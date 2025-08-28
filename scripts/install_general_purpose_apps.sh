@@ -372,24 +372,22 @@ function install_libreoffice() {
         # Add PPA
         sudo add-apt-repository -y ppa:libreoffice/ppa
         wait -n  # Wait for the process to complete
+        
         # Inform about updating keys due to deprecation of apt-key
         echo "Updating keys as apt-key is deprecated"
         
-        # Use modern keyring method instead of apt-key
-        # Get the key fingerprint from the PPA
-        local key_id=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "LibreOffice Packaging" | awk 'NR==1{print $9$10}' || true)
+        # Extract the key associated with LibreOffice
+        key=$(sudo apt-key list 2>/dev/null | grep -B 1 -i "LibreOffice Packaging" | awk 'NR==1{print $9$10}')
         
-        if [ -n "$key_id" ]; then
-            # Export and convert key for new APT keyring system
-            sudo apt-key export "$key_id" | sudo gpg --dearmor -o /usr/share/keyrings/libreoffice.gpg
-            
-            # Add repository with new keyring
-            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libreoffice.gpg] http://ppa.launchpad.net/libreoffice/ppa/ubuntu $ubuntu_codename main" | \
-                sudo tee /etc/apt/sources.list.d/libreoffice-ppa.list >/dev/null
-            
-            # Remove old key
-            sudo apt-key del "$key_id" || true
-        fi
+        # Export the key and convert it for the new APT keyring system
+        sudo apt-key export $key | sudo gpg --dearmor -o /usr/share/keyrings/libreoffice.gpg
+        
+        # Add the repository with the new keyring path
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/libreoffice.gpg] http://ppa.launchpad.net/libreoffice/ppa/ubuntu $ubuntu_codename main" | \
+            sudo tee /etc/apt/sources.list.d/libreoffice-ppa.list >/dev/null
+        
+        # Remove the key from the deprecated location
+        sudo apt-key del $key
         
         # Update and install
         sudo apt update
@@ -440,7 +438,7 @@ function install_ytfzf() {
         # | (pipe): Again, passes output to the next command.
         # cut -d'  ' -f1: Uses 'cut' with delimiter as two spaces, extracts the first field.
         
-        echo "deb [arch=amd64] http://download.opensuse.org/repositories/home:/justkidding/xUbuntu_${UBUNTU_CODE}/Release.key" | \
+        curl -fsSL "https://download.opensuse.org/repositories/home:justkidding/xUbuntu_${UBUNTU_CODE}/Release.key" | \
             gpg --dearmor | sudo tee /etc/apt/keyrings/ueberzugpp.gpg > /dev/null
         
         echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/ueberzugpp.gpg] http://download.opensuse.org/repositories/home:/justkidding/xUbuntu_${UBUNTU_CODE}/ /" | \
