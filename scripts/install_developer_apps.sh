@@ -139,71 +139,49 @@ function install_build_dependencies() {
     # Base dependencies to compile and install from source code.
     # Each package is preceded by a comment indicating WHICH PROJECT/FUNCTION of the script uses it.
     sudo apt update
-    sudo apt install -y \
-        # General compilers and 'make' â†' used by: install_alacritty (compile Alacritty), install_pyenv (compile Python), install_exiftool (compile ExifTool), and general builds
-        build-essential \
-        # C/C++ build system â†' useful for some native tools; Alacritty may require it for auxiliary steps
-        cmake \
-        # Discovers system libs when compiling â†' used by Alacritty and Python builds via install_pyenv
-        pkg-config \
-        # Text rendering â†' required by Alacritty (install_alacritty)
-        libfreetype6-dev \
-        # Font discovery/selection â†' required by Alacritty (install_alacritty)
-        libfontconfig1-dev \
-        # X11 backend (Xfixes extension) â†' required by Alacritty on X11 (install_alacritty)
-        libxcb-xfixes0-dev \
-        # Keyboard (XKB) â†' required by Alacritty (install_alacritty)
-        libxkbcommon-dev \
-        # Python interpreter for system utilities and pipx/ranger â†' used by install_ranger (fallback via pipx)
-        python3 \
-        # Python headers to compile extensions â†' useful when building Python/packages with install_pyenv
-        python3-dev \
-        # Python package manager â†' support for install_ranger (via pipx) and helper scripts
-        python3-pip \
-        # Python packaging tools
-        python3-setuptools \
-        # Man page generation â†' used by Alacritty in its build (install_alacritty)
-        scdoc \
-        # HTTP downloads â†' used by install_rust_via_rustup, install_node, install_docker, and various downloads
-        curl \
-        # File downloads â†' used by download_bat to get the .deb
-        wget \
-        # Clone repos â†' used by download_alacritty, download_plugins_zsh, download_exiftool, and others
-        git \
-        # Classic build tool â†' used by install_pyenv, install_exiftool, and other builds
-        make \
-        # CPython SSL support â†' required when compiling Python with install_pyenv
-        libssl-dev \
-        # zlib compression (zlib module) â†' install_pyenv
-        zlib1g-dev \
-        # bzip2 compression (bz2 module) â†' install_pyenv
-        libbz2-dev \
-        # Interactive command line (readline) â†' install_pyenv
-        libreadline-dev \
-        # Curses (legacy) â†' install_pyenv
-        libncurses5-dev \
-        # Curses with wide-char â†' install_pyenv
-        libncursesw5-dev \
-        # ctypes/cffi â†' install_pyenv
-        libffi-dev \
-        # xz/lzma compression (lzma module) â†' install_pyenv
-        liblzma-dev \
-        # sqlite3 database (sqlite3 module) â†' install_pyenv
-        libsqlite3-dev \
-        # Tkinter (Python GUI) â†' install_pyenv
-        tk-dev \
-        # System TLS certificates â†' necessary for HTTPS repos in install_node, install_docker, install_rust_via_rustup
-        ca-certificates \
-        # GPG to add repository keys â†' used by install_node (NodeSource) and install_docker
-        gnupg \
-        # Perl interpreter → required for ExifTool compilation (install_exiftool)
-        perl \
-        # Perl development headers → required for ExifTool compilation (install_exiftool)
-        libperl-dev \
-        # LaTeX basic packages → required for PDFjam functionality (install_pdfjam)
-        texlive-latex-base \
-        # LaTeX extra packages → required for PDFjam functionality (install_pdfjam)
-        texlive-latex-extra
+    local pkgs=(
+        build-essential    # Needed by Alacritty, pyenv, ExifTool → basic compilers and 'make'
+        cmake              # Needed by Alacritty → C/C++ build system
+        pkg-config         # Needed by Alacritty, pyenv → tool to detect system libraries
+
+        libfreetype6-dev   # Needed by Alacritty → font rendering library
+        libfontconfig1-dev # Needed by Alacritty → font discovery/management library
+        libxcb-xfixes0-dev # Needed by Alacritty (X11) → X11 Xfixes extension
+        libxkbcommon-dev   # Needed by Alacritty (X11) → keyboard handling library
+
+        python3            # Needed by ranger, helper scripts → Python interpreter
+        python3-dev        # Needed by pyenv → Python headers for building extensions
+        python3-pip        # Needed by ranger, pipx → Python package manager
+        python3-setuptools # Needed by Python packaging → packaging tools for Python
+
+        scdoc              # Needed by Alacritty → man page generator
+        curl               # Needed by Rust, Node, Docker installs → HTTP downloader
+        wget               # Needed by download_bat, other scripts → file downloader
+        git                # Needed by Alacritty, zsh plugins, ExifTool → repository cloning
+        make               # Needed by pyenv, ExifTool → classic build tool
+
+        libssl-dev         # Needed by pyenv → SSL support library for Python
+        zlib1g-dev         # Needed by pyenv → zlib compression support
+        libbz2-dev         # Needed by pyenv → bzip2 compression support
+        libreadline-dev    # Needed by pyenv → readline support for Python REPL
+        libncurses5-dev    # Needed by pyenv → ncurses text UI support
+        libncursesw5-dev   # Needed by pyenv → wide-char ncurses support
+        libffi-dev         # Needed by pyenv → FFI support for ctypes/cffi
+        liblzma-dev        # Needed by pyenv → lzma/xz compression support
+        libsqlite3-dev     # Needed by pyenv → sqlite3 database support
+        tk-dev             # Needed by pyenv → Tkinter GUI support
+
+        ca-certificates    # Needed by Rust, Node, Docker installs → system TLS certificates
+        gnupg              # Needed by Node, Docker installs → GPG for repository keys
+
+        perl               # Needed by ExifTool → Perl interpreter
+        libperl-dev        # Needed by ExifTool → Perl development headers
+
+        texlive-latex-base  # Needed by PDFjam → basic LaTeX packages
+        texlive-latex-extra # Needed by PDFjam → extra LaTeX packages
+    )
+
+    sudo apt install -y "${pkgs[@]}"
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Build dependencies installed." | tee -a $log_path
 }
@@ -524,7 +502,6 @@ function install_ranger() {
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Ranger." | tee -a $log_path
         pipx install ranger-fm
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger installed via pipx." | tee -a $log_path
-        fi
     fi
 }
 
