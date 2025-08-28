@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
+# Updated for Linux Mint 22.1 (Ubuntu 24.04 Noble)
 
 function main() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
-    echo "Installing Developer apps..."
+    echo "Installing Developer apps for Linux Mint 22.1..."
 
     # # <<--->> Download all files <<--->>
 
@@ -36,7 +37,7 @@ function main() {
     # Install neofetch and htop
     install_neofetch_and_htop
 
-    # Install eza
+    # Install eza (now available in Ubuntu 24.04 universe)
     install_eza
 
     # Install bat
@@ -117,9 +118,10 @@ function download_powerlevel10k() {
 
 function download_plugins_zsh() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading plugins zsh." | tee -a $log_path
+    
     # Download plugins zsh
     # Clone repository zsh-syntax-highlighting
-    git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
+        git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git ./tmp/zsh-syntax-highlighting
 
     # Crear directorio y descargar zsh-autosuggestions
     sudo mkdir /usr/local/share/zsh-autosuggestions/
@@ -140,7 +142,8 @@ function download_bat() {
     version=$(echo "$html_url" | awk -F'/download/v' '{print $2}')
     file_name="bat_${version}_amd64.deb"
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
-    # Download Capitaine Cursors
+    
+    # Download bat if not exists
     if [ ! -f "./tmp/bat_amd64.deb" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading bat." | tee -a $log_path
         wget -q --show-progress -O "./tmp/bat_amd64.deb" $html_url/$file_name
@@ -180,7 +183,7 @@ function download_ranger(){
 function install_zsh(){
     if ! command -v zsh &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing zsh." | tee -a $log_path
-        # Install green icons
+        # Install zsh
         sudo apt install -y zsh
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} zsh Installed." | tee -a $log_path
     fi
@@ -223,11 +226,13 @@ function install_neofetch_and_htop(){
 
 function install_eza(){
     # Validate if eza is not installed
+    # NOTE: eza is now available in Ubuntu 24.04 universe repository!
     if ! command -v eza &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing eza." | tee -a $log_path
-        # Install eza
-        # "Source: https://eza.rocks/#installation"
-        # "Download: eza A modern replacement for ls"
+        # Enable universe repository if not enabled
+        sudo add-apt-repository universe -y
+        sudo apt update
+        # Install eza from universe repository
         sudo apt install -y eza
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} eza Installed." | tee -a $log_path
     fi
@@ -239,6 +244,8 @@ function install_bat(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing bat." | tee -a $log_path
         # Install bat
         sudo dpkg -i ./tmp/bat_amd64.deb
+        # Fix any dependency issues
+        sudo apt-get install -f -y
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Installed." | tee -a $log_path
     fi
 }
@@ -260,7 +267,14 @@ function install_alacritty(){
         begin_path=$(pwd)
         # Downloading dependencies
         sudo apt install -y cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
-        sudo apt install -y cargo scdoc
+        
+        # Install cargo if not present (but DON'T remove it later!)
+        if ! command -v cargo &> /dev/null; then
+            sudo apt install -y cargo
+        fi
+        
+        sudo apt install -y scdoc
+        
         # <<------>> Compile Alacritty <<------>>
         cd ./tmp/Alacritty
         # Force support for only X11 in the build
@@ -283,10 +297,12 @@ function install_alacritty(){
         scdoc < extra/man/alacritty-msg.1.scd | gzip -c | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
         scdoc < extra/man/alacritty.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty.5.gz > /dev/null
         scdoc < extra/man/alacritty-bindings.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty-bindings.5.gz > /dev/null
-        # <<------>> Deleting the compilation dependencies <<------>>  
-        sudo apt remove -y cargo
+        
+        # <<------>> NOTE: NOT removing cargo - it might be needed for other Rust applications <<------>>
+        # Only remove the build dependencies, not cargo
         sudo apt remove -y cmake libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev
         sudo apt autoremove -y
+        
         # <<------>>  back to original path <<------>> 
         cd $begin_path
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty Installed." | tee -a $log_path
@@ -336,24 +352,34 @@ function install_node(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Node." | tee -a $log_path
         # Install Node
         # Getting the latest LTS version of Node
-        NODE_MAJOR=$(curl -s https://deb.nodesource.com/ | grep "NODE_MAJOR=" | sed 's/.*NODE_MAJOR=\([0-9]*\).*/\1/')
+        NODE_MAJOR=$(curl -s https://deb.nodesource.com/ | grep "Install Node.js" | sed 's/.*Install Node.js \([0-9]*\).*/\1/')
         # Validate if NODE_MAJOR is a number
         if [[ $NODE_MAJOR =~ ^[0-9]{2}$ ]]; then
             sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg
+            
+            # Download and add NodeSource GPG key
             curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+            
             echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+            
+            # Update and install Node.js
             sudo apt-get update
             sudo apt-get install nodejs -y
         fi
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Node Installed." | tee -a $log_path
-
     fi
 }
 
 function install_docker(){
     if ! command -v docker &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Docker." | tee -a $log_path
-        # Install Docker
+        # Install Docker - Updated for Ubuntu 24.04 Noble
+        
+        # Remove any existing Docker repositories
+        sudo rm -f /etc/apt/sources.list.d/docker.list
+        sudo rm -f /etc/apt/keyrings/docker.gpg
+        sudo rm -f /etc/apt/keyrings/docker.asc
+        
         # Add Docker's official GPG key:
         sudo apt-get update
         sudo apt-get install -y ca-certificates curl gnupg
@@ -366,12 +392,17 @@ function install_docker(){
         "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
         $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | \
         sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
         sudo apt-get update
 
         # Install Docker Engine:
         sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+        # Add current user to docker group (optional but recommended)
+        sudo usermod -aG docker $USER
+        
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Docker Installed." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} NOTE: Log out and back in for docker group changes to take effect." | tee -a $log_path
     fi
 }
 
@@ -410,20 +441,22 @@ function setting_git_tree_visualizations(){
         installed="${installed} $HOME/.bashrc"
     fi
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations to bash and zsh." | tee -a $log_path
-    for file in $installed; do
-        echo "" >> "$file"
-        echo "# <<<--------->>> Git tree Visualizations <<<--------->>>" >> "$file"
-        echo "# ways to visualize the git log more graphically"
-        echo "alias lg=\"lg1\"" >> "$file"
-        echo "alias lg1=\"lg1-specific --all\"" >> "$file"
-        echo "alias lg2=\"lg2-specific --all\"" >> "$file"
-        echo "alias lg3=\"lg3-specific --all\"" >> "$file"
-        echo "alias lg1-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'\"" >> "$file"
-        echo "alias lg2-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''%C(white)%s%C(reset) %C(dim white)- %an%C(reset)'\"" >> "$file"
-        echo "alias lg3-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''%C(white)%s%C(reset)%n''%C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'\"" >> "$file"
-    done
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a $log_path
+    if [ -n "$installed" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations to bash and zsh." | tee -a $log_path
+        for file in $installed; do
+            echo "" >> "$file"
+            echo "# <<<--------->>> Git tree Visualizations <<<--------->>>" >> "$file"
+            echo "# ways to visualize the git log more graphically" >> "$file"
+            echo "alias lg=\"lg1\"" >> "$file"
+            echo "alias lg1=\"lg1-specific --all\"" >> "$file"
+            echo "alias lg2=\"lg2-specific --all\"" >> "$file"
+            echo "alias lg3=\"lg3-specific --all\"" >> "$file"
+            echo "alias lg1-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'\"" >> "$file"
+            echo "alias lg2-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''%C(white)%s%C(reset) %C(dim white)- %an%C(reset)'\"" >> "$file"
+            echo "alias lg3-specific=\"git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''%C(white)%s%C(reset)%n''%C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'\"" >> "$file"
+        done
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a $log_path
+    fi
 }
 
 function setting_eza(){
@@ -434,84 +467,102 @@ function setting_eza(){
         echo "" >> $HOME/.zshrc
         echo "# <<<--------->>> eza <<<--------->>>" >> $HOME/.zshrc
         echo "alias ll=\"eza -alh\"" >> $HOME/.zshrc
+        echo "alias la=\"eza -a\"" >> $HOME/.zshrc
+        echo "alias l=\"eza -l\"" >> $HOME/.zshrc
+        echo "alias ls=\"eza\"" >> $HOME/.zshrc
     fi
     # to $HOME/.bashrc
     if ! grep -iq '^# <<<--------->>> eza' $HOME/.bashrc; then
         echo "" >> $HOME/.bashrc
         echo "# <<<--------->>> eza <<<--------->>>" >> $HOME/.bashrc
         echo "alias ll=\"eza -alh\"" >> $HOME/.bashrc
+        echo "alias la=\"eza -a\"" >> $HOME/.bashrc
+        echo "alias l=\"eza -l\"" >> $HOME/.bashrc
+        echo "alias ls=\"eza\"" >> $HOME/.bashrc
     fi
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} eza is set up." | tee -a $log_path
 }
 
 function setting_alacritty(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting alacritty." | tee -a $log_path
-    # <<----------->> Setting alacritty <<----------->>
-    # Copy format alacritty
-    mkdir $HOME/.config/alacritty
-    cp ./resources/alacritty.yml $HOME/.config/alacritty/alacritty.yml
-    cp ./resources/alacritty.toml $HOME/.config/alacritty/alacritty.toml
-    # Setting alacritty like a default terminal
-    dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty is set up." | tee -a $log_path
+    if command -v alacritty &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting alacritty." | tee -a $log_path
+        # <<----------->> Setting alacritty <<----------->>
+        # Copy format alacritty
+        mkdir -p $HOME/.config/alacritty
+        if [ -f "./resources/alacritty.yml" ]; then
+            cp ./resources/alacritty.yml $HOME/.config/alacritty/alacritty.yml
+        fi
+        if [ -f "./resources/alacritty.toml" ]; then
+            cp ./resources/alacritty.toml $HOME/.config/alacritty/alacritty.toml
+        fi
+        # Setting alacritty like a default terminal
+        dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty is set up." | tee -a $log_path
+    fi
 }
 
 function setting_poetry(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting poetry." | tee -a $log_path
-    # Setting poetry
-    # to $HOME/.zshrc
-    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Poetry' $HOME/.zshrc; then
-        echo "" >> $HOME/.zshrc
-        echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.zshrc
-        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.zshrc
+    if command -v poetry &> /dev/null || [ -f "$HOME/.local/bin/poetry" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting poetry." | tee -a $log_path
+        # Setting poetry
+        # to $HOME/.zshrc
+        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Poetry' $HOME/.zshrc; then
+            echo "" >> $HOME/.zshrc
+            echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.zshrc
+            echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.zshrc
+        fi
+        # to $HOME/.bashrc
+        if ! grep -iq '^# <<<--------->>> Poetry' $HOME/.bashrc; then
+            echo "" >> $HOME/.bashrc
+            echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.bashrc
+            echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.bashrc
+        fi
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry is set up." | tee -a $log_path
     fi
-    # to $HOME/.bashrc
-    if ! grep -iq '^# <<<--------->>> Poetry' $HOME/.bashrc; then
-        echo "" >> $HOME/.bashrc
-        echo "# <<<--------->>> Poetry <<<--------->>>" >> $HOME/.bashrc
-        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> $HOME/.bashrc
-    fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} poetry is set up." | tee -a $log_path
 }
 
 function setting_pyenv(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting pyenv." | tee -a $log_path
-    # Setting pyenv
-    installed=""
-    # Validate if pyenv is not installed in zsh
-    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
-        installed="${installed} $HOME/.zshrc"
-    fi
-    # Validate if git tree visualizations is not installed in bash
-    if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.bashrc; then
-        installed="${installed} $HOME/.bashrc"
-    fi
+    if [ -d "$HOME/.pyenv" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting pyenv." | tee -a $log_path
+        # Setting pyenv
+        installed=""
+        # Validate if pyenv is not installed in zsh
+        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
+            installed="${installed} $HOME/.zshrc"
+        fi
+        # Validate if git tree visualizations is not installed in bash
+        if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.bashrc; then
+            installed="${installed} $HOME/.bashrc"
+        fi
 
-    # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
-    for file in $installed; do
-        echo "" >> "$file"
-        echo "# <<<--------->>> Pyenv <<<--------->>>" >> "$file"
-        echo "" >> "$file"
-        echo "# Add Pyenv root path" >> "$file"
-        echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> "$file"
-        echo "" >> "$file"
-        echo "# Update PATH for Pyenv" >> "$file"
-        echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> "$file"
-        echo "" >> "$file"
-        echo "# Initialize Pyenv and Pyenv-Virtualenv" >> "$file"
-        echo "eval \"\$(pyenv init -)\"" >> "$file"
-        echo "eval \"\$(pyenv virtualenv-init -)\"" >> "$file"
-    done
-    
-    # Installing dependencies to compile python runtime
-    sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libncurses5-dev libncursesw5-dev libffi-dev liblzma-dev libsqlite3-dev tk-dev
-       
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
+        if [ -n "$installed" ]; then
+            # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
+            for file in $installed; do
+                echo "" >> "$file"
+                echo "# <<<--------->>> Pyenv <<<--------->>>" >> "$file"
+                echo "" >> "$file"
+                echo "# Add Pyenv root path" >> "$file"
+                echo "export PYENV_ROOT=\"\$HOME/.pyenv\"" >> "$file"
+                echo "" >> "$file"
+                echo "# Update PATH for Pyenv" >> "$file"
+                echo "[[ -d \$PYENV_ROOT/bin ]] && export PATH=\"\$PYENV_ROOT/bin:\$PATH\"" >> "$file"
+                echo "" >> "$file"
+                echo "# Initialize Pyenv and Pyenv-Virtualenv" >> "$file"
+                echo "eval \"\$(pyenv init -)\"" >> "$file"
+                echo "eval \"\$(pyenv virtualenv-init -)\"" >> "$file"
+            done
+            
+            # Installing dependencies to compile python runtime
+            sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libncurses5-dev libncursesw5-dev libffi-dev liblzma-dev libsqlite3-dev tk-dev
+        fi
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
+    fi
 }
 
 function setting_ranger(){
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ranger." | tee -a $log_path
     if command -v ranger &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ranger." | tee -a $log_path
         # Setting ranger
         installed=""
         # Validate if ranger is not installed in zsh
@@ -523,23 +574,24 @@ function setting_ranger(){
             installed="${installed} $HOME/.bashrc"
         fi
 
-        # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
-        for file in $installed; do
-            echo "" >> "$file"
-            echo "# <<<--------->>> ranger <<<--------->>>" >> "$file"
-            echo "" >> "$file"
-            echo "alias ranger=\"source ranger\"" >> "$file"
-            echo "" >> "$file"
-            echo "export EDITOR=\"nano\"" >> "$file"
-            echo "export VISUAL=\"nano\"" >> "$file"
-
-        done
+        if [ -n "$installed" ]; then
+            # Setting ranger in $HOME/.zshrc and $HOME/.bashrc
+            for file in $installed; do
+                echo "" >> "$file"
+                echo "# <<<--------->>> ranger <<<--------->>>" >> "$file"
+                echo "" >> "$file"
+                echo "alias ranger=\"source ranger\"" >> "$file"
+                echo "" >> "$file"
+                echo "export EDITOR=\"nano\"" >> "$file"
+                echo "export VISUAL=\"nano\"" >> "$file"
+            done
+        fi
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger is set up." | tee -a $log_path
     fi
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger is set up." | tee -a $log_path
 }
 
 # <<<----------------->>> Main <<<----------------->>>
 main
 
 # <<<----------------->>> End <<<----------------->>>
-echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Thank you for install developer apps. =D " | tee -a $log_path
+echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Developer apps installation completed successfully! =D " | tee -a $log_path

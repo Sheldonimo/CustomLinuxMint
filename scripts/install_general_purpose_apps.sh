@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
+# Updated for Linux Mint 22.1 (Ubuntu 24.04 Noble)
 
 # define the file with the list of apps to install
 INSTALL_LIST="install_list.csv"
@@ -9,7 +10,7 @@ ubuntu_codename=$(grep UBUNTU_CODENAME /etc/os-release | cut -d '=' -f2)
 function main() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
-    echo "Installing General purpose..."
+    echo "Installing General purpose apps for Linux Mint 22.1..."
 
     # <<--->> Validate if the file install_list.txt exist <<--->>
     if [ ! -f "$INSTALL_LIST" ]; then
@@ -21,17 +22,6 @@ function main() {
 
     # Download Logseq
     download_logseq
-
-    # Donwload plugins zsh
-    # download_plugins_zsh
-
-    # # <<--->> Unpackage all files <<--->>
-
-    # # Unpackage fonts
-    # Unpackage_font
-
-    # # Unpackage Cursor
-    # Unpackage_cursor
 
     # # <<--->> Installation all files <<--->>
 
@@ -47,7 +37,7 @@ function main() {
     # Install tldr
     install_tldr
 
-    # Install obs-studio
+    # Install obs-studio (now using Flatpak for Ubuntu 24.04)
     install_obs_studio
 
     # Install libreoffice
@@ -106,8 +96,8 @@ function download_logseq() {
         version=$(echo "$html_url" | awk -F'/download/' '{print $2}')
 
         # Update the version in the desktop file
-        sed -i "s/^Version=.*$/Version=$version/" "./resources/logseq.desktop"
-
+            sed -i "s/^Version=.*$/Version=$version/" "./resources/logseq.desktop"
+        
         # Get the file name from the url
         file_name="Logseq-linux-x64-$version.AppImage"
 
@@ -238,12 +228,19 @@ function add_shortcut() {
 function install_vscode() {
     if grep -iq '^x|vscode' "$INSTALL_LIST" && ! command -v code &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing vscode." | tee -a $log_path
-        # Install vscode
+        # Install vscode - Updated for Ubuntu 24.04 Noble
+        
+        # Remove any existing repository
+        sudo rm -f /etc/apt/sources.list.d/vscode.list
+        sudo rm -f /etc/apt/keyrings/packages.microsoft.gpg
+        
         # Add vscode's official GPG key:
         curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/keyrings/packages.microsoft.gpg
         sudo chmod 644 /etc/apt/keyrings/packages.microsoft.gpg
+        
         # Add the repository to Apt sources:
         echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+        
         # Install vscode:
         sudo apt-get update
         sudo apt install code -y
@@ -255,14 +252,14 @@ function install_copyq() {
     if grep -iq '^x|copyq' "$INSTALL_LIST" && ! command -v copyq &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing copyq." | tee -a $log_path
         # Install copyq
-        # Add the CopyQ PPA (Personal Package Archive) to the system
-        sudo add-apt-repository -y ppa:hluk/copyq
-        # Add architecture amd64
-        sudo sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/hluk-copyq-$ubuntu_codename.list"
-        # Update the repositories
-        sudo apt update
-        # Install CopyQ
-        sudo apt install copyq -y
+            # Add the CopyQ PPA (Personal Package Archive) to the system
+            sudo add-apt-repository -y ppa:hluk/copyq
+            # Add architecture amd64
+            sudo sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/hluk-copyq-$ubuntu_codename.list"
+            # Update the repositories
+            sudo apt update
+            # Install CopyQ
+            sudo apt install copyq -y
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq installed." | tee -a $log_path
     fi
@@ -280,8 +277,8 @@ function install_flameshot() {
 function install_tldr() {
     if grep -iq '^x|tldr' "$INSTALL_LIST" && ! command -v tldr &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing tldr." | tee -a $log_path
-        # Install flameshot
-        pip3 install tldr
+        # Install tldr
+        python3 -m pip install tldr
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tldr installed." | tee -a $log_path
     fi
 }
@@ -289,18 +286,31 @@ function install_tldr() {
 function install_obs_studio() {
     if grep -iq '^x|obs-studio' "$INSTALL_LIST" && ! command -v obs &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing obs-studio." | tee -a $log_path
-        # Install dependencies
-        sudo apt install ffmpeg -y
-        # Install obs-studio
-        sudo add-apt-repository -y ppa:obsproject/obs-studio
-        wait -n  # Wait for the process to complete
-        # Add architecture amd64
-        sudo sed -i "s/^deb \[/deb [arch=amd64 /" "/etc/apt/sources.list.d/obsproject-obs-studio-$ubuntu_codename.list"
-        # Update the repositories
-        sudo apt update
-        # Install obs-studio
-        sudo apt install obs-studio -y
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} obs-studio installed." | tee -a $log_path
+        
+        # For Ubuntu 24.04/Noble, the PPA is not available
+        # We'll use Flatpak instead, which is officially recommended
+        
+        # Check if Flatpak is installed
+        if ! command -v flatpak &> /dev/null; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Flatpak first." | tee -a $log_path
+            sudo apt install -y flatpak
+        fi
+        
+        # Add Flathub repository if not already added
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        
+        # Install OBS Studio from Flathub
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing OBS Studio via Flatpak." | tee -a $log_path
+        sudo flatpak install -y flathub com.obsproject.Studio
+        
+        # Create a wrapper script to make 'obs' command available
+        if [ ! -f "/usr/local/bin/obs" ]; then
+            echo '#!/bin/bash' | sudo tee /usr/local/bin/obs > /dev/null
+            echo 'flatpak run com.obsproject.Studio "$@"' | sudo tee -a /usr/local/bin/obs > /dev/null
+            sudo chmod +x /usr/local/bin/obs
+        fi
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} obs-studio installed via Flatpak." | tee -a $log_path
     fi
 }
 
@@ -352,7 +362,7 @@ function install_ytfzf(){
     if grep -iq '^x|ytfzf' "$INSTALL_LIST" && ! command -v ytfzf &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing ytfzf." | tee -a $log_path
         # install dependencies
-        sudo apt install -y mpv jq fzf suckless-tools
+        sudo apt install -y mpv jq fzf
         pip3 install yt-dlp
         # Install ueberzugcpp
         UBUNTU_CODE=$(inxi -Sx | awk -F'Ubuntu ' '/base:/ {print $2}'| cut -d' ' -f1)  
@@ -366,8 +376,11 @@ function install_ytfzf(){
         curl -fsSL https://download.opensuse.org/repositories/home:justkidding/xUbuntu_$UBUNTU_CODE/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ueberzugpp.gpg > /dev/null
         sudo apt update
         sudo apt install -y ueberzugpp
+        
         # Install ytfzf
-        git clone --depth 1 https://github.com/pystardust/ytfzf ./tmp/ytfzf
+        if [ ! -d "./tmp/ytfzf" ]; then
+            git clone --depth 1 https://github.com/pystardust/ytfzf ./tmp/ytfzf
+        fi
         cd ./tmp/ytfzf
         sudo make install doc
         cd -
@@ -379,12 +392,12 @@ function install_ytfzf(){
 function install_signal(){
     if grep -iq '^x|signal' "$INSTALL_LIST" && ! command -v signal-desktop &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing signal." | tee -a $log_path
-        # NOTE: These instructions only work for 64-bit Debian-based
-        # Linux distributions such as Ubuntu, Mint etc.
+        # NOTE: These instructions work for Ubuntu 24.04 Noble
 
         # 1. Install our official public software signing key:
         wget -q --show-progress -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
         cat signal-desktop-keyring.gpg | sudo tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
+        rm signal-desktop-keyring.gpg  # Clean up temp file
 
         # 2. Add our repository to your list of repositories:
         echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
@@ -401,12 +414,12 @@ function install_blanket(){
     if grep -iq '^x|blanket' "$INSTALL_LIST" && ! command -v blanket &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing blanket." | tee -a $log_path
         # Install blanket
-        # Add the repository
-        sudo add-apt-repository -y ppa:haecker-felix/release
-        # Update the repositories
-        sudo apt update
-        # Install blanket
-        sudo apt install blanket -y
+            # Add the repository
+            sudo add-apt-repository -y ppa:haecker-felix/release
+            # Update the repositories
+            sudo apt update
+            # Install blanket
+            sudo apt install blanket -y
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} blanket installed." | tee -a $log_path
     fi
 }
@@ -414,13 +427,22 @@ function install_blanket(){
 function install_miktex(){
     if grep -iq '^x|miktex' "$INSTALL_LIST" && ! command -v miktexsetup &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing miktex." | tee -a $log_path
-        # Install miktex
+        # Install miktex - Updated for Ubuntu 24.04 Noble
+        
+        # Remove old repository if it exists
+        sudo rm -f /etc/apt/sources.list.d/miktex.list
+        sudo rm -f /usr/share/keyrings/miktex-keyring.gpg
+        
         # Add the repository
-        curl -fsSL https://miktex.org/download/key | sudo tee /usr/share/keyrings/miktex-keyring.asc > /dev/null
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/miktex-keyring.asc] https://miktex.org/download/ubuntu jammy universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+        curl -fsSL https://miktex.org/download/key | gpg --dearmor | sudo tee /usr/share/keyrings/miktex-keyring.gpg >/dev/null
+        
+        # Use noble instead of jammy for Ubuntu 24.04
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/miktex-keyring.gpg] https://miktex.org/download/ubuntu $ubuntu_codename universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+        
         sudo apt-get update
         # Install miktex
         sudo apt-get install -y miktex
+        
         # Finish the installation
         sudo miktexsetup --shared=yes finish
         sudo initexmf --admin --set-config-value [MPM]AutoInstall=1
@@ -439,6 +461,7 @@ function setting_vscode(){
         mkdir -p "$HOME/.config/Code/User"
         echo "{}" > "$HOME/.config/Code/User/settings.json"
     fi
+
     # Add bracket Pair Colorization
     python3 ./resources/add_json_setting.py "$HOME/.config/Code/User/settings.json" '{"editor.bracketPairColorization.independentColorPoolPerBracketType": true}'
     # Opens untrusted files in restricted window.
@@ -470,10 +493,13 @@ function setting_vscode(){
 
 function setting_tesseract_ocr() {
 
+    # Create .local/bin if it doesn't exist
+    mkdir -p $HOME/.local/bin
+
     # Validate if the shortcut exist
     if ! command -v ocr_flameshot &> /dev/null; then
         # Create a script to run ocr_flameshot
-        echo '#!/usr/bin/env bash' >> $HOME/.local/bin/ocr_flameshot
+        echo '#!/usr/bin/env bash' > $HOME/.local/bin/ocr_flameshot
         echo "# by: Sheldonimo" >> $HOME/.local/bin/ocr_flameshot
         echo "flameshot gui --raw | tesseract stdin stdout -l eng+spa --psm 6 | xclip -in -selection clipboard" >> $HOME/.local/bin/ocr_flameshot
         chmod +x $HOME/.local/bin/ocr_flameshot
@@ -495,7 +521,7 @@ function setting_tesseract_ocr() {
 
         add_shortcut "$binding" "$command" "$name"
 
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} copyq is set up." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tesseract-ocr is set up." | tee -a $log_path
         
     fi
 
@@ -503,7 +529,7 @@ function setting_tesseract_ocr() {
 
 function setting_flameshot() {
     # Validate if the shortcut exist
-    res=$(exist_shortcut "'flameshot'" "['<Alt><Shift>z']")
+    res=$(exist_shortcut "'flameshot'" "['<Alt><Shift>q']")
 
     if grep -iq '^x|flameshot' "$INSTALL_LIST" && [ $res == "false" ]; then
       
@@ -528,6 +554,8 @@ function setting_logseq() {
         # Create the folder
         mkdir -p $HOME/.local/share/applications
         mkdir -p $HOME/.local/share/logseq
+        mkdir -p $HOME/.local/bin
+        
         # Copy the file
         cp ./tmp/Logseq-linux-x64.AppImage $HOME/.local/share/logseq/Logseq-linux-x64.AppImage
         # Give execution permissions
@@ -537,22 +565,27 @@ function setting_logseq() {
         install_imagemagick
 
         # Create the icons
-        original_image="./tmp/logseq-icon.png"
-        sizes=(16 24 32 48 64 128 512)
+        if [ -f "./tmp/logseq-icon.png" ]; then
+            original_image="./tmp/logseq-icon.png"
+            sizes=(16 24 32 48 64 128 512)
 
-        for size in "${sizes[@]}"; do
-            # Validate if the directory exist
-            if [ ! -d "$HOME/.local/share/icons/hicolor/${size}x${size}/apps" ]; then
-                # Crear el directorio si no existe
-                mkdir -p "$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
-            fi
-            # Redimensionar y guardar en la ruta correspondiente
-            convert "$original_image" -resize "${size}x${size}" "$HOME/.local/share/icons/hicolor/${size}x${size}/apps/logseq-icon.png"
-        done
+            for size in "${sizes[@]}"; do
+                # Validate if the directory exist
+                if [ ! -d "$HOME/.local/share/icons/hicolor/${size}x${size}/apps" ]; then
+                    # Crear el directorio si no existe
+                    mkdir -p "$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
+                fi
+                # Redimensionar y guardar en la ruta correspondiente
+                convert "$original_image" -resize "${size}x${size}" "$HOME/.local/share/icons/hicolor/${size}x${size}/apps/logseq-icon.png"
+            done
+        fi
 
         # Create a script to run logseq and update logseq
-        cp ./resources/logseq $HOME/.local/bin/logseq
-        chmod +x $HOME/.local/bin/logseq
+        if [ -f "./resources/logseq" ]; then
+            cp ./resources/logseq $HOME/.local/bin/logseq
+            chmod +x $HOME/.local/bin/logseq
+        fi
+
         # Create the desktop file
         # change ~ to $HOME
         sed -i "s|~|$HOME|g" "./resources/logseq.desktop"
@@ -580,7 +613,7 @@ function setting_logseq() {
         cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
         # modify the file edn
         echo "{:custom-css-url \"@import url('assets://$HOME/.logseq/config/sheldonimo-theme.css');\"}" >> $HOME/.logseq/config/config.edn
-        
+    
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq is set up." | tee -a $log_path
     fi
 }
@@ -614,25 +647,27 @@ function setting_ytfzf(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ytfzf." | tee -a $log_path
         # Setting ytfzf
         installed=""
-        # Validate if ranger is not installed in zsh
+        # Validate if ytfzf is not installed in zsh
         if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.zshrc; then
             installed="${installed} $HOME/.zshrc"
         fi
-        # Validate if git tree visualizations is not installed in bash
+        # Validate if ytfzf is not installed in bash
         if ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.bashrc; then
             installed="${installed} $HOME/.bashrc"
         fi
 
-        # Setting ytfzf in $HOME/.zshrc and $HOME/.bashrc
-        for file in $installed; do
-            echo "" >> "$file"
-            echo "# <<<--------->>> ytfzf <<<--------->>>" >> "$file"
-            echo "" >> "$file"
-            echo "# Show thumbnails" >> "$file"
-            echo " alias yt=\"ytfzf -t\"" >> "$file"
-            echo "# Play only the audio and reopen the menu when the video stops playing" >> "$file"
-            echo "alias ytm=\"ytfzf -lm\"" >> "$file"
-        done
+        if [ -n "$installed" ]; then
+            # Setting ytfzf in $HOME/.zshrc and $HOME/.bashrc
+            for file in $installed; do
+                echo "" >> "$file"
+                echo "# <<<--------->>> ytfzf <<<--------->>>" >> "$file"
+                echo "" >> "$file"
+                echo "# Show thumbnails" >> "$file"
+                echo "alias yt=\"ytfzf -t\"" >> "$file"
+                echo "# Play only the audio and reopen the menu when the video stops playing" >> "$file"
+                echo "alias ytm=\"ytfzf -lm\"" >> "$file"
+            done
+        fi
 
         # Setting ytfzf en $HOME/.config/ytfzf/conf.sh
         # Create the folder
@@ -663,6 +698,8 @@ function setting_miktex(){
         # Escribir el JSON en el archivo temporal
         cat > $tmpfile << EOF
 {
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.autoBuild.interval": 1000,
     "latex-workshop.latex.recipes": [
       {
           "name": "xelatex -> biber -> xelatex*2",
@@ -758,4 +795,4 @@ EOF
 main
 
 # <<<----------------->>> End <<<----------------->>>
-echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Thank you for install developer apps. =D " | tee -a $log_path
+echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} General purpose apps installation completed successfully! =D " | tee -a $log_path

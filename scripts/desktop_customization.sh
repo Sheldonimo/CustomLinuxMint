@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # by: Sheldonimo
+# Updated for Linux Mint 22.1 (Ubuntu 24.04 Noble)
 
 iconColor=$1
 
 function main() {
-
-
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
-    echo "Install Desktop Customization..."
+    echo "Install Desktop Customization for Linux Mint 22.1..."
 
     # <<--->> Download all files <<--->>
 
@@ -202,7 +201,7 @@ function Unpackage_font() {
         # Create a new folder to unpack the zip file
         mkdir -p "./tmp/Hack"
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Hack Nerd Font Mono." | tee -a $log_path
-        unzip "./tmp/Hack.zip" -d "./tmp/Hack/"
+        unzip -q "./tmp/Hack.zip" -d "./tmp/Hack/"
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Hack Nerd Font Mono Unpackaged." | tee -a $log_path
         # Delete zip file
         rm -f "./tmp/Hack.zip"
@@ -212,7 +211,7 @@ function Unpackage_font() {
         # Create a new folder to unpack the zip file
         mkdir -p "./tmp/FiraCode"
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging FiraCode." | tee -a $log_path
-        unzip "./tmp/FiraCode.zip" -d "./tmp/FiraCode/"
+        unzip -q "./tmp/FiraCode.zip" -d "./tmp/FiraCode/"
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} FiraCode Unpackaged." | tee -a $log_path
         # Delete zip file
         rm -f "./tmp/FiraCode.zip"
@@ -232,13 +231,15 @@ function Unpackage_cursor() {
 
 function Unpackage_icons() {
     # Unpackage Tela-icons
-    if [ ! -d "./tmp/Tela-icon-theme" ]; then
+    if [ ! -d "./tmp/Tela-icons" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging Tela-icons." | tee -a $log_path
         tar -xzf "./tmp/Tela-icons.tar.gz" -C "./tmp/"
         # identify the name of the folder that begin with "Tela" and doesn't have any dot "." and rename it to "Tela-icons"
         folder_icons=$(ls ./tmp/ | grep -i "^Tela[^.]*$")
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rename folder_icons: $folder_icons -> Tela-icons" | tee -a $log_path
-        mv "./tmp/$folder_icons" "./tmp/Tela-icons"
+        if [ -n "$folder_icons" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rename folder_icons: $folder_icons -> Tela-icons" | tee -a $log_path
+            mv "./tmp/$folder_icons" "./tmp/Tela-icons"
+        fi
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Unpackaged." | tee -a $log_path
         # Delete tar.gz file
         rm -f "./tmp/Tela-icons.tar.gz"
@@ -249,11 +250,13 @@ function Unpackage_rofi() {
     # Unpackage rofi
     if [ ! -d "./tmp/fresh-rofi-theme-master" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging fresh-rofi-theme." | tee -a $log_path
-        unzip "./tmp/fresh-rofi-theme.zip" -d "./tmp/"
+        unzip -q "./tmp/fresh-rofi-theme.zip" -d "./tmp/"
         # Change name fresh-rofi-theme-master -> fresh-rofi-theme
-        mv "./tmp/fresh-rofi-theme-master" "./tmp/fresh-rofi-theme"
+        if [ -d "./tmp/fresh-rofi-theme-master" ]; then
+            mv "./tmp/fresh-rofi-theme-master" "./tmp/fresh-rofi-theme"
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Folder Renamed fresh-rofi-theme-master -> fresh-rofi-theme." | tee -a $log_path
+        fi
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fresh-rofi-theme Unpackaged." | tee -a $log_path
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Folder Renamed fresh-rofi-theme-master -> fresh-rofi-theme." | tee -a $log_path
         # Delete zip file
         rm -f "./tmp/fresh-rofi-theme.zip"
     fi
@@ -299,7 +302,7 @@ function install_cursor() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing BreezeX_Cursor." | tee -a $log_path
     # Ensure the cursor directory exists
     [ ! -d "$root_cursor/BreezeX-Dark" ] && sudo mkdir -p "$root_cursor/BreezeX-Dark"
-
+    
     # Copy each cursor if it's not already in the target directory
     if [ ! -d "$root_cursor/BreezeX-Dark" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing BreezeX_Cursor." | tee -a $log_path
@@ -314,7 +317,7 @@ function install_icons() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Tela-icons." | tee -a $log_path
     # Install green icons
-    sudo ./tmp/Tela-icons/install.sh $iconColor
+        sudo ./tmp/Tela-icons/install.sh $iconColor
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Tela-icons Installed." | tee -a $log_path
 
 }
@@ -323,10 +326,10 @@ function install_rofi() {
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing rofi." | tee -a $log_path
     # Install rofi
-    previus_root=$(pwd)
-    cd ./tmp/fresh-rofi-theme
-    ./install.sh
-    cd $previus_root
+        previus_root=$(pwd)
+        cd ./tmp/fresh-rofi-theme
+        ./install.sh
+        cd $previus_root
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} rofi Installed." | tee -a $log_path
 
 }
@@ -459,12 +462,14 @@ function setting_icons() {
     gsettings set org.cinnamon.theme name 'Mint-Y-Dark-Aqua'
 
     # Setting Icons by default
-    gsettings set org.cinnamon.desktop.interface icon-theme 'Tela-green-dark'
+    gsettings set org.cinnamon.desktop.interface icon-theme "Tela-$iconColor-dark"
 
     # Setting Icons in the bar menu
     qt5_config_path="$HOME/.config/qt5ct/qt5ct.conf"
-    icon_theme="Tela-$iconColor-dark"
-    sed -i "s/^icon_theme=.*$/icon_theme=$icon_theme/" "$qt5_config_path"
+    if [ -f "$qt5_config_path" ]; then
+        icon_theme="Tela-$iconColor-dark"
+        sed -i "s/^icon_theme=.*$/icon_theme=$icon_theme/" "$qt5_config_path"
+    fi
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Icons is set up." | tee -a $log_path
 
@@ -513,19 +518,11 @@ function setting_panel_and_applets() {
 function setting_calendar(){
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Calendar." | tee -a $log_path
 
-    json_root_legacy="/home/$USER/.cinnamon/configs/calendar@cinnamon.org/13.json"
+    # Linux Mint 22.1 uses only the new config path
     json_root="/home/$USER/.config/cinnamon/spices/calendar@cinnamon.org/13.json"
 
     # Setting Calendar
-    if [ -f $json_root_legacy ] ; then
-        # for legacy path
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
-        sed -i '/"show-events":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
-        sed -i '/"use-custom-format":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
-        sed -i '/"custom-format":/,/},/{s/"value": "[^"]*"/"value": "%e %b %H:%M"/}' $json_root_legacy
-
-    elif [ -f $json_root ] ; then
-        # for new path
+    if [ -f $json_root ] ; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
         sed -i '/"show-events":/,/},/{s/"value": false/"value": true/}' $json_root
         sed -i '/"use-custom-format":/,/},/{s/"value": false/"value": true/}' $json_root
@@ -547,30 +544,21 @@ function setting_menu_icon(){
     # Setting Menu Icon
     if [ ! -f "$icon_root/linux-mint-galaxy-logo.png" ]; then
 
-        #mkdir $root/.config-desktop
-        #chmod 777 $root/.config-desktop
         sudo cp ./images/linux-mint-galaxy-logo.png $icon_root/linux-mint-galaxy-logo.png
 
     fi
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Menu Icon moved to root." | tee -a $log_path
-    json_root_legacy="/home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json"
+    
+    # Linux Mint 22.1 uses only the new config path
     json_root="/home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json"
 
     icon_root_escaped=$(echo $icon_root | sed 's_/_\\/_g')
     # Cambiando el Icono del Menu
-    if [ -f $json_root_legacy ] ; then
-        # icon legacy: "/home/$USER/.cinnamon/configs/menu@cinnamon.org/0.json"
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update logo menu in legacy icon root" | tee -a $log_path
-        sed -i "/\"menu-icon\": {/,/\"value\":/s/\"value\": \"[^\"]*\"/\"value\": \"$icon_root_escaped\/linux-mint-galaxy-logo.png\"/" $json_root_legacy
-        # updating the size of the icon 32 -> 36
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update size icon menu in legacy icon root" | tee -a $log_path
-        sed -i '/"menu-icon-size":/,/},/{s/"value": 32/"value": 36/}' $json_root_legacy
-    elif [ -f $json_root ] ; then
-        # icon new: "/home/$USER/.config/cinnamon/spices/menu@cinnamon.org/0.json"
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update logo menu in new icon root" | tee -a $log_path
+    if [ -f $json_root ] ; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update logo menu" | tee -a $log_path
         sed -i "/\"menu-icon\": {/,/\"value\":/s/\"value\": \"[^\"]*\"/\"value\": \"$icon_root_escaped\/linux-mint-galaxy-logo.png\"/" $json_root
         # updating the size of the icon 32 -> 36
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update size icon menu in new icon root" | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} LOGO : Update size icon menu" | tee -a $log_path
         sed -i '/"menu-icon-size":/,/},/{s/"value": 32/"value": 36/}' $json_root
     else
         # Don't found the file for change the icon menu
@@ -670,14 +658,22 @@ function setting_background_desktop(){
     # setting the background desktop
     codename=$(lsb_release -c | awk '{print $2}')
     path="/usr/share/backgrounds/linuxmint-$codename"
-    image_name=$(ls $path/*.jpg | head -n 1)
-    gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
+    
+    if [ -d "$path" ]; then
+        image_name=$(ls $path/*.jpg 2>/dev/null | head -n 1)
+        if [ -n "$image_name" ]; then
+            gsettings set org.cinnamon.desktop.background picture-uri "file://$image_name"
+        fi
+    else
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Warning: Background path not found, using default" | tee -a $log_path
+    fi
+    
     gsettings set org.cinnamon.desktop.background picture-options "zoom"
     gsettings set org.cinnamon.desktop.background.slideshow slideshow-enabled true
     gsettings set org.cinnamon.desktop.background.slideshow delay 30
     gsettings set org.cinnamon.desktop.background.slideshow random-order true
     gsettings set org.cinnamon.desktop.background.slideshow image-source "xml:///usr/share/cinnamon-background-properties/linuxmint-$codename.xml"
-
+    
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Background Desktop is set up." | tee -a $log_path  
 
 }
@@ -686,23 +682,16 @@ function setting_notification(){
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Notification." | tee -a $log_path
 
-    # setting notification
-    json_root_legacy="/home/$USER/.cinnamon/configs/notifications@cinnamon.org/notifications@cinnamon.org.json"
+    # Linux Mint 22.1 uses only the new config path
     json_root="/home/$USER/.config/cinnamon/spices/notifications@cinnamon.org/notifications@cinnamon.org.json"
 
-    # Setting Calendar
-    if [ -f $json_root_legacy ] ; then
-        # for legacy path
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
-        sed -i '/"showEmptyTray":/,/},/{s/"value": false/"value": true/}' $json_root_legacy
-
-    elif [ -f $json_root ] ; then
-        # for new path
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : Update setting calendar" | tee -a $log_path
+    # Setting notification
+    if [ -f $json_root ] ; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification : Update setting notification" | tee -a $log_path
         sed -i '/"showEmptyTray":/,/},/{s/"value": false/"value": true/}' $json_root
     else
-        # Don't found the file for change the icon menu
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Calendar : File calendar not found" | tee -a $log_path
+        # Don't found the file
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Notification : File notification not found" | tee -a $log_path
     fi
     # setting notification
     gsettings set org.cinnamon.desktop.notifications bottom-notifications true
@@ -720,20 +709,39 @@ function setting_redshift(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift is installed." | tee -a "$log_path"
     else 
         sudo apt install -y redshift-gtk
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift not installed." | tee -a "$log_path"
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift installed." | tee -a "$log_path"
     fi
-    # executing redshift
-    redshift-gtk &
-    sleep 2
+    
+    # Check if redshift is already running
+    if ! pgrep -x "redshift-gtk" > /dev/null; then
+        # executing redshift
+        redshift-gtk &
+        sleep 2
+    fi
+    
     # setting redshift
     path="/home/$USER/.config/autostart/redshift-gtk.desktop"
     if [ -f $path ] ; then
-        # for legacy path
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : Update setting redshift" | tee -a $log_path
         sed -i 's/X-GNOME-Autostart-enabled=false/X-GNOME-Autostart-enabled=true/' $path
     else
-        # Don't found the file for change the icon menu
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : File redshift not found" | tee -a $log_path
+        # Create the autostart entry if it doesn't exist
+        mkdir -p /home/$USER/.config/autostart/
+        cat > $path <<EOF
+[Desktop Entry]
+Version=1.0
+Name=Redshift
+GenericName=Color temperature adjustment
+Comment=Color temperature adjustment tool
+Exec=redshift-gtk
+Icon=redshift
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
+X-GNOME-Autostart-enabled=true
+EOF
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift : Created autostart entry" | tee -a $log_path
     fi
 
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Redshift is set up." | tee -a $log_path
@@ -753,12 +761,12 @@ function setting_desktop_icons(){
 
 function setting_max_volume(){
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Desktop." | tee -a $log_path
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Max Volume." | tee -a $log_path
 
     # setting maximum volume to 150% (note: is possible set a value over 150)
     gsettings set org.cinnamon.desktop.sound maximum-volume 150
 
-    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop is set up." | tee -a $log_path   
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Max Volume is set up." | tee -a $log_path   
 }
 
 
@@ -766,4 +774,4 @@ function setting_max_volume(){
 main
 
 # <<<----------------->>> End <<<----------------->>>
-echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Thank you for customizing your desktop. =D " | tee -a $log_path
+echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Desktop customization completed successfully! =D " | tee -a $log_path
