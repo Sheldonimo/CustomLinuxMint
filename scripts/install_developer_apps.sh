@@ -31,6 +31,9 @@ function main() {
     # Install build dependencies once
     install_build_dependencies
 
+    # Install pipx
+    install_pipx
+
     # Install Rust via rustup
     install_rust_via_rustup
 
@@ -247,7 +250,7 @@ function download_plugins_zsh() {
 function download_bat() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Checking bat." | tee -a $log_path
     
-    local html_url=$(get_latest_url "sharkdp/bat")
+    local html_url=$(get_lastest_url "sharkdp/bat")
     local version=$(echo "$html_url" | awk -F'/download/v' '{print $2}')
     local file_name="bat_${version}_amd64.deb"
     local file_path="./tmp/bat_${version}_amd64.deb"
@@ -493,23 +496,34 @@ function install_alacritty() {
     fi
 }
 
+function install_pipx() {
+    if ! command -v pipx &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing pipx for Python package management." | tee -a $log_path
+        sudo apt update
+        sudo apt install -y pipx
+        
+        # Add pipx to PATH for current session
+        # add for bash
+        SHELL=/bin/bash pipx ensurepath
+        # add for zsh
+        SHELL=/bin/zsh  pipx ensurepath
+
+        export PATH="$HOME/.local/bin:$PATH"
+        hash -r
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pipx installed." | tee -a $log_path
+    else
+        # Ensure PATH is set for current session even if pipx already installed
+        export PATH="$HOME/.local/bin:$PATH"
+        hash -r
+    fi
+}
+
 function install_ranger() {
     if ! command -v ranger &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Ranger." | tee -a $log_path
-        
-        # Try to install from apt first (simpler and avoids pip issues)
-        if sudo apt install -y ranger; then
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger installed from apt." | tee -a $log_path
-        else
-            # Fallback to pipx if apt fails
-            if ! command -v pipx &> /dev/null; then
-                sudo apt install -y pipx
-                pipx ensurepath
-                export PATH="$HOME/.local/bin:$PATH"
-            fi
-            
-            pipx install ranger-fm
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger installed via pipx." | tee -a $log_path
+        pipx install ranger-fm
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger installed via pipx." | tee -a $log_path
         fi
     fi
 }
