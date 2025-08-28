@@ -354,23 +354,53 @@ function install_plugins_zsh() {
 
 function install_fastfetch_and_htop_and_btop() {
     local packages=()
+    local need_update=false
     
+    # Verificar e instalar fastfetch
     if ! command -v fastfetch &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Checking fastfetch PPA." | tee -a $log_path
+        
+        # Verificar si el PPA ya existe
+        if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Adding fastfetch PPA." | tee -a $log_path
+            sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
+            need_update=true
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fastfetch PPA already added." | tee -a $log_path
+        fi
+        
         packages+=("fastfetch")
     fi
     
+    # Verificar htop
     if ! command -v htop &> /dev/null; then
         packages+=("htop")
     fi
     
+    # Verificar btop
     if ! command -v btop &> /dev/null; then
         packages+=("btop")
     fi
 
+    # Instalar paquetes si hay alguno
     if [ ${#packages[@]} -gt 0 ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing ${packages[*]}." | tee -a $log_path
-        sudo apt install -y "${packages[@]}"
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ${packages[*]} Installed." | tee -a $log_path
+        
+        # Actualizar lista de paquetes si se agregó un PPA
+        if [ "$need_update" = true ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Updating package list." | tee -a $log_path
+            sudo apt update || echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} WARNING: apt update failed" | tee -a $log_path
+        fi
+        
+        # Instalar paquetes
+        if sudo apt install -y "${packages[@]}"; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ${packages[*]} installed successfully." | tee -a $log_path
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to install some packages: ${packages[*]}" | tee -a $log_path
+            return 1
+        fi
+    else
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} All packages (fastfetch, htop, btop) are already installed." | tee -a $log_path
     fi
 }
 
