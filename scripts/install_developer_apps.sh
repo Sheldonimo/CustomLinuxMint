@@ -256,8 +256,8 @@ function download_alacritty() {
         
         # Checkout latest stable tag
         cd ./tmp/Alacritty
-        git fetch --tags
-        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+        git fetch --tags --quiet
+        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null)
         git checkout "$latest_tag"
         cd - > /dev/null
         
@@ -272,8 +272,8 @@ function download_exiftool() {
         
         # Checkout latest stable tag
         cd ./tmp/exiftool
-        git fetch --tags
-        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+        git fetch --tags --quiet
+        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null)
         git checkout "$latest_tag"
         cd - > /dev/null
         
@@ -288,8 +288,8 @@ function download_pdfjam() {
         
         # Checkout latest stable tag if available
         cd ./tmp/pdfjam
-        git fetch --tags
-        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null || echo "main")
+        git fetch --tags --quiet
+        latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null)
         if [ "$latest_tag" != "main" ]; then
             git checkout "$latest_tag"
         fi
@@ -681,16 +681,16 @@ function install_pdfjam() {
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing PDFjam..." | tee -a $log_path
         
         # Make scripts executable
-        chmod +x bin/*
+        chmod +x ./pdfjam
         
         # Copy binaries to system path
-        sudo cp bin/* /usr/local/bin/
+        sudo cp ./pdfjam /usr/local/bin/
         
         # Copy man pages if they exist
         if [ -d "man1" ]; then
             sudo mkdir -p /usr/local/share/man/man1
-            sudo cp man1/*.1 /usr/local/share/man/man1/
-            sudo gzip /usr/local/share/man/man1/pdfjam*.1 2>/dev/null || true
+            sudo cp doc/pdfjam.1 /usr/local/share/man/man1/
+            sudo gzip /usr/local/share/man/man1/pdfjam.1 2>/dev/null || true
         fi
         
         cd "$begin_path"
