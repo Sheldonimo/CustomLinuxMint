@@ -737,15 +737,14 @@ EOF
         # Setting logseq theme
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting a custom theme for logseq "sheldonimo-theme"." | tee -a $log_path
         # Create the folder
-            mkdir -p $HOME/.logseq/config
+        mkdir -p $HOME/.logseq/config
         # Copy the file
-            cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
-            
-            # Update config.edn
-            if [ ! -f "$HOME/.logseq/config/config.edn" ]; then
-                echo "{:custom-css-url \"@import url('assets://$HOME/.logseq/config/sheldonimo-theme.css');\"}" > \
-                    $HOME/.logseq/config/config.edn
-            fi
+        cp ./resources/sheldonimo-theme.css $HOME/.logseq/config/sheldonimo-theme.css
+        
+        # Update config.edn
+        if [ ! -f "$HOME/.logseq/config/config.edn" ]; then
+            echo "{:custom-css-url \"@import url('assets://$HOME/.logseq/config/sheldonimo-theme.css');\"}" > \
+                $HOME/.logseq/config/config.edn
         fi
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} logseq is set up." | tee -a $log_path
