@@ -589,7 +589,7 @@ function setting_alacritty(){
         # Setting alacritty like a default terminal
         dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
         # Migrate alacritty settings
-        #alacritty migrate
+        alacritty migrate
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty is set up." | tee -a $log_path
     fi
 }

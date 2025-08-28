@@ -18,12 +18,15 @@ function main() {
         exit 1
     fi
 
-    # # <<--->> Download all files <<--->>
+    # Install pipx first for Python packages
+    install_pipx
+
+    # <<--->> Download all files <<--->>
 
     # Download Logseq
     download_logseq
 
-    # # <<--->> Installation all files <<--->>
+    # <<--->> Installation all files <<--->>
 
     # Install vscode
     install_vscode
@@ -34,10 +37,10 @@ function main() {
     # Install flameshot
     install_flameshot
 
-    # Install tldr
+    # Install tldr (using pipx instead of pip)
     install_tldr
 
-    # Install obs-studio (now using Flatpak for Ubuntu 24.04)
+    # Install obs-studio (using Flatpak for Ubuntu 24.04)
     install_obs_studio
 
     # Install libreoffice
@@ -46,13 +49,13 @@ function main() {
     # Install tesseract-ocr
     install_tesseract_ocr
 
-    # Install ytfzf
+    # Install ytfzf (using pipx for yt-dlp)
     install_ytfzf
 
     # Install signal
     install_signal
 
-    # Install blanket
+    # Install blanket (using Flatpak instead of PPA)
     install_blanket
 
     # Install miktex
@@ -81,6 +84,19 @@ function main() {
     # Setting miktex
     setting_miktex
 
+}
+
+# <<<----------------->>> New function to install pipx <<<----------------->>>
+
+function install_pipx() {
+    if ! command -v pipx &> /dev/null; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing pipx for Python package management." | tee -a $log_path
+        sudo apt update
+        sudo apt install -y pipx
+        # Add pipx to PATH if not already there
+        pipx ensurepath
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pipx installed." | tee -a $log_path
+    fi
 }
 
 # <<<----------------->>> Download functions <<<----------------->>>
@@ -276,9 +292,9 @@ function install_flameshot() {
 
 function install_tldr() {
     if grep -iq '^x|tldr' "$INSTALL_LIST" && ! command -v tldr &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing tldr." | tee -a $log_path
-        # Install tldr
-        python3 -m pip install tldr
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing tldr using pipx." | tee -a $log_path
+        # Install tldr using pipx instead of pip to avoid externally-managed-environment error
+        pipx install tldr
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} tldr installed." | tee -a $log_path
     fi
 }
@@ -363,7 +379,9 @@ function install_ytfzf(){
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing ytfzf." | tee -a $log_path
         # install dependencies
         sudo apt install -y mpv jq fzf
-        pip3 install yt-dlp
+        # Install yt-dlp using pipx instead of pip to avoid externally-managed-environment error
+        pipx install yt-dlp
+        
         # Install ueberzugcpp
         UBUNTU_CODE=$(inxi -Sx | awk -F'Ubuntu ' '/base:/ {print $2}'| cut -d' ' -f1)  
         # inxi -Sx: Runs 'inxi' to display system info with extra details.
@@ -386,7 +404,6 @@ function install_ytfzf(){
         cd -
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf installed." | tee -a $log_path
     fi
-
 }
 
 function install_signal(){
@@ -412,15 +429,29 @@ function install_signal(){
 
 function install_blanket(){
     if grep -iq '^x|blanket' "$INSTALL_LIST" && ! command -v blanket &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing blanket." | tee -a $log_path
-        # Install blanket
-            # Add the repository
-            sudo add-apt-repository -y ppa:haecker-felix/release
-            # Update the repositories
-            sudo apt update
-            # Install blanket
-            sudo apt install blanket -y
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} blanket installed." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing blanket using Flatpak." | tee -a $log_path
+        
+        # Check if Flatpak is installed
+        if ! command -v flatpak &> /dev/null; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Flatpak first." | tee -a $log_path
+            sudo apt install -y flatpak
+        fi
+        
+        # Add Flathub repository if not already added
+        sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        
+        # Install Blanket from Flathub (PPA not available for Ubuntu 24.04)
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Blanket via Flatpak." | tee -a $log_path
+        sudo flatpak install -y flathub com.rafaelmardojai.Blanket
+        
+        # Create a wrapper script to make 'blanket' command available
+        if [ ! -f "/usr/local/bin/blanket" ]; then
+            echo '#!/bin/bash' | sudo tee /usr/local/bin/blanket > /dev/null
+            echo 'flatpak run com.rafaelmardojai.Blanket "$@"' | sudo tee -a /usr/local/bin/blanket > /dev/null
+            sudo chmod +x /usr/local/bin/blanket
+        fi
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} blanket installed via Flatpak." | tee -a $log_path
     fi
 }
 
