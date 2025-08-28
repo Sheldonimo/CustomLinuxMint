@@ -388,7 +388,7 @@ function install_ranger(){
         sudo apt install -y python3-dev python3-pip python3-setuptools
         # <<------>> Compile Ranger <<------>>
         cd ./tmp/ranger
-        sudo make install
+        pip3 install .
         # <<------>>  back to original path <<------>> 
         cd $begin_path
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Ranger Installed." | tee -a $log_path
@@ -588,6 +588,8 @@ function setting_alacritty(){
         fi
         # Setting alacritty like a default terminal
         dconf write /org/cinnamon/desktop/applications/terminal/exec "'alacritty'"
+        # Migrate alacritty settings
+        #alacritty migrate
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} alacritty is set up." | tee -a $log_path
     fi
 }

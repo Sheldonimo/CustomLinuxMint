@@ -450,10 +450,11 @@ cursor:
 # Default:
 #   - (Linux/BSD/macOS) `$SHELL` or the user's login shell, if `$SHELL` is unset
 #   - (Windows) powershell
-shell:
-  program: /usr/bin/zsh
-  args:
-    - --login
+terminal:
+  shell:
+    program: /usr/bin/zsh
+    args:
+      - --login
 
 # Startup directory
 #
