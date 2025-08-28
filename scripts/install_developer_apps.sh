@@ -28,6 +28,12 @@ function main() {
 
     # # <<--->> Installation all files <<--->>
 
+    # Install Rust via rustup
+    install_rust_via_rustup
+
+    # Configurar PATH de cargo
+    setting_cargo_path
+
     # Install zsh
     install_zsh
 
@@ -180,6 +186,42 @@ function download_ranger(){
 
 # <<<----------------->>> Installation functions <<<----------------->>>
 
+function install_rust_via_rustup(){
+    # Instalar Rust usando rustup en lugar de apt para obtener la versión más reciente
+    if ! command -v rustc &> /dev/null || [ ! -f "$HOME/.cargo/env" ]; then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Rust via rustup." | tee -a $log_path
+        
+        # Remover cualquier versión anterior instalada con apt
+        if dpkg -l | grep -q "^ii.*cargo"; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Removing old cargo from apt." | tee -a $log_path
+            sudo apt remove -y cargo rustc
+            sudo apt autoremove -y
+        fi
+        
+        # Instalar curl si no está presente
+        if ! command -v curl &> /dev/null; then
+            sudo apt install -y curl
+        fi
+        
+        # Instalar Rust usando rustup (versión estable más reciente)
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        
+        # Cargar las variables de entorno de cargo
+        source "$HOME/.cargo/env"
+        
+        # Actualizar a la versión más reciente
+        rustup update stable
+        rustup default stable
+        
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Rust installed via rustup." | tee -a $log_path
+    else
+        # Si ya está instalado, actualizar
+        source "$HOME/.cargo/env"
+        rustup update stable
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Rust is already installed, updated to latest." | tee -a $log_path
+    fi
+}
+
 function install_zsh(){
     if ! command -v zsh &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing zsh." | tee -a $log_path
@@ -263,49 +305,77 @@ function install_imagemagick(){
 function install_alacritty(){
     # Validate if Alacritty is not installed
     if ! command -v alacritty &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Compiling and Installing Alacritty." | tee -a $log_path
-        begin_path=$(pwd)
-        # Downloading dependencies
-        sudo apt install -y cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev python3
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Compiling and Installing Alacritty from source." | tee -a $log_path
         
-        # Install cargo if not present (but DON'T remove it later!)
-        if ! command -v cargo &> /dev/null; then
-            sudo apt install -y cargo
+        # Primero, asegurar que tenemos Rust actualizado via rustup
+        install_rust_via_rustup
+        
+        # Cargar el entorno de cargo
+        source "$HOME/.cargo/env"
+        
+        # Verificar versión de Rust
+        rust_version=$(rustc --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        rust_major=$(echo $rust_version | cut -d. -f1)
+        rust_minor=$(echo $rust_version | cut -d. -f2)
+        
+        # Verificar que tenemos al menos Rust 1.85
+        if [ "$rust_major" -eq 1 ] && [ "$rust_minor" -lt 85 ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Rust 1.85+ required for Alacritty. Current: $rust_version" | tee -a $log_path
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing Alacritty from apt instead." | tee -a $log_path
+            sudo apt install -y alacritty
+            return
         fi
         
-        sudo apt install -y scdoc
+        begin_path=$(pwd)
         
-        # <<------>> Compile Alacritty <<------>>
+        # Instalar dependencias de compilación
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing build dependencies." | tee -a $log_path
+        sudo apt install -y cmake pkg-config libfreetype6-dev libfontconfig1-dev \
+            libxcb-xfixes0-dev libxkbcommon-dev python3 scdoc
+        
+        # Compilar Alacritty
         cd ./tmp/Alacritty
-        # Force support for only X11 in the build
-        cargo build --release --no-default-features --features=x11
-        # Using strip -s to reduce the size of the binary
-        strip -s target/release/alacritty
-        # <<------>> Compile Alacritty <<----->>
-        # Copy Alacritty binary to system's bin directory for global access
-        sudo cp target/release/alacritty /usr/local/bin
-        # Place Alacritty logo in system's pixmaps directory for icon usage
-        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-        # Install Alacritty's desktop file for integration with application menus
-        sudo desktop-file-install extra/linux/Alacritty.desktop
-        # Update system's application database to recognize Alacritty
-        sudo update-desktop-database
-        # <<------>> Installing documentation <<------>>
-        sudo mkdir -p /usr/local/share/man/man1
-        sudo mkdir -p /usr/local/share/man/man5
-        scdoc < extra/man/alacritty.1.scd | gzip -c | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
-        scdoc < extra/man/alacritty-msg.1.scd | gzip -c | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
-        scdoc < extra/man/alacritty.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty.5.gz > /dev/null
-        scdoc < extra/man/alacritty-bindings.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty-bindings.5.gz > /dev/null
         
-        # <<------>> NOTE: NOT removing cargo - it might be needed for other Rust applications <<------>>
-        # Only remove the build dependencies, not cargo
+        # Limpiar cualquier build anterior
+        cargo clean
+        
+        # Compilar con soporte para X11
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Building Alacritty..." | tee -a $log_path
+        cargo build --release --no-default-features --features=x11
+        
+        # Verificar que el binario se compiló
+        if [ ! -f "target/release/alacritty" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to build Alacritty" | tee -a $log_path
+            cd $begin_path
+            return 1
+        fi
+        
+        # Reducir el tamaño del binario
+        strip -s target/release/alacritty
+        
+        # Instalar Alacritty
+        sudo cp target/release/alacritty /usr/local/bin
+        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+        sudo desktop-file-install extra/linux/Alacritty.desktop
+        sudo update-desktop-database
+        
+        # Instalar documentación
+        if command -v scdoc &> /dev/null; then
+            sudo mkdir -p /usr/local/share/man/man1
+            sudo mkdir -p /usr/local/share/man/man5
+            scdoc < extra/man/alacritty.1.scd | gzip -c | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
+            scdoc < extra/man/alacritty-msg.1.scd | gzip -c | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
+            scdoc < extra/man/alacritty.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty.5.gz > /dev/null
+            scdoc < extra/man/alacritty-bindings.5.scd | gzip -c | sudo tee /usr/local/share/man/man5/alacritty-bindings.5.gz > /dev/null
+        fi
+        
+        # NO remover cargo si fue instalado via rustup
+        # Solo remover las dependencias de compilación que no se necesitan
         sudo apt remove -y cmake libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev
         sudo apt autoremove -y
         
-        # <<------>>  back to original path <<------>> 
         cd $begin_path
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty Installed." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Alacritty installed from source." | tee -a $log_path
     fi
 }
 
@@ -407,6 +477,27 @@ function install_docker(){
 }
 
 # <<<----------------->>> Setting functions <<<----------------->>>
+
+function setting_cargo_path(){
+    # Función para configurar el PATH de cargo en .zshrc y .bashrc
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting Cargo PATH." | tee -a $log_path
+    
+    # Para .zshrc
+    if [ -f "$HOME/.zshrc" ] && ! grep -q 'source "$HOME/.cargo/env"' "$HOME/.zshrc"; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# <<<--------->>> Rust/Cargo PATH <<<--------->>>" >> "$HOME/.zshrc"
+        echo 'source "$HOME/.cargo/env"' >> "$HOME/.zshrc"
+    fi
+    
+    # Para .bashrc
+    if ! grep -q 'source "$HOME/.cargo/env"' "$HOME/.bashrc"; then
+        echo "" >> "$HOME/.bashrc"
+        echo "# <<<--------->>> Rust/Cargo PATH <<<--------->>>" >> "$HOME/.bashrc"
+        echo 'source "$HOME/.cargo/env"' >> "$HOME/.bashrc"
+    fi
+    
+    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Cargo PATH configured." | tee -a $log_path
+}
 
 function setting_zsh_theme(){
     if [ ! -f $HOME/.zshrc ] && [ ! -f $HOME/.p10k.zsh ]; then
