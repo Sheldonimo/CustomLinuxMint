@@ -3,6 +3,10 @@
 # Updated for Linux Mint 22.1 (Ubuntu 24.04 Noble)
 
 function main() {
+    # Set error handling
+    set -euo pipefail
+    IFS=$'\n\t'
+
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} running." | tee -a $log_path
     echo "Installing Developer apps for Linux Mint 22.1..."
 
@@ -353,54 +357,48 @@ function install_plugins_zsh() {
 }
 
 function install_fastfetch_and_htop_and_btop() {
-    local packages=()
+    local packages_to_install=()
     local need_update=false
     
-    # Verificar e instalar fastfetch
+    # Check and prepare fastfetch
     if ! command -v fastfetch &> /dev/null; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Checking fastfetch PPA." | tee -a $log_path
         
-        # Verificar si el PPA ya existe
         if ! grep -q "zhangsongcui3371/fastfetch" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Adding fastfetch PPA." | tee -a $log_path
             sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch
             need_update=true
-        else
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fastfetch PPA already added." | tee -a $log_path
         fi
-        
-        packages+=("fastfetch")
     fi
     
-    # Verificar htop
+    # Update if needed
+    if [ "$need_update" = true ]; then
+        sudo apt update
+    fi
+    
+    # Install each package separately to avoid complete failure
+    if ! command -v fastfetch &> /dev/null; then
+        if sudo apt install -y fastfetch 2>/dev/null; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} fastfetch installed successfully." | tee -a $log_path
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} WARNING: fastfetch not available in repositories." | tee -a $log_path
+        fi
+    fi
+    
     if ! command -v htop &> /dev/null; then
-        packages+=("htop")
+        if sudo apt install -y htop; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} htop installed successfully." | tee -a $log_path
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to install htop." | tee -a $log_path
+        fi
     fi
     
-    # Verificar btop
     if ! command -v btop &> /dev/null; then
-        packages+=("btop")
-    fi
-
-    # Instalar paquetes si hay alguno
-    if [ ${#packages[@]} -gt 0 ]; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installing ${packages[*]}." | tee -a $log_path
-        
-        # Actualizar lista de paquetes si se agregó un PPA
-        if [ "$need_update" = true ]; then
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Updating package list." | tee -a $log_path
-            sudo apt update || echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} WARNING: apt update failed" | tee -a $log_path
-        fi
-        
-        # Instalar paquetes
-        if sudo apt install -y "${packages[@]}"; then
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ${packages[*]} installed successfully." | tee -a $log_path
+        if sudo apt install -y btop; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} btop installed successfully." | tee -a $log_path
         else
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to install some packages: ${packages[*]}" | tee -a $log_path
-            return 1
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to install btop." | tee -a $log_path
         fi
-    else
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} All packages (fastfetch, htop, btop) are already installed." | tee -a $log_path
     fi
 }
 
@@ -422,12 +420,24 @@ function install_bat() {
         local bat_deb=$(ls -t ./tmp/bat_*.deb 2>/dev/null | head -1)
         
         if [ -f "$bat_deb" ]; then
-            sudo dpkg -i "$bat_deb" || sudo apt-get install -f -y
-            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Installed." | tee -a $log_path
+            if sudo dpkg -i "$bat_deb"; then
+                echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Installed." | tee -a $log_path
+            else
+                # Try to fix dependencies if dpkg failed
+                echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Fixing dependencies..." | tee -a $log_path
+                if sudo apt-get install -f -y; then
+                    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat Installed after fixing dependencies." | tee -a $log_path
+                else
+                    echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: Failed to install bat." | tee -a $log_path
+                    return 1
+                fi
+            fi
         else
             echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ERROR: bat .deb file not found." | tee -a $log_path
             return 1
         fi
+    else
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} bat is already installed." | tee -a $log_path
     fi
 }
 
@@ -613,6 +623,15 @@ function install_docker() {
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Docker Installed." | tee -a $log_path
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} NOTE: Log out and back in for docker group changes to take effect." | tee -a $log_path
+    
+    else
+        # Also check if user is in docker group even if docker is installed
+        if ! groups $USER | grep -q docker; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Adding $USER to docker group." | tee -a $log_path
+            sudo usermod -aG docker $USER
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} NOTE: Log out and back in for docker group changes to take effect." | tee -a $log_path
+        fi
+
     fi
 }
 
