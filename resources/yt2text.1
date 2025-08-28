@@ -1,0 +1,77 @@
+.TH YT2TEXT 1 "August 28, 2025" "yt2text 2.0" "User Commands"
+.SH NOMBRE
+yt2text \- Extrae texto de subtítulos de videos de YouTube usando yt-dlp.
+.SH SINOPSIS
+.B yt2text
+[\fIOPCIONES\fR] \fIURL_DE_YOUTUBE\fR
+.SH DESCRIPCIÓN
+\fByt2text\fR descarga los subtítulos de un video de YouTube (manuales o automáticos),
+los convierte a formato SRT y produce el contenido como texto limpio, SRT o JSON.
+Puede copiar el resultado al portapapeles y listar los idiomas disponibles del video.
+.SH OPCIONES
+.TP
+.BR -l ", " --lang " " \fILANG\fR
+Código de idioma para los subtítulos. Predeterminado: \fBen\fR.
+.TP
+.BR -o ", " --output " " \fIARCHIVO\fR
+Guarda la salida en \fIARCHIVO\fR en vez de stdout.
+.TP
+.BR -c ", " --clipboard
+Copia el resultado al portapapeles (usa \fBpbcopy\fR, \fBwl-copy\fR, \fBxclip\fR, \fBxsel\fR o \fBclip.exe\fR en WSL).
+.TP
+.BR -v ", " --verbose
+Modo detallado.
+.TP
+.BR -t ", " --timestamps
+Conserva marcas de tiempo en la salida de texto.
+.TP
+.BR -m ", " --manual
+Prefiere subtítulos manuales frente a los automáticos.
+.TP
+.BR -a ", " --auto
+Fuerza el uso de subtítulos automáticos solamente.
+.TP
+.BR -L ", " --list-langs
+Lista los idiomas de subtítulos disponibles para el video y sale.
+.TP
+.BR -f ", " --format " " \fIFORMATO\fR
+Formato de salida: \fBtext\fR, \fBsrt\fR o \fBjson\fR. Predeterminado: \fBtext\fR.
+.TP
+.BR -C ", " --cache
+Habilita caché local de resultados.
+.TP
+.BR -h ", " --help
+Muestra la ayuda integrada.
+.SH EJEMPLOS
+.TP
+Descargar subtítulos en español y copiarlos al portapapeles:
+.nf
+yt2text -l es -c https://youtu.be/VIDEO_ID
+.fi
+.TP
+Guardar a un archivo conservando marcas de tiempo:
+.nf
+yt2text -o transcript.txt -t "https://www.youtube.com/watch?v=VIDEO_ID"
+.fi
+.TP
+Listar idiomas disponibles:
+.nf
+yt2text --list-langs URL
+.fi
+.TP
+Exportar como JSON con caché:
+.nf
+yt2text -f json -C -o data.json URL
+.fi
+.SH DEPENDENCIAS
+\fByt-dlp\fR (obligatorio). \fBjq\fR es necesario si se usa \fB--format json\fR.
+Para copiar al portapapeles, uno de: \fBpbcopy\fR (macOS), \fBwl-copy\fR (Wayland), \fBxclip\fR/\fBxsel\fR (X11) o \fBclip.exe\fR (WSL).
+Se requieren utilidades estándar: \fBawk\fR, \fBsed\fR, \fBtr\fR.
+.SH ARCHIVOS
+Caché en \fB$XDG_CACHE_HOME/yt2text\fR o \fB$HOME/.cache/yt2text\fR.
+.SH ESTADO DE SALIDA
+Devuelve \fB0\fR en éxito; distinto de cero en error.
+.SH AUTOR
+Escrito por Sheldonimo.
+.SH VER TAMBIÉN
+\fByt-dlp(1)\fR
