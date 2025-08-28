@@ -141,9 +141,9 @@ function download_cursor() {
     html_url=$(get_lastest_url "ful1e5/BreezeX_Cursor")
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} found lastest version: $html_url" | tee -a $log_path
     # Download Capitaine Cursors
-    if [ ! -f "./tmp/BreezeX-Dark.tar.gz" ]; then
+    if [ ! -f "./tmp/BreezeX-Dark.tar.xz" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Downloading BreezeX_Cursor." | tee -a $log_path
-        wget -q --show-progress -O "./tmp/BreezeX-Dark.tar.gz" $html_url/BreezeX-Dark.tar.gz
+        wget -q --show-progress -O "./tmp/BreezeX-Dark.tar.xz" $html_url/BreezeX-Dark.tar.xz
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Downloaded." | tee -a $log_path
         # Waiting until all files are downloaded
         wait -n
@@ -222,10 +222,10 @@ function Unpackage_cursor() {
     # Unpackage BreezeX_Cursor
     if [ ! -d "./tmp/BreezeX-Dark" ]; then
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Unpackaging BreezeX_Cursor." | tee -a $log_path
-        tar -xzf "./tmp/BreezeX-Dark.tar.gz" -C "./tmp/"
+        tar -xJf "./tmp/BreezeX-Dark.tar.xz" -C "./tmp/"
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} BreezeX_Cursor Unpackaged." | tee -a $log_path
         # Delete tar.gz file
-        rm -f "./tmp/BreezeX-Dark.tar.gz"
+        rm -f "./tmp/BreezeX-Dark.tar.xz"
     fi
 }
 

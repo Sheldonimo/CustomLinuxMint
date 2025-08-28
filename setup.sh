@@ -4,6 +4,9 @@
 # global variable
 export log_path=$PWD/installation_log_$(date +%Y-%m-%d_%H-%M-%S).log
 
+# local variable
+is_install_pip_and_git=false
+
 function main() {
     #download scripts and create folder
     begin
@@ -24,7 +27,6 @@ function main() {
         #echo "run Install All Customizations..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation All Customizations." | tee -a $log_path
         ask_to_run_script "desktop_customization.sh" "false"
-        install_pip_and_git
         ask_to_run_script "install_developer_apps.sh" "false"
         ask_to_run_script "install_general_purpose_apps.sh" "false"
         ;;
@@ -34,14 +36,12 @@ function main() {
         #echo "run Install Desktop Customization..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Desktop Customization." | tee -a $log_path
         ask_to_run_script "desktop_customization.sh" "false"
-        install_pip_and_git
         ;;
     3)  
         # Require sudo access
         sudo -v
         #echo "run Install Developer Apps..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Developer Apps." | tee -a $log_path
-        install_pip_and_git
         ask_to_run_script "install_developer_apps.sh" "false"
         ;;
     4)  
@@ -49,7 +49,6 @@ function main() {
         sudo -v
         #echo "run Install General Purpose Apps..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation General Purpose Apps." | tee -a $log_path
-        install_pip_and_git
         ask_to_run_script "install_general_purpose_apps.sh" "false"
         ;;
     5)  
@@ -57,7 +56,6 @@ function main() {
         sudo -v
         #echo "Multi-Selection setup..."
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Installation Custom Selection setup." | tee -a $log_path
-        install_pip_and_git
         ask_to_run_script "desktop_customization.sh" "true"
         ask_to_run_script "install_developer_apps.sh" "true"
         ask_to_run_script "install_general_purpose_apps.sh" "true"
@@ -99,9 +97,13 @@ run_script() {
         let choose=$?
         iconColor=$(change_iconColor $choose)
         wait_second 2
+        # Install pip3 and git
+        install_pip_and_git
         # run script
         bash "$script_path" "$iconColor"
     else       
+        # Install pip3 and git
+        install_pip_and_git
         bash "$script_path"
     fi
     unset script_path
@@ -205,16 +207,24 @@ function ask_to_run_script() {
         read -p "Do you want to execute the script $script_name? (Y/n): " choice
         # Default to 'yes' if the input is empty, 'y', or 'Y'
         if [[ -z $choice || $choice == "y" || $choice == "Y" ]]; then
+            # run the script
             run_script "$script_name"
         else
             echo "Skipping $script_name."
         fi
     else
+        # run the script
         run_script "$script_name"
     fi
 }
 
 function install_pip_and_git() {
+    # Check if install_pip_and_git was already executed
+    if [ "$is_install_pip_and_git" = true ]; then
+        return
+    fi
+    is_install_pip_and_git=true
+
     # Check if Python3 pip and Git are installed
     pip_installed=$(command -v pip3 &> /dev/null && echo "yes" || echo "no")
     git_installed=$(command -v git &> /dev/null && echo "yes" || echo "no")
