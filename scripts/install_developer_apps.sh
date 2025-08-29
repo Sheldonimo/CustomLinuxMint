@@ -811,20 +811,23 @@ function setting_plugins_zsh() {
 }
 
 function setting_git_tree_visualizations() {
-    # Setting variable to know where to add git tree visualizations
-    local installed=""
-    # Validate if git tree visualizations is not installed in zsh
-    if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.zshrc; then
-        installed="${installed} $HOME/.zshrc"
-    fi
-    # Validate if git tree visualizations is not installed in bash
-    if ! grep -iq '^# <<<--------->>> Git tree Visualizations' $HOME/.bashrc; then
-        installed="${installed} $HOME/.bashrc"
-    fi
+    # Dónde agregar los aliases de visualización de git tree
+    local -a targets=()
+    local marker='^# <<<--------->>> Git tree Visualizations'
+    
+    # Revisa .zshrc y .bashrc: si no existe o no tiene el marcador, añadir
+    for f in "$HOME/.zshrc" "$HOME/.bashrc"; do
+        if ! grep -iq "$marker" "$f" 2>/dev/null; then
+            targets+=("$f")
+        fi
+    done
 
-    if [ -n "$installed" ]; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations." | tee -a $log_path
-        for file in $installed; do
+    if ((${#targets[@]} > 0)); then
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting git tree visualizations." | tee -a "$log_path"
+        for file in "${targets[@]}"; do
+            # Asegura que el directorio exista y el archivo también
+            mkdir -p "$(dirname "$file")"
+            touch "$file"
             cat >> "$file" << 'EOF'
 
 # <<<--------->>> Git tree Visualizations <<<--------->>>
@@ -838,9 +841,10 @@ alias lg2-specific="git log --graph --abbrev-commit --decorate --format=format:'
 alias lg3-specific="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''%C(white)%s%C(reset)%n''%C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'"
 EOF
         done
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a $log_path
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} git tree visualizations is set up." | tee -a "$log_path"
     fi
 }
+
 
 function setting_eza() {
     echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting eza." | tee -a $log_path
