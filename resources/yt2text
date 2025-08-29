@@ -1,35 +1,19 @@
 #!/usr/bin/env bash
-# by: Sheldonimo
+# by: Sheldonimo - DEBUG VERSION
 
 # yt2text.sh - Extract text from YouTube video subtitles
-# Version: 2.0
+# Version: 2.0 - DEBUG
 # 
 # This script downloads subtitles from YouTube videos using yt-dlp,
 # processes them to extract clean text, and provides various output options.
 #
 # Usage:
-#   ./yt2text.sh [OPTIONS] <YouTube_URL>
-#
-# Options:
-#   -l, --lang LANG      Language code for subtitles (default: en)
-#   -o, --output FILE    Save output to file instead of stdout
-#   -c, --clipboard      Copy result to clipboard
-#   -v, --verbose        Enable verbose mode
-#   -t, --timestamps     Keep timestamps in output
-#   -m, --manual         Prefer manual subtitles over auto-generated
-#   -a, --auto           Force auto-generated subtitles only
-#   -L, --list-langs     List available subtitle languages and exit
-#   -f, --format FORMAT  Output format: text, srt, json (default: text)
-#   -C, --cache          Enable caching of results
-#   -h, --help           Show this help message
-#
-# Examples:
-#   ./yt2text.sh https://www.youtube.com/watch?v=VIDEO_ID
-#   ./yt2text.sh -l es -c -v https://youtu.be/VIDEO_ID
-#   ./yt2text.sh --list-langs https://www.youtube.com/watch?v=VIDEO_ID
-#   ./yt2text.sh -o transcript.txt -f json URL
+#   ./yt2text_debug.sh [OPTIONS] <YouTube_URL>
+
+echo "DEBUG: Script starting..." >&2
 
 set -euo pipefail  # Exit on error, undefined variables, pipe failures
+echo "DEBUG: Set error handling flags" >&2
 
 # Color codes for output
 readonly RED='\033[0;31m'
@@ -37,12 +21,14 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
 readonly NC='\033[0m' # No Color
+echo "DEBUG: Color codes defined" >&2
 
 # Default configuration
 readonly SCRIPT_NAME=$(basename "$0")
-readonly SCRIPT_VERSION="2.0"
+readonly SCRIPT_VERSION="2.0-DEBUG"
 readonly CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/yt2text"
 readonly DEFAULT_LANG="en"
+echo "DEBUG: Default configuration set" >&2
 
 # Configuration variables
 lang="$DEFAULT_LANG"
@@ -55,29 +41,37 @@ list_languages=false
 output_format="text"  # text, srt, json
 use_cache=false
 youtube_url=""
+echo "DEBUG: Configuration variables initialized" >&2
 
 # Error handling
 error() {
+    echo "DEBUG: Error function called with: $1" >&2
     echo -e "${RED}Error: $1${NC}" >&2
     exit "${2:-1}"
 }
 
 warning() {
+    echo "DEBUG: Warning function called with: $1" >&2
     echo -e "${YELLOW}Warning: $1${NC}" >&2
 }
 
 info() {
+    echo "DEBUG: Info function called with: $1" >&2
     if [[ "$verbose" == true ]]; then
         echo -e "${BLUE}Info: $1${NC}" >&2
     fi
 }
 
 success() {
+    echo "DEBUG: Success function called with: $1" >&2
     echo -e "${GREEN}✓ $1${NC}" >&2
 }
 
+echo "DEBUG: Helper functions defined" >&2
+
 # Show help message
 show_help() {
+    echo "DEBUG: Show help function called" >&2
     cat << EOF
 $SCRIPT_NAME v$SCRIPT_VERSION - Extract text from YouTube video subtitles
 
@@ -120,48 +114,66 @@ SUPPORTED PLATFORMS:
     - Termux (Android)
 
 EOF
+    echo "DEBUG: Help displayed, exiting" >&2
     exit 0
 }
 
 # Check for required dependencies
 check_dependencies() {
+    echo "DEBUG: Starting dependency check" >&2
     local missing_deps=()
     
     # Check for yt-dlp
+    echo "DEBUG: Checking for yt-dlp..." >&2
     if ! command -v yt-dlp &> /dev/null; then
+        echo "DEBUG: yt-dlp NOT found" >&2
         missing_deps+=("yt-dlp")
+    else
+        echo "DEBUG: yt-dlp found" >&2
     fi
     
     # Check for jq if JSON format is requested
-    if [[ "$output_format" == "json" ]] && ! command -v jq &> /dev/null; then
-        missing_deps+=("jq")
+    if [[ "$output_format" == "json" ]]; then
+        echo "DEBUG: Checking for jq (JSON format requested)..." >&2
+        if ! command -v jq &> /dev/null; then
+            echo "DEBUG: jq NOT found" >&2
+            missing_deps+=("jq")
+        else
+            echo "DEBUG: jq found" >&2
+        fi
     fi
     
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        echo "DEBUG: Missing dependencies found: ${missing_deps[*]}" >&2
         error "Missing required dependencies: ${missing_deps[*]}\nPlease install them first."
     fi
     
+    echo "DEBUG: All dependencies check passed" >&2
     info "All required dependencies are installed"
 }
 
 # Validate YouTube URL
 validate_youtube_url() {
+    echo "DEBUG: Starting URL validation for: $1" >&2
     local url="$1"
     
     # Basic YouTube URL pattern matching
     if [[ ! "$url" =~ ^https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/|m\.youtube\.com/watch\?v=) ]]; then
+        echo "DEBUG: URL validation FAILED" >&2
         error "Invalid YouTube URL format: $url"
     fi
-    
+
+    echo "DEBUG: URL validation PASSED" >&2
     info "URL validation passed"
 }
 
 # Extract video ID from YouTube URL
 get_video_id() {
+    echo "DEBUG: Extracting video ID from: $1" >&2
     local url="$1"
     local video_id=""
     
-    if [[ "$url" =~ [\?\&]v=([a-zA-Z0-9_-]{11}) ]]; then
+    if [[ "$url" =~ [\?\&]v=([A-Za-z0-9_-]{11}) ]]; then
         video_id="${BASH_REMATCH[1]}"
     elif [[ "$url" =~ youtu\.be/([a-zA-Z0-9_-]{11}) ]]; then
         video_id="${BASH_REMATCH[1]}"
@@ -169,124 +181,153 @@ get_video_id() {
         video_id="${BASH_REMATCH[1]}"
     fi
     
+    echo "DEBUG: Video ID extracted: $video_id" >&2
     echo "$video_id"
 }
 
 # Get cache file path
 get_cache_file() {
+    echo "DEBUG: Generating cache file path for video ID: $1" >&2
     local video_id="$1"
     local cache_key="${video_id}_${lang}_${subtitle_preference}_${output_format}"
-    echo "$CACHE_DIR/${cache_key}.cache"
+    local cache_path="$CACHE_DIR/${cache_key}.cache"
+    echo "DEBUG: Cache file path: $cache_path" >&2
+    echo "$cache_path"
 }
 
 # List available subtitle languages
 list_available_languages() {
+    echo "DEBUG: Starting to list available languages for: $1" >&2
     local url="$1"
     
     info "Fetching available subtitle languages..."
     
+    echo "DEBUG: Calling yt-dlp --list-subs..." >&2
     local langs
     langs=$(yt-dlp --list-subs "$url" 2>/dev/null | grep -E "^Language|^\w+" | grep -v "Available" || true)
+    echo "DEBUG: yt-dlp --list-subs completed" >&2
     
     if [[ -z "$langs" ]]; then
+        echo "DEBUG: No languages found" >&2
         warning "No subtitles found for this video"
         exit 0
     fi
     
+    echo "DEBUG: Languages found, displaying..." >&2
     echo -e "${GREEN}Available subtitle languages:${NC}"
     echo "$langs"
+    echo "DEBUG: Languages listed, exiting" >&2
     exit 0
 }
 
 # Detect clipboard tool based on platform
 get_clipboard_command() {
+    echo "DEBUG: Detecting clipboard command..." >&2
+    
     # macOS
     if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "DEBUG: macOS detected" >&2
         echo "pbcopy"
     # Windows WSL
     elif grep -q Microsoft /proc/version 2>/dev/null; then
+        echo "DEBUG: WSL detected" >&2
         echo "clip.exe"
     # Wayland
     elif [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wl-copy &> /dev/null; then
+        echo "DEBUG: Wayland detected" >&2
         echo "wl-copy"
     # X11
     elif [[ -n "${DISPLAY:-}" ]]; then
+        echo "DEBUG: X11 detected" >&2
         if command -v xclip &> /dev/null; then
+            echo "DEBUG: xclip found" >&2
             echo "xclip -selection clipboard"
         elif command -v xsel &> /dev/null; then
+            echo "DEBUG: xsel found" >&2
             echo "xsel --clipboard --input"
         fi
     # Termux (Android)
     elif command -v termux-clipboard-set &> /dev/null; then
+        echo "DEBUG: Termux detected" >&2
         echo "termux-clipboard-set"
     fi
 }
 
 # Copy text to clipboard
 copy_to_clipboard_func() {
+    echo "DEBUG: Starting clipboard copy..." >&2
     local text="$1"
     local clip_cmd
     clip_cmd=$(get_clipboard_command)
     
     if [[ -z "$clip_cmd" ]]; then
+        echo "DEBUG: No clipboard command found" >&2
         warning "No clipboard tool found for your platform"
         return 1
     fi
     
+    echo "DEBUG: Using clipboard command: $clip_cmd" >&2
     echo -n "$text" | eval "$clip_cmd"
+    echo "DEBUG: Clipboard copy completed" >&2
     success "Text copied to clipboard using: $clip_cmd"
 }
 
 # Download subtitles
 download_subtitles() {
+    echo "DEBUG: Starting subtitle download..." >&2
+    echo "DEBUG: URL: $1" >&2
+    echo "DEBUG: Output base: $2" >&2
+
     local url="$1"
-    local output_file="$2"
-    local yt_dlp_opts=()
-    
-    # Base options
-    yt_dlp_opts+=(--skip-download)
-    yt_dlp_opts+=(--sub-lang "$lang")
-    yt_dlp_opts+=(--convert-subs srt)
-    yt_dlp_opts+=(-o "$output_file")
-    
-    # Handle subtitle preference
-    case "$subtitle_preference" in
-        manual)
-            yt_dlp_opts+=(--write-subs)
-            ;;
-        auto)
-            yt_dlp_opts+=(--write-auto-subs)
-            ;;
-        any)
-            # Try manual first, fall back to auto
-            yt_dlp_opts+=(--write-subs --write-auto-subs)
-            ;;
-    esac
-    
-    # Add quiet flag if not verbose
+    local outbase="$2"           # sin extensión; usaremos plantilla
+    local sublangs
+    sublangs="$(build_sub_langs_arg)"
+
+    local yt_dlp_opts=(
+        --skip-download
+        --sub-langs "$sublangs"   # <- CORRECTO (plural)
+        --convert-subs srt
+        --write-sub               # manual
+        --write-auto-sub          # y auto (si existe)
+        -o "${outbase}.%(ext)s"   # <- plantilla de salida
+    )
+
+    # Silencioso si no es verbose
     if [[ "$verbose" != true ]]; then
         yt_dlp_opts+=(--quiet --no-warnings)
     fi
-    
-    info "Downloading subtitles with options: ${yt_dlp_opts[*]}"
-    
+
+    echo "DEBUG: yt-dlp options: ${yt_dlp_opts[*]}" >&2
+
     if ! yt-dlp "${yt_dlp_opts[@]}" "$url"; then
-        error "Failed to download subtitles. The video might not have subtitles in language: $lang"
+        echo "DEBUG: yt-dlp failed" >&2
+        error "Failed to download subtitles. The video might not have ${lang} subtitles."
     fi
+
+    echo "DEBUG: yt-dlp completed successfully" >&2
 }
+
 
 # Process SRT file to extract text
 process_srt_file() {
+    echo "DEBUG: Starting SRT file processing..." >&2
+    echo "DEBUG: SRT file: $1" >&2
+    echo "DEBUG: Output format: $output_format" >&2
+    
     local srt_file="$1"
     local result=""
     
     if [[ ! -f "$srt_file" ]]; then
+        echo "DEBUG: SRT file not found!" >&2
         error "Subtitle file not found: $srt_file"
     fi
+    echo "DEBUG: SRT file exists, processing..." >&2
     
     case "$output_format" in
         text)
+            echo "DEBUG: Processing as text format" >&2
             if [[ "$keep_timestamps" == true ]]; then
+                echo "DEBUG: Keeping timestamps" >&2
                 # Keep timestamps, format nicely
                 result=$(awk '
                     /^[0-9]+$/ { next }  # Skip sequence numbers
@@ -299,6 +340,7 @@ process_srt_file() {
                     { print }
                 ' "$srt_file")
             else
+                echo "DEBUG: Removing timestamps" >&2
                 # Extract only text, remove duplicates, join nicely
                 result=$(awk '
                     /^[0-9]+$/ { next }  # Skip sequence numbers
@@ -316,13 +358,16 @@ process_srt_file() {
             ;;
             
         srt)
+            echo "DEBUG: Processing as SRT format" >&2
             # Output raw SRT format
             result=$(cat "$srt_file")
             ;;
             
         json)
+            echo "DEBUG: Processing as JSON format" >&2
             # Convert to JSON format
             if ! command -v jq &> /dev/null; then
+                echo "DEBUG: jq not found for JSON processing" >&2
                 error "jq is required for JSON output format"
             fi
             
@@ -351,53 +396,69 @@ process_srt_file() {
             ;;
             
         *)
+            echo "DEBUG: Unknown output format!" >&2
             error "Unknown output format: $output_format"
             ;;
     esac
     
+    echo "DEBUG: SRT processing completed" >&2
     echo "$result"
 }
 
 # Parse command line arguments
 parse_arguments() {
+    echo "DEBUG: Starting argument parsing..." >&2
+    echo "DEBUG: Number of arguments: $#" >&2
+    echo "DEBUG: Arguments: $*" >&2
+    
     while [[ $# -gt 0 ]]; do
+        echo "DEBUG: Processing argument: $1" >&2
         case "$1" in
             -l|--lang)
                 lang="${2:-}"
+                echo "DEBUG: Language set to: $lang" >&2
                 [[ -z "$lang" ]] && error "Language code required for $1"
                 shift 2
                 ;;
             -o|--output)
                 output_file="${2:-}"
+                echo "DEBUG: Output file set to: $output_file" >&2
                 [[ -z "$output_file" ]] && error "Output file required for $1"
                 shift 2
                 ;;
             -c|--clipboard)
                 copy_to_clipboard=true
+                echo "DEBUG: Clipboard flag set" >&2
                 shift
                 ;;
             -v|--verbose)
                 verbose=true
+                echo "DEBUG: Verbose flag set" >&2
                 shift
                 ;;
             -t|--timestamps)
                 keep_timestamps=true
+                echo "DEBUG: Timestamps flag set" >&2
                 shift
                 ;;
             -m|--manual)
                 subtitle_preference="manual"
+                echo "DEBUG: Manual subtitles preference set" >&2
                 shift
                 ;;
             -a|--auto)
                 subtitle_preference="auto"
+                echo "DEBUG: Auto subtitles preference set" >&2
                 shift
                 ;;
             -L|--list-langs)
                 list_languages=true
+                echo "DEBUG: List languages flag set" >&2
                 shift
                 ;;
             -f|--format)
                 output_format="${2:-}"
+                echo "DEBUG: Output format set to: $output_format" >&2
                 [[ -z "$output_format" ]] && error "Format required for $1"
                 [[ ! "$output_format" =~ ^(text|srt|json)$ ]] && \
                     error "Invalid format: $output_format. Must be text, srt, or json"
@@ -405,113 +466,187 @@ parse_arguments() {
                 ;;
             -C|--cache)
                 use_cache=true
+                echo "DEBUG: Cache flag set" >&2
                 shift
                 ;;
             -h|--help)
+                echo "DEBUG: Help requested" >&2
                 show_help
                 ;;
             -*)
+                echo "DEBUG: Unknown option encountered: $1" >&2
                 error "Unknown option: $1\nUse -h for help"
                 ;;
             *)
                 # Assume it's the YouTube URL
                 youtube_url="$1"
+                echo "DEBUG: YouTube URL set to: $youtube_url" >&2
                 shift
                 ;;
         esac
     done
     
     # Check if URL was provided
-    [[ -z "$youtube_url" ]] && error "No YouTube URL provided\nUse -h for help"
+    if [[ -z "$youtube_url" ]]; then
+        echo "DEBUG: No YouTube URL provided" >&2
+        error "No YouTube URL provided\nUse -h for help"
+    fi
+    
+    echo "DEBUG: Argument parsing completed" >&2
+    echo "DEBUG: Final configuration:" >&2
+    echo "DEBUG:   - Language: $lang" >&2
+    echo "DEBUG:   - Output file: $output_file" >&2
+    echo "DEBUG:   - Clipboard: $copy_to_clipboard" >&2
+    echo "DEBUG:   - Verbose: $verbose" >&2
+    echo "DEBUG:   - Timestamps: $keep_timestamps" >&2
+    echo "DEBUG:   - Subtitle preference: $subtitle_preference" >&2
+    echo "DEBUG:   - List languages: $list_languages" >&2
+    echo "DEBUG:   - Output format: $output_format" >&2
+    echo "DEBUG:   - Use cache: $use_cache" >&2
+    echo "DEBUG:   - YouTube URL: $youtube_url" >&2
 }
 
 # Main function
 main() {
+    echo "DEBUG: Main function starting..." >&2
+    echo "DEBUG: About to parse arguments..." >&2
+    
     parse_arguments "$@"
+    echo "DEBUG: Arguments parsed successfully" >&2
     
     # Validate URL first
+    echo "DEBUG: About to validate YouTube URL..." >&2
     validate_youtube_url "$youtube_url"
+    echo "DEBUG: URL validation completed" >&2
     
     # Handle list languages option
     if [[ "$list_languages" == true ]]; then
+        echo "DEBUG: List languages option selected" >&2
         list_available_languages "$youtube_url"
     fi
+    echo "DEBUG: List languages check completed" >&2
     
     # Check dependencies
+    echo "DEBUG: About to check dependencies..." >&2
     check_dependencies
+    echo "DEBUG: Dependencies check completed" >&2
     
     # Setup cache directory if caching is enabled
     if [[ "$use_cache" == true ]]; then
+        echo "DEBUG: Setting up cache directory..." >&2
         mkdir -p "$CACHE_DIR"
         info "Cache directory: $CACHE_DIR"
+        echo "DEBUG: Cache directory setup completed" >&2
     fi
     
     # Get video ID for caching
+    echo "DEBUG: About to extract video ID..." >&2
     local video_id
     video_id=$(get_video_id "$youtube_url")
+    echo "DEBUG: Video ID extraction completed: $video_id" >&2
     
     # Check cache if enabled
     if [[ "$use_cache" == true ]] && [[ -n "$video_id" ]]; then
+        echo "DEBUG: Checking cache..." >&2
         local cache_file
         cache_file=$(get_cache_file "$video_id")
         
         if [[ -f "$cache_file" ]]; then
+            echo "DEBUG: Cache hit! Loading from cache..." >&2
             info "Using cached result from: $cache_file"
             result=$(cat "$cache_file")
+            echo "DEBUG: Cache loaded successfully" >&2
+        else
+            echo "DEBUG: Cache miss" >&2
         fi
     fi
     
     # Download and process if not cached
     if [[ -z "${result:-}" ]]; then
+        echo "DEBUG: No cached result, proceeding with download..." >&2
+        
         # Create temporary file
+        echo "DEBUG: Creating temporary directory..." >&2
         local temp_dir
         temp_dir=$(mktemp -d)
-        trap "rm -rf '$temp_dir'" EXIT
+        trap "echo 'DEBUG: Cleaning up temp dir: $temp_dir' >&2; rm -rf '$temp_dir'" EXIT
+        echo "DEBUG: Temporary directory created: $temp_dir" >&2
         
         local temp_file="$temp_dir/subtitle"
         
         info "Downloading subtitles to temporary directory: $temp_dir"
         
         # Download subtitles
+        echo "DEBUG: About to download subtitles..." >&2
         download_subtitles "$youtube_url" "$temp_file"
+        echo "DEBUG: Subtitle download completed" >&2
         
         # Find the actual subtitle file (yt-dlp adds language code)
+        echo "DEBUG: Looking for SRT files in temp directory..." >&2
         local srt_file
         srt_file=$(find "$temp_dir" -name "*.srt" -type f | head -1)
+        echo "DEBUG: SRT file search result: $srt_file" >&2
         
         if [[ -z "$srt_file" ]] || [[ ! -f "$srt_file" ]]; then
+            echo "DEBUG: No SRT file found!" >&2
             error "No subtitle file found after download"
         fi
         
         info "Processing subtitle file: $srt_file"
         
         # Process the SRT file
+        echo "DEBUG: About to process SRT file..." >&2
         result=$(process_srt_file "$srt_file")
+        echo "DEBUG: SRT file processing completed" >&2
         
         # Save to cache if enabled
         if [[ "$use_cache" == true ]] && [[ -n "$video_id" ]]; then
+            echo "DEBUG: Saving to cache..." >&2
             local cache_file
             cache_file=$(get_cache_file "$video_id")
             echo "$result" > "$cache_file"
             info "Result cached to: $cache_file"
+            echo "DEBUG: Cache save completed" >&2
         fi
     fi
     
+    echo "DEBUG: About to handle output..." >&2
+    
     # Handle output
     if [[ -n "$output_file" ]]; then
+        echo "DEBUG: Saving to output file: $output_file" >&2
         echo "$result" > "$output_file"
         success "Output saved to: $output_file"
+        echo "DEBUG: File save completed" >&2
     else
+        echo "DEBUG: Outputting to stdout" >&2
         echo "$result"
+        echo "DEBUG: Stdout output completed" >&2
     fi
     
     # Copy to clipboard if requested
     if [[ "$copy_to_clipboard" == true ]]; then
+        echo "DEBUG: About to copy to clipboard..." >&2
         copy_to_clipboard_func "$result"
+        echo "DEBUG: Clipboard copy completed" >&2
     fi
     
+    echo "DEBUG: Main function completed successfully" >&2
     info "Process completed successfully"
 }
 
+build_sub_langs_arg() {
+    case "$subtitle_preference" in
+        manual) echo "${lang}" ;;
+        auto)   echo "a.${lang}" ;;
+        any)    echo "${lang},a.${lang}" ;;
+        *)      echo "${lang},a.${lang}" ;;
+    esac
+}
+
+echo "DEBUG: About to call main function..." >&2
+
 # Run main function
 main "$@"
+
+echo "DEBUG: Script execution completed" >&2
