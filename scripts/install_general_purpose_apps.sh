@@ -426,6 +426,7 @@ function install_ytfzf() {
         
         # Install yt-dlp using pipx if not already installed
         if ! command -v yt-dlp &> /dev/null; then
+            sudo apt remove -y yt-dlp
             pipx install yt-dlp
         fi
         
