@@ -776,24 +776,29 @@ function setting_copyq() {
 
 function setting_ytfzf() {
     if grep -iq '^x|ytfzf' "$INSTALL_LIST" && command -v ytfzf &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ytfzf." | tee -a $log_path
-        
-        local installed=""
-        
-        # Check zshrc
-        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.zshrc; then
-            installed="${installed} $HOME/.zshrc"
+        # Log
+        if [ -n "$log_path" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ytfzf." | tee -a "$log_path"
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ytfzf."
         fi
-        
-        # Check bashrc
-        if ! grep -iq '^# <<<--------->>> ytfzf' $HOME/.bashrc; then
-            installed="${installed} $HOME/.bashrc"
-        fi
-        
-        # Add aliases
-        if [ -n "$installed" ]; then
-            # Setting ytfzf in $HOME/.zshrc and $HOME/.bashrc
-            for file in $installed; do
+
+        # Dónde agregar aliases/config
+        local -a targets=()
+        local marker='# <<<--------->>> ytfzf'   # literal, no regex
+
+        # Agrega .zshrc/.bashrc si no existe el marcador (o no existen aún)
+        for f in "$HOME/.zshrc" "$HOME/.bashrc"; do
+            if ! grep -Fqi "$marker" "$f" 2>/dev/null; then
+                targets+=("$f")
+            fi
+        done
+
+        # Añade aliases solo si hay archivos destino pendientes
+        if ((${#targets[@]} > 0)); then
+            for file in "${targets[@]}"; do
+                mkdir -p "$(dirname "$file")"
+                touch "$file"
                 cat >> "$file" << 'EOF'
 
 # <<<--------->>> ytfzf <<<--------->>>
@@ -805,23 +810,25 @@ alias ytm="ytfzf -lm"
 EOF
             done
         fi
-        
-        # Create config
-        mkdir -p $HOME/.config/ytfzf
-        
+
+        # Crear/actualizar config
+        mkdir -p "$HOME/.config/ytfzf"
         cat > "$HOME/.config/ytfzf/conf.sh" << 'EOF'
-YTFZF_HIST=1                                        # Enables search history in Ytfzf
-YTFZF_LOOP=0                                        # Disables looping of videos in Ytfzf
-video_pref="bestvideo[height<=?720][fps<=?30]"      # Sets video preference to max 720p resolution and 30 FPS. Another e.i [height<=?1080]
-audio_pref='bestaudio/audio'                        # Sets audio preference to best available quality
-YTFZF_ENABLE_FZF_DEFAULT_OPTS=1                     # Enables default FZF (Fuzzy Finder) options in Ytfzf
-FZF_PLAYER="mpv"                                    # Sets MPV as the default player for Ytfzf
-YTFZF_EXTMENU='rofi -dmenu -fuzzy -width 1500'      # Sets Rofi with specific options as external menu for Ytfzf
-YTFZF_EXTMENU_LEN=220                               # Specifies the length of the external menu in Ytfzf
-invidious_instance="https://inv.nadeko.net"         # Sets a specific Invidious instance for Ytfzf
+YTFZF_HIST=1
+YTFZF_LOOP=0
+video_pref="bestvideo[height<=?720][fps<=?30]"
+audio_pref='bestaudio/audio'
+YTFZF_ENABLE_FZF_DEFAULT_OPTS=1
+FZF_PLAYER="mpv"
+YTFZF_EXTMENU='rofi -dmenu -fuzzy -width 1500'
+YTFZF_EXTMENU_LEN=220
 EOF
-        
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf is set up." | tee -a $log_path
+
+        if [ -n "$log_path" ]; then
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf is set up." | tee -a "$log_path"
+        else
+            echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ytfzf is set up."
+        fi
     fi
 }
 
