@@ -927,21 +927,21 @@ EOF
 
 function setting_pyenv() {
     if [ -d "$HOME/.pyenv" ]; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting pyenv." | tee -a $log_path
-        # Setting pyenv
-        local installed=""
-        # Validate if pyenv is not installed in zsh
-        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.zshrc; then
-            installed="${installed} $HOME/.zshrc"
-        fi
-        # Validate if git tree visualizations is not installed in bash
-        if ! grep -iq '^# <<<--------->>> Pyenv' $HOME/.bashrc; then
-            installed="${installed} $HOME/.bashrc"
-        fi
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting pyenv." | tee -a "$log_path"
 
-        if [ -n "$installed" ]; then
-            # Setting pyenv in $HOME/.zshrc and $HOME/.bashrc
-            for file in $installed; do
+        local -a targets=()
+        local marker='^# <<<--------->>> Pyenv'
+
+        for f in "$HOME/.zshrc" "$HOME/.bashrc"; do
+            if ! grep -iq "$marker" "$f" 2>/dev/null; then
+                targets+=("$f")
+            fi
+        done
+
+        if ((${#targets[@]} > 0)); then
+            for file in "${targets[@]}"; do
+                mkdir -p "$(dirname "$file")"
+                touch "$file"
                 cat >> "$file" << 'EOF'
 
 # <<<--------->>> Pyenv <<<--------->>>
@@ -958,28 +958,29 @@ eval "$(pyenv virtualenv-init -)"
 EOF
             done
         fi
-        
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a $log_path
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} pyenv is set up." | tee -a "$log_path"
     fi
 }
 
+
 function setting_ranger() {
     if command -v ranger &> /dev/null; then
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ranger." | tee -a $log_path
-        # Setting ranger
-        local installed=""
-        # Validate if ranger is not installed in zsh
-        if [ -f "$HOME/.zshrc" ] && ! grep -iq '^# <<<--------->>> ranger' $HOME/.zshrc; then
-            installed="${installed} $HOME/.zshrc"
-        fi
-        # Validate if git tree visualizations is not installed in bash
-        if ! grep -iq '^# <<<--------->>> ranger' $HOME/.bashrc; then
-            installed="${installed} $HOME/.bashrc"
-        fi
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Setting ranger." | tee -a "$log_path"
 
-        if [ -n "$installed" ]; then
-            # Setting ranger in $HOME/.zshrc and $HOME/.bashrc
-            for file in $installed; do
+        local -a targets=()
+        local marker='^# <<<--------->>> ranger'
+
+        for f in "$HOME/.zshrc" "$HOME/.bashrc"; do
+            if ! grep -iq "$marker" "$f" 2>/dev/null; then
+                targets+=("$f")
+            fi
+        done
+
+        if ((${#targets[@]} > 0)); then
+            for file in "${targets[@]}"; do
+                mkdir -p "$(dirname "$file")"
+                touch "$file"
                 cat >> "$file" << 'EOF'
 
 # <<<--------->>> ranger <<<--------->>>
@@ -1001,10 +1002,11 @@ export VISUAL="nano"
 EOF
             done
         fi
-        
-        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger is set up." | tee -a $log_path
+
+        echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} ranger is set up." | tee -a "$log_path"
     fi
 }
+
 
 function change_default_shell() {
     if command -v zsh &> /dev/null; then
