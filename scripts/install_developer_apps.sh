@@ -620,6 +620,7 @@ function install_docker() {
 
         # Add current user to docker group
         sudo usermod -aG docker $USER
+        SHELL=$(which zsh) newgrp docker; exec zsh -l
         
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} Docker Installed." | tee -a $log_path
         echo "$(date +%Y-%m-%d_%H:%M:%S) : ${0##*/} NOTE: Log out and back in for docker group changes to take effect." | tee -a $log_path

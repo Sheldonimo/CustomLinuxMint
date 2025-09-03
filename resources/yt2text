@@ -342,6 +342,7 @@ download_subtitles() {
     
     local yt_dlp_opts=(
         --skip-download
+        --sub-format "ttml/vtt/srv3/best"
         --convert-subs srt
         -o "${outbase}.%(ext)s"
     )
@@ -395,206 +396,235 @@ remove_overlap() {
     echo "$current"
 }
 
-# Process SRT file - Simplified version
+# Process SRT/VTT/TTML/SRV3 file - robusto para espacios y de-rolling
 process_srt_file() {
     local srt_file="$1"
-    
+
     if [[ ! -f "$srt_file" ]]; then
         error "Subtitle file not found: $srt_file"
     fi
-    
+
     local is_auto=false
     [[ "$selected_sub_track" =~ ^a\. ]] && is_auto=true
-    
+
     case "$output_format" in
         text)
             if [[ "$keep_timestamps" == true ]]; then
-                # Text with timestamps - también quitar HTML tags
                 awk '
+                    function sanitize(s) {
+                        gsub(/\r/, "", s)
+                        gsub(/<[^>]*>/, "", s)               # HTML/TTML tags
+                        gsub(/\{\\[^}]*\}/, "", s)           # ASS overrides
+                        gsub(/\\h/, " ", s)                  # ASS hard space
+                        gsub(/\\N|\\n|\\r/, " ", s)          # ASS line breaks
+                        gsub(/&nbsp;|&#160;/, " ", s)        # HTML NBSP
+                        gsub(/\302\240/, " ", s)             # UTF-8 NBSP (0xC2 0xA0)
+                        gsub(/[[:space:]]+/, " ", s)
+                        sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s)
+                        return s
+                    }
+                    function is_ts(l) {
+                        return (l ~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}[.,][0-9]{3}[[:space:]]+-->/ || \
+                                l ~ /^[0-9:.]+[[:space:]]+-->/)
+                    }
+                    BEGIN { inblk=0 }
+                    /^WEBVTT/ { next }
+                    /^NOTE(\b|$)/  { inblk=1; next }
+                    /^STYLE(\b|$)/ { inblk=1; next }
+                    /^REGION(\b|$)/{ inblk=1; next }
+                    /^$/ && inblk==1 { inblk=0; next }
+                    inblk==1 { next }
+
                     /^[0-9]+$/ { next }
-                    /^[0-9]{2}:[0-9]{2}:[0-9]{2}/ {
+
+                    is_ts($0) {
                         gsub(/\r/, "")
                         gsub(/,/, ".", $0)
                         split($0, t, /[[:space:]]*-->[[:space:]]*/)
+                        sub(/[[:space:]].*$/, "", t[2])     # quitar params VTT
                         print "[" t[1] " - " t[2] "]"
                         next
                     }
+
                     /^$/ { next }
-                    { 
-                        gsub(/\r/, "")
-                        gsub(/<[^>]*>/, "")  # Quitar HTML tags también con timestamps
-                        print 
-                    }
+
+                    { line = sanitize($0); if (line!="") print line }
                 ' "$srt_file"
             else
-                # Plain text - ALGORITMO DE-ROLLING MEJORADO
                 if [[ "$is_auto" == true ]]; then
-                    # Para subtítulos automáticos, usar AWK con de-rolling mejorado
                     awk '
-                        /^[0-9]+$/ { next }
-                        /^[0-9]{2}:[0-9]{2}:[0-9]{2}/ { next }
-                        /^$/ { next }
-                        
-                        {
-                            gsub(/\r/, "")
-                            gsub(/<[^>]*>/, "")
-                            gsub(/^[[:space:]]+|[[:space:]]+$/, "")
-                            
-                            if ($0 == "") next
-                            
-                            line = $0
-                            
-                            # De-rolling: buscar solapamiento con el texto previo
-                            if (prev != "") {
-                                # Limitar la ventana de búsqueda
-                                prev_len = length(prev)
-                                line_len = length(line)
-                                max_overlap = (prev_len < 60) ? prev_len : 60
-                                
-                                # Buscar el mayor solapamiento posible
-                                best_overlap = 0
-                                for (k = max_overlap; k >= 10; k--) {
-                                    if (k > line_len) continue
-                                    
-                                    # Comparar el final del texto previo con el inicio del actual
-                                    suffix = substr(prev, prev_len - k + 1, k)
-                                    prefix = substr(line, 1, k)
-                                    
-                                    if (suffix == prefix) {
-                                        best_overlap = k
-                                        break
-                                    }
-                                }
-                                
-                                # Si encontramos solapamiento, recortar
-                                if (best_overlap > 0) {
-                                    line = substr(line, best_overlap + 1)
-                                }
-                                
-                                # Evitar duplicados completos
-                                if (line == prev || line == "") next
-                            }
-                            
-                            # Acumular el texto
-                            if (out != "" && line != "") {
-                                out = out " " line
-                            } else if (line != "") {
-                                out = line
-                            }
-                            
-                            # Actualizar el buffer previo
-                            prev = (length(line) > 120) ? substr(line, length(line) - 119) : line
+                        function sanitize(s) {
+                            gsub(/\r/, "", s)
+                            gsub(/<[^>]*>/, "", s)
+                            gsub(/\{\\[^}]*\}/, "", s)
+                            gsub(/\\h/, " ", s)
+                            gsub(/\\N|\\n|\\r/, " ", s)
+                            gsub(/&nbsp;|&#160;/, " ", s)
+                            gsub(/\302\240/, " ", s)         # NBSP UTF-8
+                            gsub(/[[:space:]]+/, " ", s)
+                            sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s)
+                            return s
                         }
-                        
+                        function is_ts(l) {
+                            return (l ~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}[.,][0-9]{3}[[:space:]]+-->/ || \
+                                    l ~ /^[0-9:.]+[[:space:]]+-->/)
+                        }
+                        BEGIN { inblk=0 }
+                        /^WEBVTT/ { next }
+                        /^NOTE(\b|$)/  { inblk=1; next }
+                        /^STYLE(\b|$)/ { inblk=1; next }
+                        /^REGION(\b|$)/{ inblk=1; next }
+                        /^$/ && inblk==1 { inblk=0; next }
+                        inblk==1 { next }
+
+                        /^[0-9]+$/ { next }
+                        is_ts($0) { next }
+                        /^$/ { next }
+
+                        {
+                            line = sanitize($0)
+                            if (line == "") next
+
+                            # de-rolling (10..60)
+                            if (prev != "") {
+                                pl = length(prev); ll = length(line)
+                                max = (pl < 60 ? pl : 60); best = 0
+                                for (k = max; k >= 10; k--) {
+                                    if (k > ll) continue
+                                    if (substr(prev, pl-k+1, k) == substr(line,1,k)) { best=k; break }
+                                }
+                                if (best > 0) {
+                                    line = substr(line, best+1)
+                                    sub(/^[[:space:]]+/, "", line)
+                                }
+                                if (line=="" || line==prev) next
+                            }
+
+                            out = (out=="" ? line : out " " line)
+                            prev = (length(line) > 120 ? substr(line, length(line)-119) : line)
+                        }
                         END {
-                            gsub(/  +/, " ", out)
+                            gsub(/[[:space:]]+/, " ", out)
+                            sub(/^[[:space:]]+/, "", out); sub(/[[:space:]]+$/, "", out)
                             print out
                         }
                     ' "$srt_file"
                 else
-                    # Para subtítulos manuales, no aplicar de-rolling
                     awk '
-                        /^[0-9]+$/ { next }
-                        /^[0-9]{2}:[0-9]{2}:[0-9]{2}/ { next }
-                        /^$/ { next }
-                        
-                        {
-                            gsub(/\r/, "")
-                            gsub(/<[^>]*>/, "")
-                            gsub(/^[[:space:]]+|[[:space:]]+$/, "")
-                            
-                            if ($0 != "") {
-                                if (out != "") out = out " "
-                                out = out $0
-                            }
+                        function sanitize(s) {
+                            gsub(/\r/, "", s)
+                            gsub(/<[^>]*>/, "", s)
+                            gsub(/\{\\[^}]*\}/, "", s)
+                            gsub(/\\h/, " ", s)
+                            gsub(/\\N|\\n|\\r/, " ", s)
+                            gsub(/&nbsp;|&#160;/, " ", s)
+                            gsub(/\302\240/, " ", s)         # NBSP UTF-8
+                            gsub(/[[:space:]]+/, " ", s)
+                            sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s)
+                            return s
                         }
-                        
+                        function is_ts(l) {
+                            return (l ~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}[.,][0-9]{3}[[:space:]]+-->/ || \
+                                    l ~ /^[0-9:.]+[[:space:]]+-->/)
+                        }
+                        BEGIN { inblk=0 }
+                        /^WEBVTT/ { next }
+                        /^NOTE(\b|$)/  { inblk=1; next }
+                        /^STYLE(\b|$)/ { inblk=1; next }
+                        /^REGION(\b|$)/{ inblk=1; next }
+                        /^$/ && inblk==1 { inblk=0; next }
+                        inblk==1 { next }
+
+                        /^[0-9]+$/ { next }
+                        is_ts($0) { next }
+                        /^$/ { next }
+
+                        { line = sanitize($0); if (line!="") out = (out=="" ? line : out " " line) }
                         END {
-                            gsub(/  +/, " ", out)
+                            gsub(/[[:space:]]+/, " ", out)
+                            sub(/^[[:space:]]+/, "", out); sub(/[[:space:]]+$/, "", out)
                             print out
                         }
                     ' "$srt_file"
                 fi
             fi
             ;;
-            
         srt)
-            # Return original SRT format (just clean CRLF)
-            sed 's/\r$//' "$srt_file"
-            ;;
-            
-        json)
-            # Convert to JSON format
             awk '
-                function escape_json(s) {
-                    gsub(/\\/, "\\\\", s)
-                    gsub(/"/, "\\\"", s)
-                    gsub(/\r/, "", s)
-                    gsub(/\n/, "\\n", s)
-                    gsub(/\t/, "\\t", s)
+                function clean(s){
+                    gsub(/\r/,"",s)
+                    gsub(/<[^>]*>/,"",s)
+                    gsub(/\302\240|&nbsp;|&#160;/," ",s)   # NBSP
+                    gsub(/[[:space:]]+/, " ", s)
+                    sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s)
                     return s
                 }
-                
-                BEGIN { 
-                    print "["
-                    first = 1
-                    in_block = 0
-                    seq = ""
-                    start = ""
-                    end = ""
-                    text = ""
+                /^[0-9]+$/ { print; next }
+                /^WEBVTT/ { print; next }
+                /^[0-9]{2}:[0-9]{2}:[0-9]{2}/ || /^[0-9:.]+[[:space:]]+-->/ { gsub(/\r/,""); print; next }
+                /^$/ { print; next }
+                { print clean($0) }
+            ' "$srt_file"
+            ;;
+        json)
+            awk '
+                function sanitize(s){
+                    gsub(/\r/,"",s)
+                    gsub(/<[^>]*>/,"",s)
+                    gsub(/\{\\[^}]*\}/,"",s)
+                    gsub(/\\h/," ",s); gsub(/\\N|\\n|\\r/," ",s)
+                    gsub(/&nbsp;|&#160;/," ",s)
+                    gsub(/\302\240/," ",s)                 # NBSP
+                    gsub(/[[:space:]]+/, " ", s)
+                    sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s)
+                    return s
                 }
-                
+                function esc(s){ gsub(/\\/,"\\\\",s); gsub(/"/,"\\"\"",s); gsub(/\n/,"\\n",s); gsub(/\t/,"\\t",s); return s }
+                function is_ts(l){
+                    return (l ~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}[.,][0-9]{3}[[:space:]]+-->/ || l ~ /^[0-9:.]+[[:space:]]+-->/)
+                }
+                BEGIN { print "["; first=1; inblk=0; have=0 }
+                /^WEBVTT/ { next }
+                /^NOTE(\b|$)/  { inblk=1; next }
+                /^STYLE(\b|$)/ { inblk=1; next }
+                /^REGION(\b|$)/{ inblk=1; next }
+                /^$/ && inblk==1 { inblk=0; next }
+                inblk==1 { next }
+
                 /^[0-9]+$/ {
-                    if (in_block && seq != "") {
-                        # Output previous block
+                    if (have) {
                         if (!first) print ","
-                        first = 0
-                        printf "  {\"seq\": %s, \"start\": \"%s\", \"end\": \"%s\", \"text\": \"%s\"}", 
-                               seq, start, end, escape_json(text)
+                        first=0
+                        txt=sanitize(text)
+                        printf "  {\"seq\": %s, \"start\": \"%s\", \"end\": \"%s\", \"text\": \"%s\"}", seq, start, end, esc(txt)
                     }
-                    seq = $0
-                    in_block = 1
-                    text = ""
-                    next
+                    seq=$0; text=""; have=1; next
                 }
-                
-                /^[0-9]{2}:[0-9]{2}:[0-9]{2}/ {
-                    gsub(/\r/, "")
+                is_ts($0) {
+                    gsub(/\r/,""); gsub(/,/, ".", $0)
                     split($0, times, / *--> */)
-                    start = times[1]
-                    end = times[2]
+                    start=times[1]; end=times[2]; sub(/[[:space:]].*$/, "", end)
                     next
                 }
-                
                 /^$/ { next }
-                
-                {
-                    gsub(/\r/, "")
-                    gsub(/<[^>]*>/, "")
-                    gsub(/^[[:space:]]+|[[:space:]]+$/, "")
-                    if ($0 != "") {
-                        if (text != "") text = text " "
-                        text = text $0
-                    }
-                }
-                
+                { l=sanitize($0); if(l!=""){ if(text!="") text=text" "; text=text l } }
                 END {
-                    if (in_block && seq != "") {
+                    if (have) {
                         if (!first) print ","
-                        printf "  {\"seq\": %s, \"start\": \"%s\", \"end\": \"%s\", \"text\": \"%s\"}", 
-                               seq, start, end, escape_json(text)
+                        txt=sanitize(text)
+                        printf "  {\"seq\": %s, \"start\": \"%s\", \"end\": \"%s\", \"text\": \"%s\"}", seq, start, end, esc(txt)
                     }
                     print "\n]"
                 }
             ' "$srt_file" | jq '.'
             ;;
-            
         *)
             error "Unknown output format: $output_format"
             ;;
     esac
 }
+
+
 
 # ============================================================================
 # ARGUMENT PARSING
